@@ -1,0 +1,2 @@
+import { IonButton, IonInput, IonItem, IonLabel, IonList, IonTextarea } from '@ionic/react';
+export default function PublishAnimalPage() { return <main className="page-shell"><p className="eyebrow">Herramienta para rescatistas</p><h1>Publicar animal</h1><IonList><IonItem><IonLabel position="stacked">Nombre</IonLabel><IonInput required /></IonItem><IonItem><IonLabel position="stacked">Descripción</IonLabel><IonTextarea required /></IonItem></IonList><IonButton>Guardar publicación</IonButton></main>; }
