@@ -1,4 +1,4 @@
-# Huellas al Hogar
+﻿# Huellas al Hogar
 
 Plataforma web y móvil orientada a fomentar la adopción y tenencia responsable de animales, entregando información preventiva sobre el abandono, el cuidado animal y las consecuencias de la proliferación de animales callejeros.
 
@@ -477,3 +477,61 @@ El archivo completo de diseño puede consultarse en el siguiente enlace:
 ## Frontend con Ionic-React
 
 ---
+Se desarrolló la estructura base del frontend en Ionic con React, usando React Router para gestionar rutas públicas y protegidas, junto con una arquitectura modular por carpetas.
+
+### Requisitos
+
+- Node.js 20 o superior
+- npm 10 o superior
+
+### Instalación y ejecución
+
+```bash
+npm install
+npm run dev
+```
+
+Para compilar en producción:
+
+```bash
+npm run build
+npm run preview
+```
+
+### Estructura del proyecto
+
+```text
+src/
+├── components/
+├── contexts/
+├── pages/
+├── routes/
+├── theme/
+├── App.tsx
+├── main.tsx
+├── ...
+└── ...
+```
+
+### Rutas implementadas
+
+| Ruta | Acceso | Descripción |
+| --- | --- | --- |
+| `/inicio` | Público | Landing principal |
+| `/adopciones` | Público | Catálogo de animales |
+| `/adopciones/:animalId` | Público | Detalle de adopción |
+| `/educacion` | Público | Tenencia responsable |
+| `/login` | Público | Inicio de sesión |
+| `/perfil` | Protegido | Perfil del usuario |
+| `/publicar` | Rescatista / admin | Publicación de animales |
+
+### Consideraciones
+
+- La navegación se gestiona con `react-router-dom`.
+- Las rutas sensibles se protegen con `ProtectedRoute`.
+- Si el usuario no autenticado intenta entrar a una ruta protegida, se redirige a `/login`.
+- La lógica de sesión actual es una simulación local para la entrega y servirá como base para la autenticación JWT en el backend.
+
+### Resultado
+
+La aplicación ya cuenta con una base funcional de frontend Ionic + React, con estructura modular y navegación coherente para la propuesta de Huellas al Hogar.

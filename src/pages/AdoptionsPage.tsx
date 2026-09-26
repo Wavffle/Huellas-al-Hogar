@@ -1,0 +1,3 @@
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle } from '@ionic/react';
+const animals = [{ id: 'max', name: 'Max', detail: 'Perro · 2 años · Valparaiso' }, { id: 'luna', name: 'Luna', detail: 'Gata · 1 año · Viña del Mar' }];
+export default function AdoptionsPage() { return <main className="page-shell"><p className="eyebrow">Catálogo</p><h1>Animales en adopción</h1><div className="animal-grid">{animals.map((animal) => <IonCard key={animal.id}><IonCardHeader><IonCardTitle>{animal.name}</IonCardTitle></IonCardHeader><IonCardContent><p>{animal.detail}</p><IonButton fill="outline" routerLink={`/adopciones/${animal.id}`}>Ver detalle</IonButton></IonCardContent></IonCard>)}</div></main>; }

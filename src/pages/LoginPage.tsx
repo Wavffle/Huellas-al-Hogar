@@ -1,0 +1,4 @@
+import { IonButton, IonInput, IonItem, IonLabel, IonList, IonPage, IonContent } from '@ionic/react';
+import { useHistory } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+export default function LoginPage() { const history = useHistory(); const { login } = useAuth(); const submit = () => { login(); history.replace('/inicio'); }; return <IonPage><IonContent className="login-page"><main className="login-panel"><p className="eyebrow">Huellas al Hogar</p><h1>Iniciar sesión</h1><IonList><IonItem><IonLabel position="stacked">Correo electrónico</IonLabel><IonInput type="email" required /></IonItem><IonItem><IonLabel position="stacked">Contraseña</IonLabel><IonInput type="password" required /></IonItem></IonList><IonButton expand="block" onClick={submit}>Continuar</IonButton></main></IonContent></IonPage>; }

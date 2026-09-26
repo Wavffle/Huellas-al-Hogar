@@ -1,0 +1,2 @@
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle } from '@ionic/react';
+export default function EducationPage() { return <main className="page-shell"><p className="eyebrow">Información</p><h1>Tenencia responsable</h1><IonCard><IonCardHeader><IonCardTitle>Antes de adoptar</IonCardTitle></IonCardHeader><IonCardContent>Evalúa tu tiempo, espacio, presupuesto y compromiso a largo plazo.</IonCardContent></IonCard></main>; }
