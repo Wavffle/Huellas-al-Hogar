@@ -20,8 +20,12 @@ Plataforma web y móvil orientada a fomentar la adopción y tenencia responsable
    - [Proto-personas](#proto-personas)
 
 3. [Requerimientos](#requerimientos)
+   - [Requerimientos Funcionales por Rol](#requerimientos-funcionales-por-rol)
+   - [Funcionalidades Transversales](#funcionalidades-transversales)
+   - [Requerimientos No Funcionales](#requerimientos-no-funcionales)
+     
 
-4. [Arquitectura de Navegación](#arquitectura-de-navegación)
+5. [Arquitectura de Navegación](#arquitectura-de-navegación)
    - [Rutas principales y secundarias](#1-rutas-principales-y-secundarias)
    - [Relaciones jerárquicas entre vistas](#2-relaciones-jerárquicas-entre-vistas)
    - [Flujo de interacción entre pantallas](#3-flujo-de-interacción-entre-pantallas)
@@ -32,9 +36,9 @@ Plataforma web y móvil orientada a fomentar la adopción y tenencia responsable
    - [Justificación Técnica](#justificación-técnica)
    - [Tecnologías y herramientas utilizadas](#tecnologías-y-herramientas-utilizadas)
 
-5. [Diseño UX/UI](#diseño-uxui)
+6. [Diseño UX/UI](#diseño-uxui)
 
-6. [Frontend con Ionic-React](#frontend-con-ionic-react)
+7. [Frontend con Ionic-React](#frontend-con-ionic-react)
 
 ---
 
@@ -191,6 +195,81 @@ Utilizaría principalmente un computador portátil o de escritorio durante la no
 ---
 
 ## Requerimientos
+
+## Requerimientos Funcionales por Rol
+En el caso de esta aplicación utilizaremos teniendo los tres roles mencionados anteriormente (administrador, rescatista y adoptador de animales), utilizaremos estos roles para identificar los requerimientos tanto funcionales como no funcionales mediante la siguiente tabla.
+
+| ID | Requerimiento funcional | Rol |
+|---|---|---|
+| RF-01 | El sistema deberá permitir al rescatista crear publicaciones de animales mediante un formulario que permita subir fotografías y detallar datos específicos (especie, edad, tamaño, enfermedades, comportamiento, historial de posibles problemas que haya tenido el animal con otros dueños). | Rescatista |
+| RF-02 | El sistema deberá proveer una vista de "Lista de animales" y permitir a los usuarios aplicar filtros de búsqueda (especie, tamaño, raza) a través de una barra lateral. | Todos (Rescatista, adoptante y administrador) |
+| RF-03 | El sistema deberá permitir al adoptante completar y enviar un formulario formal de solicitud de adopción directamente desde la vista de detalle del animal que le haya captado el interes. | Adoptante |
+| RF-04 | El sistema deberá permitir al rescatista visualizar y revisar ordenadamente las solicitudes de adopción recibidas por parte de las personas interesadas en sus publicaciones. | Rescatista |
+| RF-05 | El sistema deberá permitir al rescatista modificar el estado de un animal publicado a "Adoptado" o "En proceso", ocultándolo de la lista principal de adopciones y reflejando el estado del animal. | Rescatista |
+| RF-06 | El sistema deberá proporcionar al administrador herramientas para gestionar el contenido estático, permitiéndole crear, editar o eliminar artículos sobre tenencia responsable y consecuencias del abandono, en caso de que se encuentre algun tipo de infraccion en contra de la aplicacion o algun problema que el administrador vea pertinente. | Administrador |
+| RF-07 | El sistema deberá permitir al administrador visualizar a los usuarios registrados, asignar el rol oficial de rescatista, banear usuarios infractores y moderar o eliminar publicaciones que incumplan las normas. | Administrador |
+| RF-08 | El sistema deberá permitir al adoptante visualizar un historial con el estado (pendiente, aprobada, rechazada) de sus propias solicitudes de adopción enviadas. | Adoptante |
+| RF-09 | El sistema deberá permitir al rescatista editar o eliminar sus propias publicaciones en caso de requerir actualizar la información de un animal. | Rescatista |
+
+---
+
+### Funcionalidades Transversales
+Las siguientes funcionalidades son necesarias para el funcionamiento general de la aplicación, pero no forman parte de los requerimientos funcionales principales del dominio, se tomarán en cuenta por un tema mas de formalidad.
+
+- FT-01: El sistema deberá permitir el registro de usuarios en la plataforma.
+- FT-02: El sistema deberá permitir a los usuarios iniciar sesión, desplegando una ventana modal cuando un usuario no registrado intente enviar una solicitud de adopción.
+- FT-03: El sistema deberá permitir cerrar una sesión activa.
+- FT-04: El sistema deberá restringir las funcionalidades disponibles (como publicar o moderar) de acuerdo con el rol del usuario autenticado.
+
+---
+
+## Requerimientos No Funcionales
+Los requerimientos no funcionales establecen condiciones de calidad que deberá cumplir la plataforma, en este nos centramos en UX y usabilidad, además de la seguridad de la pagina y los usuarios que la utilicen y finalmente el rendimiento y la compatibilidad de la aplicacion.
+
+### UX y Usabilidad
+
+#### RNF-UX-01 — Diseño adaptable (Responsive)
+La interfaz deberá adaptarse a pantallas de escritorio y dispositivos móviles. En versión móvil, la barra de navegación superior (Topbar) deberá colapsar automáticamente en un botón de Menú Hamburguesa utilizando componentes de Ionic, de forma que el sistema se pueda manejar en ambos, computador y telefono movil.
+
+#### RNF-UX-02 — Prevención y retroalimentación de errores
+En los formularios críticos (Publicar animal y Solicitud de adopción), si un usuario comete un error, el sistema no deberá enviar los datos, resaltará los campos erróneos con bordes rojos y mostrará un texto de ayuda (helper text) indicando qué debe corregirse, además de los textos que se vean faltante, o sea marcando cuando le falta rellenar una casilla clave para el envio del formulario.
+
+#### RNF-UX-03 — Conservación de contexto
+El sistema deberá desplegar una ventana modal para el inicio de sesión durante el flujo de adopción, evitando que el usuario abandone la página del animal y pierda el contexto de la acción que estaba realizando o que pierda al animal en si que está observando.
+
+#### RNF-UX-04 — Navegación clara y consistente
+El sistema deberá mantener visible un sistema de breadcrumbs (ej. Inicio > Adopciones > Max) o un botón claro de "Volver al listado" para facilitar la navegación sin depender del botón de retroceso del navegador o la accion de volver del telefono movil.
+
+---
+
+### Seguridad
+
+#### RNF-SEG-01 — Protección de contraseñas
+Las contraseñas de los usuarios (Administradores, Rescatistas y Adoptantes) deberán almacenarse en la base de datos utilizando un mecanismo seguro de hash, sin guardarse nunca en texto plano, además de ocultar en tiempo real al ingresar la contraseña.
+
+#### RNF-SEG-02 — Protección de información sensible
+Los datos personales ingresados en el formulario de solicitud de adopción (dirección, teléfono, correo) deberán transmitirse de forma cifrada entre el frontend y el backend para proteger la privacidad del adoptante.
+
+#### RNF-SEG-03 — Autorización estricta por roles
+El sistema backend deberá verificar el rol y la autoría antes de procesar una acción. Un rescatista solo podrá editar o cambiar el estado de los animales que él mismo haya publicado, y no los de otros rescatistas, a la vez un adoptante no podrá configurar la información de un animal de un rescatista.
+
+---
+
+### Rendimiento
+
+#### RNF-REN-01 — Carga optimizada del catálogo de animales
+La carga de la vista "Lista de animales" y sus respectivas fotografías deberá ejecutarse de manera fluida, solicitando las imágenes de forma que no exceda un gran tiempo de carga que genere molestia a todos los usuarios.
+
+---
+
+### Compatibilidad
+
+#### RNF-COM-01 — Soporte de navegadores
+Al ser una plataforma web responsiva, el sistema deberá funcionar correctamente y sin pérdida de estilos en las últimas versiones de navegadores móviles y de escritorio (Google Chrome, Safari, Mozilla Firefox y Edge).
+
+
+
+
 
 ---
 
