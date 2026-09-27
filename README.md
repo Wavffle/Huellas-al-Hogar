@@ -1,6 +1,6 @@
 ﻿# Huellas al Hogar
 
-Plataforma web y móvil orientada a fomentar la adopción y tenencia responsable de animales, entregando información preventiva sobre el abandono, el cuidado animal y las consecuencias de la proliferación de animales callejeros.
+Plataforma web y móvil orientada a fomentar la adopción y la tenencia responsable de animales, centralizando información sobre animales en adopción, facilitando el contacto entre rescatistas y adoptantes, y entregando contenido educativo sobre cuidado animal, abandono y proliferación de animales callejeros.
 
 ## Presentado por
 
@@ -12,264 +12,284 @@ Plataforma web y móvil orientada a fomentar la adopción y tenencia responsable
 ## Índice
 
 1. [Justificación del problema](#justificación-del-problema)
-
 2. [Usuarios objetivo](#usuarios-objetivo-quién-usará-la-aplicación)
    - [Adoptantes](#adoptantes)
    - [Rescatistas](#rescatistas)
    - [Roles del sistema](#roles-del-sistema)
    - [Proto-personas](#proto-personas)
-
 3. [Requerimientos](#requerimientos)
-   - [Requerimientos Funcionales por Rol](#requerimientos-funcionales-por-rol)
-   - [Funcionalidades Transversales](#funcionalidades-transversales)
-   - [Requerimientos No Funcionales](#requerimientos-no-funcionales)
-     
-
-5. [Arquitectura de Navegación](#arquitectura-de-navegación)
+   - [Requerimientos funcionales por rol](#requerimientos-funcionales-por-rol)
+   - [Funcionalidades transversales](#funcionalidades-transversales)
+   - [Requerimientos no funcionales](#requerimientos-no-funcionales)
+4. [Arquitectura de navegación](#arquitectura-de-navegación)
    - [Rutas principales y secundarias](#1-rutas-principales-y-secundarias)
    - [Relaciones jerárquicas entre vistas](#2-relaciones-jerárquicas-entre-vistas)
    - [Flujo de interacción entre pantallas](#3-flujo-de-interacción-entre-pantallas)
    - [Diferenciación de acceso según roles](#diferenciación-de-acceso-según-roles)
-   - [Flujos de Tareas](#flujos-de-tareas)
+   - [Flujos de tareas](#flujos-de-tareas)
    - [Puntos críticos de interacción](#puntos-críticos-de-interacción)
    - [Coherencia de experiencia entre dispositivos](#coherencia-de-experiencia-entre-dispositivos)
-   - [Justificación Técnica](#justificación-técnica)
-   - [Tecnologías y herramientas utilizadas](#tecnologías-y-herramientas-utilizadas)
-
-6. [Diseño UX/UI](#diseño-uxui)
-
-7. [Frontend con Ionic-React](#frontend-con-ionic-react)
+   - [Justificación técnica](#justificación-técnica)
+5. [Bocetos UI/UX](#bocetos-uiux)
+6. [Frontend con Ionic-React](#frontend-con-ionic-react)
 
 ---
 
 ## Justificación del problema
 
-El problema central de este proyecto sobre la tenencia irresponsable y la consecuente proliferación de animales callejeros radica en una generación de distintos problemas a los cuales se enfrenta la comunidad de santo domingo, siendo estos riesgos a la salud pública (como enfermedades zoonóticas o transmitidas por estos animales, como la acumulación de heces), un impacto negativo en la fauna silvestre por las jaurías de animales que se desarrollan, y un aumento de la percepción de inseguridad de los peatones y el aumento de accidentes de transito debido a la alta población de animales en situación calle.
+El problema central de este proyecto corresponde a la tenencia irresponsable y la consecuente proliferación de animales callejeros, situación que genera distintos problemas para la comunidad de Santo Domingo. Entre ellos se encuentran riesgos para la salud pública, como enfermedades zoonóticas y acumulación de heces; impacto negativo sobre la fauna silvestre debido a la formación de jaurías; aumento de la percepción de inseguridad de los peatones; y riesgo de accidentes de tránsito asociados a la presencia de animales en situación de calle.
 
-Esta problemática se agrava por una gran dificultad actual: al momento de intentar rescatar, reubicar o dar en adopción a estos animales, los ciudadanos y rescatistas utilizan canales de comunicación informales como Facebook, Instagram o WhatsApp. Estos métodos no presentan un formato estándar, provocando pérdida de información, publicaciones duplicadas y nula trazabilidad sobre si un animal ya fue adoptado o sigue disponible. Al no existir un sistema centralizado, los rescatistas pierden tiempo gestionando mensajes desordenados y los animales no consiguen la visibilidad necesaria para encontrar un hogar definitivo de forma ágil.
+Esta problemática se agrava por una dificultad actual: al intentar rescatar, reubicar o dar en adopción a estos animales, los ciudadanos y rescatistas suelen utilizar canales de comunicación informales como Facebook, Instagram o WhatsApp. Estos medios no presentan un formato estandarizado, lo que puede provocar pérdida de información, publicaciones duplicadas y poca trazabilidad sobre si un animal ya fue adoptado, se encuentra en proceso o continúa disponible.
 
-Actualmente, esta falta de un canal eficiente para gestionar animales en estado de abandono, coordinar adopciones y educar a la población dificulta enormemente el control de la población animal por parte de las organizaciones correspondientes. Por lo tanto, una solución tecnológica a través de una página web utilizada como plataforma centralizada de adopción y educación (Huellas al hogar) permitirá conectar directamente a los rescatistas con los adoptantes, optimizando el proceso de adopción, reduciendo el abandono y promoviendo la tenencia responsable en la comunidad.
+Al no existir un sistema centralizado, los rescatistas pueden perder tiempo gestionando mensajes dispersos y los animales pueden no obtener la visibilidad necesaria para encontrar un hogar definitivo de forma ágil. Además, las personas interesadas en adoptar deben revisar información distribuida en diferentes plataformas y contactar individualmente a los rescatistas.
+
+En este contexto, **Huellas al Hogar** se propone como una plataforma web y móvil orientada a centralizar la publicación y búsqueda de animales en adopción, facilitar el proceso de solicitud, conectar a rescatistas con posibles adoptantes y entregar contenido educativo sobre tenencia responsable, abandono y cuidado animal.
 
 ---
 
 ## Usuarios objetivo (Quién usará la aplicación)
 
-La aplicación considera como los mas importantes a dos grupos de usuarios que interactúan directamente con los animales: adoptantes y rescatistas. Adicionalmente, se consideran visitantes sin registro y un rol de administrador para la gestión general de la plataforma.
+La aplicación considera principalmente dos grupos de usuarios que interactúan directamente con el proceso de adopción: **adoptantes** y **rescatistas**. Adicionalmente, se consideran visitantes sin registro y un rol de administrador para la gestión general de la plataforma.
 
 ### Adoptantes
 
-Los adoptantes corresponden a ciudadanos que buscan un animal de compañía. Se considera que constituyen un grupo con diversas motivaciones, pero con la necesidad común de encontrar información clara y veraz sobre los animales disponibles, osea con objetivo de adoptar una mascota.
+Los adoptantes corresponden a ciudadanos que buscan un animal de compañía. Se considera que constituyen un grupo con diversas motivaciones, pero con la necesidad común de encontrar información clara, actualizada y suficiente sobre los animales disponibles antes de tomar la decisión de adoptar.
 
 Dentro de este grupo pueden existir personas que:
 
-- buscan animales con características específicas (tamaño, edad, compatibilidad con niños).
-- necesitan conocer los requerimientos de cuidado antes de tomar una decisión (si el animal presenta alguna enfermedad o tratado especifico).
-- requieren un proceso de postulación claro y fácil de seguir.
-- se frustran al contactar rescatistas en redes sociales o sitios poco centralizados al no obtener respuesta.
+- buscan animales con características específicas, como especie, tamaño, edad, sexo o ubicación;
+- necesitan conocer los requerimientos de cuidado antes de tomar una decisión;
+- requieren información sobre salud, comportamiento, convivencia y posibles cuidados especiales;
+- necesitan un proceso de postulación claro y fácil de seguir;
+- se frustran al contactar rescatistas en redes sociales o canales poco centralizados y no obtener respuesta o información actualizada.
 
 #### Necesidades principales
 
 Entre las necesidades identificadas para este grupo se encuentran:
 
-- acceder a un catálogo visual de animales disponibles, libre de publicaciones antiguas o ya adoptadas.
-- filtrar opciones de adopción según sus preferencias (especie, tamaño).
-- disponer de formularios estandarizados para postular a una adopción sin salir de la plataforma.
-- acceder a contenido educativo sobre tenencia responsable.
+- acceder a un catálogo visual de animales disponibles, evitando publicaciones antiguas o desactualizadas;
+- filtrar opciones de adopción según sus preferencias;
+- revisar una ficha detallada del animal antes de postular;
+- disponer de un formulario estandarizado para solicitar una adopción sin salir de la plataforma;
+- acceder a contenido educativo sobre tenencia responsable y consecuencias del abandono.
 
 ### Rescatistas
 
 Los rescatistas son voluntarios independientes u organizaciones dedicadas a recoger, rehabilitar y reubicar animales.
 
-A diferencia del adoptante, el rescatista tendrá acceso a funcionalidades relacionadas con la creación de fichas de animales y la evaluación de solicitudes, requiriendo herramientas ágiles para optimizar su tiempo limitado, o sea es quien hará los reportes.
+A diferencia del adoptante, el rescatista tendrá acceso a funcionalidades relacionadas con la publicación de animales, la gestión de sus fichas y la revisión de solicitudes de adopción. Estas herramientas buscan centralizar información y reducir el tiempo dedicado a coordinar procesos mediante canales informales.
 
 #### Necesidades principales
 
 Entre las necesidades identificadas para este grupo se encuentran:
 
-- crear publicaciones de manera sencilla subiendo fotografías y datos.
-- recibir todas las solicitudes de adopción en un panel centralizado.
-- actualizar rápidamente el estado de un animal para evitar solicitudes innecesarias.
-- asegurar que los adoptantes lean las condiciones antes de postular.
+- crear publicaciones de manera sencilla, incorporando fotografías y datos relevantes del animal;
+- recibir las solicitudes de adopción en un espacio centralizado;
+- revisar ordenadamente la información de las personas interesadas;
+- actualizar rápidamente el estado de un animal;
+- editar o eliminar sus propias publicaciones cuando sea necesario.
 
-### Roles del Sistema
+---
 
-- **Administrador:** Usuario encargado de la gestión general de la plataforma, verificación de rescatistas y creación de contenido estático (artículos).
-- **Rescatista:** Usuario autorizado para publicar animales en adopción, gestionar sus fichas y revisar solicitudes de los adoptantes.
-- **Adoptante:** Usuario registrado habilitado para enviar solicitudes formales de adopción.
-- **Usuario no registrado:** Visitante que solo puede visualizar el catálogo de animales y leer artículos informativos.
+## Roles del Sistema
 
-#### Definición de conceptos
+- **Administrador:** Usuario encargado de la gestión general de la plataforma, verificación de rescatistas, moderación y gestión de contenido estático.
+- **Rescatista:** Usuario autorizado para publicar animales en adopción, gestionar sus fichas, revisar solicitudes y modificar el estado de sus publicaciones.
+- **Adoptante:** Usuario registrado habilitado para enviar solicitudes formales de adopción y consultar el estado de sus propias solicitudes.
+- **Usuario no registrado:** Visitante que puede explorar animales, revisar sus fichas y consultar contenido educativo. También puede acceder al proceso de solicitud, pero deberá iniciar sesión antes de enviar formalmente una adopción.
+
+### Definición de conceptos
 
 **Rol:** Define qué puede hacer un usuario dentro del sistema.
 
 **Proto-persona:** Describe quién podría ser ese usuario, sus características, necesidades, objetivos, dificultades y contexto de uso.
 
-### Proto-personas
+---
 
-En este apartado se presentan dos perfiles de proto personas hipoteticos a la utilizacion de la aplicacion "Huellas al hogar", con el objetivo de intentar predecir dificultades o frustraciones y necesidades que podrían presentar.
+## Proto-personas
 
-#### Proto-persona 1: Ciudadana buscando un perro como mascota personal
+Las siguientes proto-personas corresponden a **perfiles hipotéticos** construidos a partir del análisis del problema y de las características esperadas de los usuarios de **Huellas al Hogar**. No representan resultados obtenidos directamente de usuarios reales, sino una caracterización preliminar utilizada para orientar las decisiones de diseño y desarrollo.
 
-**Nombre ficticio:** Antonia
+### Proto-persona 1: Ciudadana buscando un perro como mascota personal
 
-**Rol del usuario:** Adoptante
+**Nombre ficticio:** Antonia  
+**Tipo de usuario o rol:** Adoptante
 
-##### Características generales
+#### Características generales
 
-Antonia tiene 28 años, es residente de la comuna y activa en redes sociales. Siempre se ha preocupado por el bienestar animal, llegando a tener 3 mascotas anteriormente. Utiliza habitualmente plataformas digitales desde su teléfono móvil y está acostumbrada a interactuar mediante formularios y botones rápidos, o sea, se maneja bastante bien en el area de la tecnología.
+Antonia tiene 28 años, es residente de la comuna y utiliza activamente redes sociales y plataformas digitales. Siempre se ha preocupado por el bienestar animal y ha tenido mascotas anteriormente.
 
-##### Necesidades principales
+Utiliza habitualmente plataformas digitales desde su teléfono móvil y está acostumbrada a interactuar mediante formularios, buscadores y botones de acción. Posee un nivel de experiencia tecnológica suficiente para utilizar aplicaciones y sitios web de uso cotidiano.
 
-- Encontrar un perro de tamaño pequeño que se adapte a su estilo de vida, ya que presenta un hogar con un patio de espacio reducido.
-- Informarse bien sobre los cuidados requeridos antes de tomar la decisión de adoptar y el estado del animal que adoptará (si presenta enfermedades o padecimientos que se deban tener en cuenta al momento del cuidado).
-- Conocer exactamente qué espera el rescatista del proceso de adopción, o sea, los requisitos para poder adaptar a este perro.
+#### Necesidades principales
 
-##### Objetivos de uso
+- Encontrar un perro de tamaño pequeño que se adapte a su estilo de vida y al espacio disponible en su hogar.
+- Informarse sobre los cuidados requeridos antes de tomar la decisión de adoptar.
+- Conocer el estado de salud del animal y si presenta enfermedades o necesidades de cuidado especial.
+- Conocer claramente los requisitos y etapas del proceso de adopción.
 
-Utilizar la plataforma para buscar un animal de compañía, leer artículos sobre cuidados básicos tanto especificos para su perro, como para otras razas, y enviar una solicitud formal de adopción que sea revisada de manera seria por los rescatistas.
+#### Objetivos de uso
 
-##### Dificultades o puntos de frustración
+Utilizar la plataforma para buscar un animal de compañía, revisar información detallada sobre los animales disponibles, consultar contenido de tenencia responsable y enviar una solicitud formal de adopción que pueda ser revisada por el rescatista correspondiente.
+
+#### Dificultades o puntos de frustración
 
 Puede presentar dificultades o frustración cuando:
 
-- ve publicaciones de adopción en Facebook sin saber si el animal ya fue adoptado;
-- pierde el contexto o la página del animal cuando la aplicación la obliga a registrarse;
-- los formularios de postulación son ambiguos o no le indican si cometió un error al llenarlos.
-- Desconoce el estado del animal, si presenta alguna enfermedad, o si tiene algun tratado especial debido a sucesos pasados que haya sufrido.
+- encuentra publicaciones de adopción en redes sociales sin saber si el animal continúa disponible;
+- pierde el contexto o la página del animal al momento de registrarse o iniciar sesión;
+- los formularios de postulación son ambiguos o no indican claramente los errores;
+- desconoce el estado de salud, comportamiento o cuidados especiales que requiere el animal.
 
-##### Funcionalidades de la aplicación que utilizaría
+#### Funcionalidades de la aplicación que utilizaría
 
 - Lista de animales.
-- Filtros de búsqueda (especie, tamaño).
+- Filtros de búsqueda por especie, edad, tamaño, sexo y ubicación.
+- Búsqueda por nombre.
 - Vista de detalle del animal.
 - Formulario de solicitud de adopción.
-- Lectura de artículos de tenencia responsable.
+- Consulta del estado de sus solicitudes.
+- Lectura de contenido sobre tenencia responsable y consecuencias del abandono.
 
-##### Dispositivo y contexto probable de acceso
+#### Dispositivo y contexto probable de acceso
 
-Utilizaría principalmente un teléfono móvil (navegador web).
+Utilizaría principalmente un **teléfono móvil**, aunque también podría acceder desde un computador.
 
-Podría acceder durante períodos de descanso, en el transporte público o desde su casa.
+Podría utilizar la plataforma durante períodos de descanso, en el transporte público o desde su hogar.
 
 ---
 
-#### Proto-persona 2: Voluntario independiente y gestor de rescates
+### Proto-persona 2: Voluntario independiente y gestor de rescates
 
-**Nombre ficticio:** Matias
+**Nombre ficticio:** Matias  
+**Tipo de usuario o rol:** Rescatista
 
-**Tipo de usuario o rol:** Rescatista de animales
+#### Características generales
 
-##### Características generales
+Matias tiene 30 años y actúa como voluntario independiente acogiendo perros en situación de calle. Lleva varios años participando en actividades de rescate y coordina estas tareas junto con su trabajo formal.
 
-Matias tiene 30 años y actúa como voluntario independiente acogiendo perros en situación de calle, lleva participando de este acto voluntario varios años. Trabaja habitualmente desde un notebook. Posee un nivel tecnológico no tan avanzado, por lo que valoraría el uso de una herramienta que le facilite el difundir sus rescates, ya que estos los cordina junto con su trabajo formal, el cual no pertenece al área de rescate de animales, facilitar esta acción le daría mas esperanza a los animales, y mejor gestión a Matias.
+Trabaja habitualmente desde un notebook y posee un nivel tecnológico intermedio. Valora herramientas simples que le permitan organizar la información de sus rescates sin dedicar demasiado tiempo a tareas administrativas.
 
-##### Necesidades principales
+#### Necesidades principales
 
-- Crear perfiles o fichas de animales, donde pueda mencionar las caracteristicas del animal, su comportamiento, si padece enfermedades, etc.
-- Revisar ordenadamente las solicitudes de las personas interesadas, pudiendo revisar que la gente interesada cumpla con los requisitos de adopción que vea pertinente Matias.
-- Actualizar rápidamente si un animal ya entró en proceso de adopción.
+- Crear perfiles o fichas de animales donde pueda registrar sus características, comportamiento, salud, cuidados especiales y antecedentes relevantes.
+- Revisar ordenadamente las solicitudes de las personas interesadas en adoptar.
+- Actualizar rápidamente si un animal se encuentra disponible, en proceso de adopción o adoptado.
+- Modificar la información de una publicación cuando sea necesario.
 
-##### Objetivos de uso
+#### Objetivos de uso
 
-Gestionar un conjunto de publicaciones de animales rescatados y revisar centralizadamente la información de los adoptantes interesados para tomar mejores decisiones de reubicación.
+Gestionar un conjunto de publicaciones de animales rescatados y revisar centralizadamente la información de los adoptantes interesados para tomar mejores decisiones durante el proceso de reubicación.
 
-##### Dificultades o puntos de frustración
+#### Dificultades o puntos de frustración
 
 Puede experimentar frustración cuando:
 
-- pierde mucho tiempo respondiendo mensajes informales por WhatsApp de personas que no cumplen los requisitos.
-- debe ingresar repetidamente la misma información para cada animal.
-- la plataforma no le permite ocultar fácilmente a un animal que ya fue adoptado.
+- pierde tiempo respondiendo mensajes informales por WhatsApp de personas que finalmente no cumplen los requisitos;
+- debe ingresar repetidamente la misma información;
+- no puede encontrar rápidamente una publicación;
+- la plataforma no le permite actualizar de forma sencilla el estado de un animal.
 
-##### Funcionalidades de la aplicación que utilizaría
+#### Funcionalidades de la aplicación que utilizaría
 
 - Formulario de publicación de animal.
-- Gestión y vista de sus propias publicaciones.
-- Revisión de listado de solicitudes de adopción.
-- Cambio de estado de un animal (Adoptado / En proceso).
+- Gestión y visualización de sus propias publicaciones.
+- Edición y eliminación de publicaciones.
+- Revisión de solicitudes de adopción.
+- Cambio de estado de un animal a **En proceso** o **Adoptado**.
 
-##### Dispositivo y contexto probable de acceso
+#### Dispositivo y contexto probable de acceso
 
-Utilizaría principalmente un computador portátil o de escritorio durante la noche o fines de semana para organizar la información recabada en los rescates, la accesibilidad en cualquier medio le podría facilitar la actualización del estado del animal (adoptado o por adoptar).
+Utilizaría principalmente un **computador portátil o de escritorio** durante la noche o fines de semana para organizar la información de los rescates.
+
+También podría utilizar un dispositivo móvil para realizar consultas o actualizar rápidamente el estado de un animal.
 
 ---
 
 ## Requerimientos
 
 ## Requerimientos Funcionales por Rol
-En el caso de esta aplicación utilizaremos teniendo los tres roles mencionados anteriormente (administrador, rescatista y adoptador de animales), utilizaremos estos roles para identificar los requerimientos tanto funcionales como no funcionales mediante la siguiente tabla.
 
-| ID | Requerimiento funcional | Rol |
-|---|---|---|
-| RF-01 | El sistema deberá permitir al rescatista crear publicaciones de animales mediante un formulario que permita subir fotografías y detallar datos específicos (especie, edad, tamaño, enfermedades, comportamiento, historial de posibles problemas que haya tenido el animal con otros dueños). | Rescatista |
-| RF-02 | El sistema deberá proveer una vista de "Lista de animales" y permitir a los usuarios aplicar filtros de búsqueda (especie, tamaño, raza) a través de una barra lateral. | Todos (Rescatista, adoptante y administrador) |
-| RF-03 | El sistema deberá permitir al adoptante completar y enviar un formulario formal de solicitud de adopción directamente desde la vista de detalle del animal que le haya captado el interes. | Adoptante |
-| RF-04 | El sistema deberá permitir al rescatista visualizar y revisar ordenadamente las solicitudes de adopción recibidas por parte de las personas interesadas en sus publicaciones. | Rescatista |
-| RF-05 | El sistema deberá permitir al rescatista modificar el estado de un animal publicado a "Adoptado" o "En proceso", ocultándolo de la lista principal de adopciones y reflejando el estado del animal. | Rescatista |
-| RF-06 | El sistema deberá proporcionar al administrador herramientas para gestionar el contenido estático, permitiéndole crear, editar o eliminar artículos sobre tenencia responsable y consecuencias del abandono, en caso de que se encuentre algun tipo de infraccion en contra de la aplicacion o algun problema que el administrador vea pertinente. | Administrador |
-| RF-07 | El sistema deberá permitir al administrador visualizar a los usuarios registrados, asignar el rol oficial de rescatista, banear usuarios infractores y moderar o eliminar publicaciones que incumplan las normas. | Administrador |
-| RF-08 | El sistema deberá permitir al adoptante visualizar un historial con el estado (pendiente, aprobada, rechazada) de sus propias solicitudes de adopción enviadas. | Adoptante |
-| RF-09 | El sistema deberá permitir al rescatista editar o eliminar sus propias publicaciones en caso de requerir actualizar la información de un animal. | Rescatista |
+Los requerimientos funcionales describen las acciones principales que deberá permitir el sistema. Para **Huellas al Hogar** se consideran los roles de administrador, rescatista y adoptante.
+
+| ID        | Requerimiento funcional                                                                                                                                                                                                                                        | Rol           |
+|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| **RF-01** | El sistema deberá permitir al rescatista crear publicaciones de animales mediante un formulario que permita subir fotografías y registrar datos específicos, como especie, edad, tamaño, salud, cuidados especiales, comportamiento y antecedentes relevantes. | Rescatista    |
+| **RF-02** | El sistema deberá proveer una vista de **Lista de animales** y permitir aplicar filtros de búsqueda por especie, edad, tamaño, sexo y ubicación, además de búsqueda por nombre.                                                                                | Todos         |
+| **RF-03** | El sistema deberá permitir al adoptante completar y enviar un formulario formal de solicitud de adopción asociado al animal seleccionado.                                                                                                                      | Adoptante     |
+| **RF-04** | El sistema deberá permitir al rescatista visualizar y revisar ordenadamente las solicitudes de adopción recibidas para sus publicaciones.                                                                                                                      | Rescatista    |
+| **RF-05** | El sistema deberá permitir al rescatista modificar el estado de un animal publicado a **En proceso** o **Adoptado**, reflejando dicho estado en la plataforma y evitando solicitudes innecesarias.                                                             | Rescatista    |
+| **RF-06** | El sistema deberá proporcionar al administrador herramientas para crear, editar o eliminar contenido estático relacionado con tenencia responsable y consecuencias del abandono.                                                                               | Administrador |
+| **RF-07** | El sistema deberá permitir al administrador visualizar a los usuarios registrados, asignar el rol oficial de rescatista, moderar usuarios y eliminar publicaciones que incumplan las normas.                                                                   | Administrador |
+| **RF-08** | El sistema deberá permitir al adoptante visualizar un historial con el estado de sus propias solicitudes de adopción: pendiente, aprobada o rechazada.                                                                                                         | Adoptante     |
+| **RF-09** | El sistema deberá permitir al rescatista editar o eliminar sus propias publicaciones cuando necesite actualizar la información de un animal.                                                                                                                   | Rescatista    |
 
 ---
 
 ### Funcionalidades Transversales
-Las siguientes funcionalidades son necesarias para el funcionamiento general de la aplicación, pero no forman parte de los requerimientos funcionales principales del dominio, se tomarán en cuenta por un tema mas de formalidad.
 
-- FT-01: El sistema deberá permitir el registro de usuarios en la plataforma.
-- FT-02: El sistema deberá permitir a los usuarios iniciar sesión, desplegando una ventana modal cuando un usuario no registrado intente enviar una solicitud de adopción.
-- FT-03: El sistema deberá permitir cerrar una sesión activa.
-- FT-04: El sistema deberá restringir las funcionalidades disponibles (como publicar o moderar) de acuerdo con el rol del usuario autenticado.
+Las siguientes funcionalidades son necesarias para el funcionamiento general de la aplicación, pero no forman parte de los requerimientos funcionales principales del dominio.
+
+- **FT-01:** El sistema deberá permitir el registro de usuarios en la plataforma.
+- **FT-02:** El sistema deberá permitir a los usuarios iniciar sesión. Un usuario no registrado podrá explorar los animales y acceder al proceso de solicitud, pero deberá autenticarse antes de enviar formalmente una solicitud de adopción.
+- **FT-03:** El sistema deberá permitir cerrar una sesión activa.
+- **FT-04:** El sistema deberá restringir las funcionalidades disponibles de acuerdo con el rol del usuario autenticado.
 
 ---
 
 ## Requerimientos No Funcionales
-Los requerimientos no funcionales establecen condiciones de calidad que deberá cumplir la plataforma, en este nos centramos en UX y usabilidad, además de la seguridad de la pagina y los usuarios que la utilicen y finalmente el rendimiento y la compatibilidad de la aplicacion.
+
+Los requerimientos no funcionales establecen condiciones de calidad que deberá cumplir la plataforma, considerando principalmente aspectos de usabilidad, seguridad, rendimiento y compatibilidad.
 
 ### UX y Usabilidad
 
 #### RNF-UX-01 — Diseño adaptable (Responsive)
-La interfaz deberá adaptarse a pantallas de escritorio y dispositivos móviles. En versión móvil, la barra de navegación superior (Topbar) deberá colapsar automáticamente en un botón de Menú Hamburguesa utilizando componentes de Ionic, de forma que el sistema se pueda manejar en ambos, computador y telefono movil.
+
+La interfaz deberá adaptarse a pantallas de escritorio y dispositivos móviles. En versión móvil, la barra de navegación superior deberá reorganizarse utilizando componentes adaptables de Ionic, de forma que las funcionalidades principales continúen siendo accesibles.
 
 #### RNF-UX-02 — Prevención y retroalimentación de errores
-En los formularios críticos (Publicar animal y Solicitud de adopción), si un usuario comete un error, el sistema no deberá enviar los datos, resaltará los campos erróneos con bordes rojos y mostrará un texto de ayuda (helper text) indicando qué debe corregirse, además de los textos que se vean faltante, o sea marcando cuando le falta rellenar una casilla clave para el envio del formulario.
+
+En los formularios críticos, como **Publicar animal** y **Solicitud de adopción**, el sistema no deberá enviar información inválida. Los campos con errores deberán destacarse visualmente y mostrar un texto de ayuda (*helper text*) indicando qué debe corregirse o completarse.
 
 #### RNF-UX-03 — Conservación de contexto
-El sistema deberá desplegar una ventana modal para el inicio de sesión durante el flujo de adopción, evitando que el usuario abandone la página del animal y pierda el contexto de la acción que estaba realizando o que pierda al animal en si que está observando.
+
+Durante el flujo de adopción, un usuario no registrado podrá avanzar hasta la solicitud. Si intenta enviarla sin estar autenticado, el sistema deberá solicitar el inicio de sesión y permitirle retomar el proceso sin obligarlo a buscar nuevamente al animal.
 
 #### RNF-UX-04 — Navegación clara y consistente
-El sistema deberá mantener visible un sistema de breadcrumbs (ej. Inicio > Adopciones > Max) o un botón claro de "Volver al listado" para facilitar la navegación sin depender del botón de retroceso del navegador o la accion de volver del telefono movil.
+
+El sistema deberá utilizar navegación contextual en las vistas secundarias. Por ejemplo, en el detalle del animal se utilizará **“Volver a adopciones”** y, en la solicitud, **“Volver al perfil”**, evitando depender exclusivamente del botón de retroceso del navegador.
 
 ---
 
 ### Seguridad
 
 #### RNF-SEG-01 — Protección de contraseñas
-Las contraseñas de los usuarios (Administradores, Rescatistas y Adoptantes) deberán almacenarse en la base de datos utilizando un mecanismo seguro de hash, sin guardarse nunca en texto plano, además de ocultar en tiempo real al ingresar la contraseña.
+
+Las contraseñas de administradores, rescatistas y adoptantes deberán almacenarse utilizando un mecanismo seguro de hash y nunca deberán guardarse en texto plano. Durante el ingreso de la contraseña, el contenido deberá mostrarse oculto por defecto.
 
 #### RNF-SEG-02 — Protección de información sensible
-Los datos personales ingresados en el formulario de solicitud de adopción (dirección, teléfono, correo) deberán transmitirse de forma cifrada entre el frontend y el backend para proteger la privacidad del adoptante.
+
+Los datos personales ingresados en el formulario de solicitud de adopción, como teléfono y correo electrónico, deberán transmitirse de forma segura entre el frontend y el backend.
 
 #### RNF-SEG-03 — Autorización estricta por roles
-El sistema backend deberá verificar el rol y la autoría antes de procesar una acción. Un rescatista solo podrá editar o cambiar el estado de los animales que él mismo haya publicado, y no los de otros rescatistas, a la vez un adoptante no podrá configurar la información de un animal de un rescatista.
+
+El backend deberá verificar el rol y la autoría antes de procesar una acción. Un rescatista solo podrá editar, eliminar o cambiar el estado de los animales que él mismo haya publicado. Del mismo modo, un adoptante no podrá modificar información correspondiente a publicaciones de rescatistas.
 
 ---
 
 ### Rendimiento
 
 #### RNF-REN-01 — Carga optimizada del catálogo de animales
-La carga de la vista "Lista de animales" y sus respectivas fotografías deberá ejecutarse de manera fluida, solicitando las imágenes de forma que no exceda un gran tiempo de carga que genere molestia a todos los usuarios.
+
+La carga de la vista **Lista de animales** y sus respectivas fotografías deberá ejecutarse de manera fluida, evitando tiempos de espera que interrumpan la navegación normal de los usuarios.
 
 ---
 
 ### Compatibilidad
 
 #### RNF-COM-01 — Soporte de navegadores
-Al ser una plataforma web responsiva, el sistema deberá funcionar correctamente y sin pérdida de estilos en las últimas versiones de navegadores móviles y de escritorio (Google Chrome, Safari, Mozilla Firefox y Edge).
 
-
-
-
+La plataforma deberá funcionar correctamente y sin pérdida de estilos en las últimas versiones de navegadores móviles y de escritorio, incluyendo Google Chrome, Safari, Mozilla Firefox y Microsoft Edge.
 
 ---
 
@@ -277,63 +297,83 @@ Al ser una plataforma web responsiva, el sistema deberá funcionar correctamente
 
 ### 1. Rutas principales y secundarias
 
-El sistema utiliza una estructura de árbol, partiendo desde un punto de inicio hacia las diferentes ramas del contenido que ofrece la página web.
+El sistema utiliza una estructura jerárquica que parte desde la pantalla de inicio y se distribuye hacia las distintas funcionalidades de la plataforma.
 
-Se consideran las siguientes rutas principales:
+Las principales secciones de navegación son:
 
 - **Adopciones**
-- **Tenencia responsable**
-- **Consecuencias del abandono**
+- **Aprende**
+   - Tenencia responsable
+   - Consecuencias del abandono
 - **Publicar animal**
 - **Perfil**
+- **Inicio de sesión / Registro**
 
-Dentro de estas rutas se encuentran vistas secundarias asociadas a las distintas funcionalidades de la plataforma.
+Dentro de estas secciones se encuentran vistas secundarias asociadas a las funcionalidades de la plataforma.
 
 ### 2. Relaciones jerárquicas entre vistas
 
-La organización de las vistas sigue la siguiente estructura jerárquica:
+La organización general de las vistas sigue la siguiente estructura:
 
 ```text
-Inicio (Pantalla Principal)
+Aplicación
 │
-├── Adopciones (Ruta principal)
-│   └── Lista de animales
-│       └── Detalle del animal (Ruta secundaria / Hija)
-│           └── Solicitud de adopción
+├── Rutas públicas
+│   ├── Inicio
+│   ├── Adopciones
+│   │   └── Lista de animales
+│   │       └── Detalle del animal
+│   │           └── Solicitud de adopción
+│   ├── Aprende
+│   │   ├── Tenencia responsable
+│   │   │   └── Artículo / contenido
+│   │   └── Consecuencias del abandono
+│   ├── Inicio de sesión
+│   └── Registro
 │
-├── Tenencia responsable (Ruta principal)
-│   └── Artículo / contenido
-│
-├── Consecuencias del abandono (Ruta principal)
-│
-├── Publicar animal (Ruta principal)
-│   └── Formulario de publicación
-│
-└── Perfil (Ruta principal)
-    └── Mis solicitudes / publicaciones
+└── Rutas protegidas
+    ├── Adoptante
+    │   └── Perfil
+    │       └── Mis solicitudes
+    │
+    ├── Rescatista
+    │   ├── Publicar animal
+    │   ├── Mis publicaciones
+    │   └── Solicitudes recibidas
+    │
+    └── Administrador
+        ├── Gestión de usuarios
+        ├── Moderación de publicaciones
+        └── Gestión de contenido educativo
 ```
+
 ### 3. Flujo de interacción entre pantallas
 
 #### Navegación global
 
-Se utilizará una **Barra de Navegación Superior (Topbar)** estática para acceder rápidamente a las ramas principales:
+En la versión de escritorio se utilizará una **Barra de Navegación Superior (Topbar)** con la siguiente estructura principal:
 
-- Adopciones
-- Tenencia
-- Publicar
-- Perfil
+```text
+Logo | Adopciones | Aprende ▼ | Publicar Animal | Iniciar sesión / Perfil
+```
 
-Esta barra agiliza la navegación dentro de la página web.
+La opción **Aprende** agrupa:
+
+- Tenencia responsable.
+- Consecuencias del abandono.
+
+La barra superior permite acceder a las funcionalidades principales sin sobrecargar la navegación con enlaces secundarios.
 
 #### Navegación secundaria
 
-Al ingresar al detalle de un animal o a un artículo, la vista cambiará utilizando el enrutador `react-router`.
+En las vistas secundarias se utilizarán controles contextuales de regreso en lugar de breadcrumbs.
 
-Se mantendrá visible un sistema de *breadcrumbs*, por ejemplo:
+Ejemplos:
 
-`Inicio > Adopciones > Max`
+- **Volver a adopciones** desde el detalle de un animal.
+- **Volver al perfil** desde la solicitud de adopción.
 
-También podrá utilizarse un botón claro de **"Volver al listado"** ubicado en la esquina superior izquierda, evitando que el usuario dependa del botón de retroceso del navegador.
+La navegación entre vistas será gestionada mediante `react-router-dom`.
 
 ---
 
@@ -345,12 +385,14 @@ La plataforma considera diferentes niveles de acceso de acuerdo con el tipo de u
 
 Tiene acceso a:
 
+- Inicio.
 - Lista de animales.
-- Detalles de los animales.
+- Detalle de los animales.
 - Tenencia responsable.
 - Consecuencias del abandono.
+- Inicio del proceso de solicitud de adopción.
 
-Si desea adoptar un animal, deberá iniciar sesión.
+Puede completar el flujo hasta la solicitud, pero deberá iniciar sesión antes de enviarla formalmente.
 
 ---
 
@@ -358,7 +400,10 @@ Si desea adoptar un animal, deberá iniciar sesión.
 
 Tiene acceso a las mismas secciones disponibles para un usuario no registrado.
 
-La diferencia es que, al encontrarse registrado en el sitio web, está habilitado para realizar el proceso de adopción.
+Además, al encontrarse autenticado podrá:
+
+- enviar solicitudes de adopción;
+- consultar el estado de sus solicitudes.
 
 ---
 
@@ -370,25 +415,26 @@ Solo tiene control sobre el contenido que él mismo crea.
 
 Puede:
 
-- publicar animales mediante un formulario para subir fotografías y datos del perro o gato rescatado;
+- publicar animales mediante un formulario;
 - gestionar sus publicaciones;
-- cambiar el estado de un animal a **"Adoptado"** o **"En proceso"**, evitando que continúe apareciendo en la lista principal;
-- revisar las solicitudes de personas interesadas en adoptar los animales publicados.
+- editar o eliminar sus propias publicaciones;
+- cambiar el estado de un animal a **Adoptado** o **En proceso**;
+- revisar las solicitudes recibidas para los animales que haya publicado.
 
 ---
 
 ### Administrador
 
-Tiene control sobre los usuarios registrados en la plataforma.
+Tiene acceso a funciones generales de gestión y moderación.
 
 Puede:
 
 - visualizar usuarios registrados;
 - asignar roles;
-- otorgar el "check" oficial a una cuenta de Rescatista;
-- banear usuarios que hagan mal uso del sitio;
-- editar o eliminar publicaciones de rescatistas que incumplan las normas;
-- gestionar contenido estático como **Tenencia responsable** y **Consecuencias del abandono**, creando, editando o eliminando artículos.
+- otorgar el rol oficial de rescatista;
+- moderar usuarios que hagan mal uso del sitio;
+- editar o eliminar publicaciones que incumplan las normas;
+- gestionar contenido estático como **Tenencia responsable** y **Consecuencias del abandono**.
 
 ---
 
@@ -396,79 +442,137 @@ Puede:
 
 ### Task Flow 1: Proceso de adopción
 
-1. El usuario navega en `Lista de animales`, aplicando opcionalmente filtros desde la barra lateral.
-2. Hace clic en una tarjeta e ingresa al `Detalle del animal`.
-3. Lee la información y presiona el botón `Adoptar`.
-4. Si está registrado, pasa a `Solicitud de adopción`. En caso contrario, se despliega una ventana modal de Login.
-5. Completa el formulario y lo envía.
-6. El sistema muestra un mensaje de éxito y retorna al usuario a la lista de animales.
+**Rol:** Usuario no registrado / Adoptante
+
+**Objetivo:** explorar animales disponibles y enviar una solicitud formal de adopción.
+
+```text
+Inicio
+  ↓
+Adopciones
+  ↓
+Lista de animales
+  ↓
+Aplicar filtros o búsqueda (opcional)
+  ↓
+Seleccionar animal
+  ↓
+Detalle del animal
+  ↓
+Solicitar adopción
+  ↓
+Formulario de solicitud
+  ↓
+Completar información
+  ↓
+¿Usuario autenticado?
+   ↓            ↓
+  No            Sí
+   ↓             ↓
+Iniciar        Validar
+sesión         formulario
+   ↓             ↓
+Retomar        Enviar solicitud
+solicitud        ↓
+          Mostrar confirmación
+```
+
+---
+
+### Task Flow 2: Publicación y gestión de un animal
+
+**Rol:** Rescatista
+
+**Objetivo:** publicar un animal y gestionar posteriormente su información.
+
+```text
+Inicio de sesión
+  ↓
+Publicar animal
+  ↓
+Completar formulario
+  ↓
+Agregar fotografías y datos
+  ↓
+Validar información
+  ↓
+Publicar
+  ↓
+Mis publicaciones
+  ↓
+Editar / Eliminar / Cambiar estado
+```
 
 ---
 
 ### Puntos críticos de interacción
 
-Los formularios de `Publicar animal` y `Solicitud de adopción` corresponden a puntos críticos de interacción.
+Los principales puntos críticos de interacción identificados son:
 
-Si un usuario comete un error:
+1. **Solicitud de adopción:** el formulario debe mantener una estructura clara, dividir la información por secciones y mostrar errores de forma comprensible.
 
-- el formulario no se enviará;
-- los campos erróneos se resaltarán con bordes rojos;
-- se mostrará un texto de ayuda (*helper text*) debajo del campo indicando qué debe corregirse.
+2. **Inicio de sesión dentro del flujo de adopción:** un usuario no registrado debe poder llegar hasta la solicitud y ser informado de que necesita iniciar sesión únicamente antes del envío formal, evitando perder el contexto del animal seleccionado.
+
+3. **Publicación de animal:** el rescatista debe poder identificar claramente qué información es obligatoria y recibir retroalimentación frente a errores de validación.
+
+4. **Actualización del estado del animal:** los estados **En adopción**, **En proceso** y **Adoptado** deberán visualizarse de forma clara y consistente.
+
+5. **Filtros del catálogo:** la aplicación de filtros deberá ser comprensible y permitir al usuario identificar fácilmente qué criterios se encuentran activos.
 
 ---
 
 ### Coherencia de experiencia entre dispositivos
 
-Al ser una aplicación web, se utilizarán patrones de diseño responsivos (*Responsive Web Design*).
+La aplicación se diseñará utilizando principios de **Responsive Web Design**, manteniendo las mismas funcionalidades principales en las versiones web y móvil.
 
-En pantallas de escritorio, el Navbar mostrará todos los enlaces desplegados.
+En escritorio, la navegación principal se presenta mediante una Topbar con las opciones visibles.
 
-Si el usuario accede desde un dispositivo móvil, el Navbar colapsará automáticamente en un botón de **Menú Hamburguesa**, utilizando componentes adaptables de Ionic como `IonMenu` e `IonHeader`.
+En dispositivos móviles, la navegación deberá reorganizarse utilizando componentes adaptables de Ionic. Las grillas, formularios, filtros y galerías también deberán ajustarse al espacio disponible sin perder jerarquía ni funcionalidad.
+
+Los patrones, etiquetas y acciones principales deberán mantenerse consistentes entre dispositivos.
 
 ---
 
 ### Justificación Técnica
 
-La arquitectura considera decisiones relacionadas con usabilidad, eficiencia de interacción y escalabilidad del frontend.
+La arquitectura considera decisiones relacionadas con usabilidad, eficiencia de interacción, claridad estructural y escalabilidad del frontend.
 
 #### Usabilidad y claridad
 
-La barra superior mantiene las opciones visibles durante la navegación web, reduciendo la carga cognitiva.
+La Topbar agrupa las opciones principales y utiliza **Aprende** como categoría para reunir el contenido educativo, evitando sobrecargar la navegación.
+
+Las vistas secundarias emplean controles contextuales como **Volver a adopciones** y **Volver al perfil**, manteniendo claro el lugar desde el cual llegó el usuario.
 
 #### Eficiencia de interacción
 
-El uso de modales para el Login durante el flujo de adopción evita que el usuario abandone la página del animal y pierda el contexto de la acción que estaba realizando.
+El usuario puede explorar animales y acceder al formulario de solicitud sin necesidad de iniciar sesión previamente. La autenticación se solicita únicamente antes del envío formal, reduciendo interrupciones durante la exploración.
+
+Los filtros de la vista de adopciones permiten acotar el catálogo por especie, edad, tamaño, sexo y ubicación, además de buscar por nombre.
+
+#### Claridad estructural
+
+Las funcionalidades se agrupan según el objetivo del usuario:
+
+- **Adopciones:** exploración, detalle y solicitud.
+- **Aprende:** contenido educativo.
+- **Publicar animal:** creación de publicaciones para rescatistas.
+- **Perfil:** acceso a solicitudes y publicaciones asociadas al usuario.
 
 #### Escalabilidad frontend
 
-Separar las vistas en rutas independientes mediante `react-router` permitirá, a futuro, compartir enlaces directos a animales específicos.
+Separar las vistas en rutas independientes mediante `react-router-dom` permitirá mantener una estructura modular, compartir enlaces directos y extender funcionalidades sin modificar la navegación principal.
 
 ---
 
-### Tecnologías y herramientas utilizadas
+## Bocetos UI/UX
 
-- **Frontend:** Ionic Framework + React + TypeScript, enfocado en Web/PWA.
-- **Navegación:** React Router (`react-router-dom`).
-- **Diseño UI:** Figma.
-- **Control de versiones:** GitHub.
+El diseño de la interfaz de **Huellas al Hogar** se desarrolló en Figma, considerando la estructura de navegación definida para el proyecto, la adaptación entre versión web y móvil y la coherencia visual entre las distintas vistas.
 
----
+El archivo de Figma se encuentra organizado en tres páginas:
 
-## Diseño UX/UI
-
-El diseño de la interfaz de **Huellas al Hogar** fue desarrollado en Figma, considerando la estructura de navegación definida previamente, la adaptación entre versiones web y móvil y la coherencia visual del proyecto.
-
-### Organización del archivo de Figma
-
-El archivo de Figma se encuentra organizado en distintas páginas para facilitar la revisión y mantener separados los diferentes niveles del proceso de diseño:
-
-- **Página 1 (Mockups):** contiene las interfaces de alta fidelidad de las principales pantallas de la aplicación, utilizando la identidad visual definida para el proyecto.
-- **Página 2 (Wireframes):** contiene los bocetos de baja fidelidad utilizados para definir la distribución, jerarquía de información y estructura de las principales interfaces antes de desarrollar los mockups.
-- **Página 3 (Guía de estilo):** reúne los principales lineamientos visuales del proyecto, incluyendo paleta de colores, tipografías, logotipo y referencias utilizadas durante el proceso de diseño.
-
-### Prototipo y diseño en Figma
-
-El archivo completo de diseño puede consultarse en el siguiente enlace:
+- **Mockups:** contiene las interfaces de alta fidelidad.
+- **Wireframes:** contiene los bocetos de baja fidelidad utilizados para definir la estructura y distribución de las pantallas.
+- **Guía de estilo:** contiene la paleta de colores, tipografías, logotipo y referencias visuales del proyecto.
 
 [**Ver diseño y prototipo de Huellas al Hogar en Figma**](https://www.figma.com/design/9Jc4zhePHD6VnFI5WZZ94f/Huellas-al-Hogar?node-id=1-2&t=UEJN130tMX1ss4Qw-1)
 
@@ -476,13 +580,12 @@ El archivo completo de diseño puede consultarse en el siguiente enlace:
 
 ## Frontend con Ionic-React
 
----
-Se desarrolló la estructura base del frontend en Ionic con React, usando React Router para gestionar rutas públicas y protegidas, junto con una arquitectura modular por carpetas.
+Se desarrolló la estructura base del frontend en **Ionic con React**, utilizando React Router para gestionar la navegación y una arquitectura modular por carpetas.
 
 ### Requisitos
 
-- Node.js 20 o superior
-- npm 10 o superior
+- Node.js 20 o superior.
+- npm 10 o superior.
 
 ### Instalación y ejecución
 
@@ -515,23 +618,33 @@ src/
 
 ### Rutas implementadas
 
-| Ruta | Acceso | Descripción |
-| --- | --- | --- |
-| `/inicio` | Público | Landing principal |
-| `/adopciones` | Público | Catálogo de animales |
-| `/adopciones/:animalId` | Público | Detalle de adopción |
-| `/educacion` | Público | Tenencia responsable |
-| `/login` | Público | Inicio de sesión |
-| `/perfil` | Protegido | Perfil del usuario |
-| `/publicar` | Rescatista / admin | Publicación de animales |
+Las siguientes rutas corresponden a la estructura actualmente implementada en el frontend:
+
+| Ruta                    | Acceso                     | Descripción                                |
+|-------------------------|----------------------------|--------------------------------------------|
+| `/inicio`               | Público                    | Landing principal                          |
+| `/adopciones`           | Público                    | Catálogo de animales                       |
+| `/adopciones/:animalId` | Público                    | Detalle de adopción                        |
+| `/educacion`            | Público                    | Contenido educativo / tenencia responsable |
+| `/login`                | Público                    | Inicio de sesión                           |
+| `/perfil`               | Protegido                  | Perfil del usuario                         |
+| `/publicar`             | Rescatista / Administrador | Publicación de animales                    |
 
 ### Consideraciones
 
 - La navegación se gestiona con `react-router-dom`.
-- Las rutas sensibles se protegen con `ProtectedRoute`.
-- Si el usuario no autenticado intenta entrar a una ruta protegida, se redirige a `/login`.
-- La lógica de sesión actual es una simulación local para la entrega y servirá como base para la autenticación JWT en el backend.
+- Las rutas sensibles se protegen mediante `ProtectedRoute`.
+- Si un usuario no autenticado intenta acceder directamente a una ruta protegida, se redirige a `/login`.
+- El flujo de adopción permite llegar hasta la solicitud sin iniciar sesión; la autenticación se requiere antes del envío formal.
+- La lógica de sesión actual es una simulación local para esta etapa y servirá como base para la autenticación mediante JWT en el backend.
+
+### Tecnologías y herramientas utilizadas
+
+- **Frontend:** Ionic Framework + React + TypeScript.
+- **Navegación:** React Router (`react-router-dom`).
+- **Diseño UI/UX:** Figma.
+- **Control de versiones:** GitHub.
 
 ### Resultado
 
-La aplicación ya cuenta con una base funcional de frontend Ionic + React, con estructura modular y navegación coherente para la propuesta de Huellas al Hogar.
+La aplicación cuenta con una base funcional de frontend en Ionic + React, una estructura modular y una navegación coherente con la propuesta de **Huellas al Hogar**.
