@@ -1,0 +1,3 @@
+import { IonButton } from '@ionic/react';
+import { useAuth } from '../contexts/AuthContext';
+export default function ProfilePage() { const { user, logout } = useAuth(); return <main className="page-shell"><p className="eyebrow">Área privada</p><h1>Mi perfil</h1><p>Sesión iniciada como {user?.name}. Rol: {user?.role}.</p><IonButton fill="outline" onClick={logout} routerLink="/inicio">Cerrar sesión</IonButton></main>; }
