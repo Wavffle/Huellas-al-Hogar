@@ -1,6 +1,11 @@
-﻿# Huellas al Hogar
+﻿
+<p align="center">
+  <img src="assets/logo-claro.png" alt="Logo de Huellas al Hogar" width="220">
+</p>
 
-Plataforma web y móvil orientada a fomentar la adopción y la tenencia responsable de animales, centralizando información sobre animales en adopción, facilitando el contacto entre rescatistas y adoptantes, y entregando contenido educativo sobre cuidado animal, abandono y proliferación de animales callejeros.
+Este repositorio contiene la documentación y el desarrollo de **Huellas al Hogar**, organizado en ramas independientes para el frontend y backend del proyecto.
+
+La rama `main` concentra la documentación general, los requerimientos, la arquitectura de navegación y las decisiones de diseño. Las ramas `frontend` y `backend` contienen sus respectivas implementaciones técnicas.
 
 ## Presentado por
 
