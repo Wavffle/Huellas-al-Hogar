@@ -1,0 +1,123 @@
+.animals {
+    padding: 3.5rem 0 2.5rem;
+}
+
+.animals__title {
+    margin-bottom: 2rem;
+    padding-inline: 1rem;
+    text-align: center;
+    font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+    font-weight: 400;
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+.animals__title span {
+    color: var(--color-primary);
+}
+
+.animals__stage {
+    position: relative;
+}
+
+/* ===== Móvil: lista deslizable ===== */
+.animals__track {
+    list-style: none;
+    margin: 0;
+    padding: 0 1rem 1.5rem;
+    display: flex;
+    gap: 1.6rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 1rem;
+    scrollbar-width: none;
+}
+
+.animals__track::-webkit-scrollbar {
+    display: none;
+}
+
+.animals__slot {
+    flex: 0 0 min(46vw, 15rem);
+    display: flex;
+    scroll-snap-align: start;
+}
+
+.animals__arrow {
+    display: none;
+}
+
+/* ===== Escritorio: carrusel con tarjeta central elevada ===== */
+@media (min-width: 700px) {
+    .animals__stage {
+        --card-w: clamp(13.75rem, 18.8vw, 18.75rem);
+        --card-gap: calc(var(--card-w) * 0.19);
+        --card-step: calc(var(--card-w) + var(--card-gap));
+        --lift: 0.9rem;
+        overflow: hidden;
+        padding: 1.4rem 0 2.2rem;
+    }
+
+    .animals__track {
+        display: grid;
+        justify-items: center;
+        gap: 0;
+        padding: 0;
+        overflow: visible;
+        scroll-snap-type: none;
+    }
+
+    .animals__slot {
+        grid-area: 1 / 1;
+        width: var(--card-w);
+        flex: none;
+        z-index: 1;
+        transform: translate(calc(var(--offset) * var(--card-step)), var(--lift));
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    }
+
+    .animals__slot.is-active {
+        z-index: 2;
+        transform: translate(0, 0);
+    }
+
+    .animals__slot.is-active .animal-card {
+        box-shadow: var(--shadow-card);
+    }
+
+    .animals__slot.is-jumping {
+        transition: none;
+    }
+
+    .animals__slot.is-hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .animals__arrow {
+        position: absolute;
+        top: calc(50% - 0.4rem);
+        z-index: 3;
+        display: inline-flex;
+        padding: 0.4rem;
+        border: 0;
+        background: none;
+        color: var(--color-text);
+        font-size: 1.75rem;
+        cursor: pointer;
+        transform: translate(-50%, -50%);
+        transition: color 0.2s;
+    }
+
+    .animals__arrow:hover {
+        color: var(--color-primary);
+    }
+
+    .animals__arrow--prev {
+        left: calc(50% - var(--card-w) / 2 - var(--card-gap) / 2);
+    }
+
+    .animals__arrow--next {
+        left: calc(50% + var(--card-w) / 2 + var(--card-gap) / 2);
+    }
+}

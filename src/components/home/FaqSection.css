@@ -1,0 +1,88 @@
+.faq {
+    padding: 3rem 1.5rem 3rem;
+}
+
+.faq__inner {
+    max-width: 48rem;
+    margin: 0 auto;
+}
+
+.faq__eyebrow {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.faq__title {
+    margin: 0.3rem 0 1.5rem;
+    font-size: clamp(1.6rem, 2.2vw, 2rem);
+    font-weight: 400;
+}
+
+.faq-item {
+    border-bottom: 2px solid var(--color-text);
+}
+
+.faq-item__summary {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.9rem 0;
+    list-style: none;
+    cursor: pointer;
+}
+
+.faq-item__summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-item__question {
+    font-size: 1rem;
+}
+
+/* En el mockup móvil las etiquetas no se muestran */
+.faq-item__tag {
+    display: none;
+    padding: 0.15rem 0.9rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.7rem;
+    white-space: nowrap;
+}
+
+.faq-item__tag--primary {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.faq-item__tag--secondary {
+    background: var(--color-secondary);
+    color: var(--color-text);
+}
+
+.faq-item__tag--accent {
+    background: var(--color-accent);
+    color: var(--color-text);
+}
+
+.faq-item__chevron {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-size: 1.2rem;
+    transition: transform 0.25s;
+}
+
+.faq-item[open] .faq-item__chevron {
+    transform: rotate(180deg);
+}
+
+.faq-item__answer {
+    padding: 0 0 1.1rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+}
+
+@media (min-width: 600px) {
+    .faq-item__tag {
+        display: inline-block;
+    }
+}

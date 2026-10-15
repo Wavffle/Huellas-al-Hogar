@@ -1,0 +1,120 @@
+.how {
+    padding: 2.8rem var(--page-gutter) 3rem;
+    background: var(--color-secondary);
+    text-align: center;
+}
+
+.how__eyebrow {
+    margin-bottom: 0.4rem;
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+.how__title {
+    font-size: clamp(1.7rem, 2.6vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+.how__title span {
+    display: block;
+    color: var(--color-bg);
+}
+
+.how__steps {
+    --how-gap: clamp(2rem, 7.5vw, 6.5rem);
+    list-style: none;
+    max-width: 68rem;
+    margin: 2.2rem auto 0;
+    padding: 0;
+    display: grid;
+    gap: 2.5rem;
+}
+
+.how-step {
+    position: relative;
+    width: 100%;
+    max-width: 15.5rem;
+    margin-inline: auto;
+    padding-top: 0.6rem;
+}
+
+.how-step__number {
+    position: absolute;
+    top: 0;
+    left: -0.5rem;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 2.7rem;
+    height: 2.7rem;
+    background: var(--color-bg);
+    border-radius: var(--radius-sm);
+    font: 700 1.5rem/1 var(--font-heading);
+}
+
+.how-step__image {
+    position: relative;
+    display: block;
+    width: 92%;
+    height: auto;
+    margin: 0 auto;
+}
+
+/* La tarjeta se superpone un poco a la ilustración (ajusta el margin-top si hace falta) */
+.how-step__card {
+    position: relative;
+    z-index: 1;
+    margin-top: -1.25rem;
+    padding: 1rem 1rem 1.1rem;
+    background: var(--color-bg);
+    border-radius: var(--radius-md);
+}
+
+.how-step__title {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.how-step__text {
+    margin-top: 0.4rem;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    color: var(--color-text-muted);
+}
+
+@media (min-width: 800px) {
+    .how {
+        padding-block: 3rem;
+    }
+
+    .how__steps {
+        grid-template-columns: repeat(3, 1fr);
+        column-gap: var(--how-gap);
+        margin-top: 2rem;
+    }
+
+    .how-step {
+        max-width: none;
+    }
+
+    .how-step__number {
+        left: -0.8rem;
+        width: 3.2rem;
+        height: 3.2rem;
+        font-size: 1.75rem;
+    }
+
+    /* Curvas que conectan los pasos */
+    .how-step:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        left: calc(100% - 1.5rem);
+        top: 30%;
+        width: calc(var(--how-gap) + 3rem);
+        height: 22%;
+        pointer-events: none;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50' preserveAspectRatio='none'%3E%3Cpath d='M0 3 C45 0 55 47 100 47' fill='none' stroke='%23f2eae0' stroke-width='1.5' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
+        no-repeat center / 100% 100%;
+    }
+}

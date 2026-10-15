@@ -1,5 +1,5 @@
 import { Redirect, Route, Switch } from 'react-router-dom';
-import PublicLayout from '../components/PublicLayout';
+import PublicLayout from '../components/layout/PublicLayout';
 import ProtectedRoute from './ProtectedRoute';
 import HomePage from '../pages/HomePage';
 import AdoptionsPage from '../pages/AdoptionsPage';

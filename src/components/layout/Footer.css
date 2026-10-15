@@ -1,0 +1,48 @@
+.footer {
+    background: var(--color-footer);
+    color: var(--color-bg);
+}
+
+.footer__inner {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 1.6rem var(--page-gutter) 1.8rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.footer__logo {
+    display: block;
+    height: 3rem;
+    width: auto;
+    margin-bottom: 0.6rem;
+}
+
+.footer__text {
+    max-width: 21rem;
+    font-size: 1rem;
+    line-height: 1.35;
+}
+
+/* En el mockup móvil no aparece la ilustración */
+.footer__illustration {
+    display: none;
+}
+
+@media (min-width: 800px) {
+    .footer__inner {
+        padding-inline: clamp(1.5rem, 3.5vw, 3.5rem);
+    }
+
+    .footer__text {
+        font-size: 1.1rem;
+    }
+
+    .footer__illustration {
+        display: block;
+        width: clamp(9rem, 15vw, 14rem);
+        height: auto;
+    }
+}
