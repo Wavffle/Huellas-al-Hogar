@@ -4,7 +4,7 @@
 }
 
 .footer__inner {
-    max-width: 1600px;
+    max-width: 1850px;
     margin: 0 auto;
     padding: 1.6rem var(--page-gutter) 1.8rem;
     display: flex;
@@ -21,7 +21,8 @@
 }
 
 .footer__text {
-    max-width: 21rem;
+    font-family: var(--font-heading);
+    max-width: 24rem;
     font-size: 1rem;
     line-height: 1.35;
 }
@@ -37,7 +38,7 @@
     }
 
     .footer__text {
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
 
     .footer__illustration {

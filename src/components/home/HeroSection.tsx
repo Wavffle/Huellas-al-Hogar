@@ -1,12 +1,16 @@
 import { IonButton, IonIcon } from '@ionic/react';
 import { arrowForward } from 'ionicons/icons';
-import heroArt from '../../assets/images/hero/header.webp';
+import nubesIzquierda from '../../assets/images/hero/nubes-izquierda-hero.webp';
+import nubesDerecha from '../../assets/images/hero/nubes-derecha-hero.webp';
+import perroGato from '../../assets/images/hero/perro-gato-hero.webp';
 import './HeroSection.css';
 
 export default function HeroSection() {
     return (
         <section className="hero">
-            <img src={heroArt} alt="" className="hero__art" />
+            <img src={nubesIzquierda} alt="" className="hero__layer hero__clouds-left" />
+            <img src={nubesDerecha} alt="" className="hero__layer hero__clouds-right" />
+            <img src={perroGato} alt="" className="hero__layer hero__pets" />
 
             <div className="hero__content">
                 <p className="hero__badge">Adopción responsable y bienestar animal</p>

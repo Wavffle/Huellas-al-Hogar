@@ -1,14 +1,15 @@
 .navbar {
     position: relative;
     z-index: 20;
+    top: 0.4rem;
     height: var(--navbar-height);
 }
 
 .navbar__inner {
     height: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding-inline: var(--page-gutter);
+    max-width: none;        /* antes: 1600px */
+    margin: 0;              /* antes: 0 auto */
+    padding-inline: 3.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -81,12 +82,12 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.7rem 1.6rem;
+    padding: 0.9rem 2rem;
     background: var(--color-accent);
     border: 1.5px solid var(--color-accent-border);
     border-radius: var(--radius-md);
     color: var(--color-text);
-    font: 600 0.95rem var(--font-body);
+    font: 600 0.9rem var(--font-body);
     text-decoration: none;
     cursor: pointer;
     transition: background 0.2s;
@@ -103,7 +104,7 @@
     }
 
     .navbar__logo {
-        height: 3rem;
+        height: 3.5rem;
     }
 
     .navbar__nav {
@@ -112,8 +113,8 @@
         flex: 1;
         flex-direction: row;
         align-items: center;
-        justify-content: space-between;
-        margin-left: 2.3rem;
+        justify-content: space-between; /* links a la izquierda, botón a la derecha */
+        margin-left: 4rem;              /* espacio entre el logo y los links */
         padding: 0;
         background: none;
         border-radius: 0;
@@ -124,6 +125,8 @@
         flex-direction: row;
         align-items: center;
         gap: 2rem;
+        position: relative;
+        top: 0.3rem;
     }
 
     .navbar__link {

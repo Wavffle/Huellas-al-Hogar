@@ -7,16 +7,43 @@
     background: var(--gradient-hero);
 }
 
-/* ===== Ilustración (nubes + perro y gato) ===== */
-.hero__art {
+/* ===== Capas de ilustración =====
+   --x → distancia desde el borde (left o right)
+   --y → distancia desde abajo (bottom). Negativo = más abajo
+   --w → ancho de la imagen */
+.hero__layer {
     position: absolute;
-    bottom: 0;
-    left: 2vw;
-    width: 330vw; /* en móvil se amplía para que el perro y gato se vean grandes */
-    max-width: none;
     height: auto;
+    max-width: none;
     pointer-events: none;
     user-select: none;
+}
+
+.hero__clouds-left {
+    --x: -10vw;
+    --y: 0;
+    --w: 120vw;
+    left: var(--x);
+    bottom: var(--y);
+    width: var(--w);
+}
+
+.hero__clouds-right {
+    --x: -10vw;
+    --y: 0;
+    --w: 120vw;
+    right: var(--x);
+    bottom: var(--y);
+    width: var(--w);
+}
+
+.hero__pets {
+    --x: 8vw;
+    --y: 12vw;
+    --w: 90vw;
+    left: var(--x);
+    bottom: var(--y);
+    width: var(--w);
 }
 
 .hero__content {
@@ -99,63 +126,70 @@
     text-transform: none;
 }
 
-/* ===== Tablet ===== */
-@media (min-width: 600px) {
-    .hero__art {
-        left: 0;
-        width: 1200px;
-    }
-}
-
 /* ===== Escritorio ===== */
 @media (min-width: 800px) {
     .hero {
         min-height: clamp(36rem, 49vw, 52rem);
     }
 
-    .hero__art {
-        width: 100%;
+    .hero__clouds-left {
+        --x: 74vw;
+        --y: 20vw;
+        --w: 26vw;
+    }
+
+    .hero__clouds-right {
+        --x: 45vw;
+        --y: 0vw;
+        --w: 55vw;
+    }
+
+    .hero__pets {
+        --x: 0vw;
+        --y: 7vw;
+        --w: 28vw;
     }
 
     .hero__content {
         align-items: center;
-        padding-top: calc(var(--navbar-height) + 2rem);
+        padding-top: calc(var(--navbar-height) + 6rem);
         padding-bottom: 3rem;
     }
 
     .hero__badge {
         display: inline-block;
-        padding: 0.45rem 1.6rem;
-        border: 1px solid var(--color-text);
+        padding: 0.7rem 2.3rem;
+        border: 1px solid var(--color-text-muted);
         border-radius: var(--radius-pill);
-        font-size: 0.9rem;
+        font-size: 0.8rem;
     }
 
     .hero__title {
         align-self: flex-start;
-        margin: 2.2rem 0 0 28.5%;
+        margin: 5rem 0 0 33%;   /* arriba | derecha | abajo | izquierda */
         padding-left: 0;
-        font-size: clamp(2.5rem, 5vw, 5.2rem);
+        font-size: clamp(3rem, 5.4vw, 5.6rem);
+        line-height: 0.96;
     }
 
     .hero__spark {
         left: auto;
         right: calc(100% + 0.5rem);
-        top: -0.4rem;
-        width: clamp(2.2rem, 3.6vw, 3.6rem);
+        top: -2rem;
+        width: clamp(4rem, 5vw, 5rem);
     }
 
     .hero__cta {
         align-self: flex-start;
         align-items: flex-start;
-        margin: 5.5rem 0 0 67.5%;
-        width: calc(32.5% - 1.5rem);
-        max-width: 24rem;
+        margin: 8rem 0 0 70%;   /* arriba | derecha | abajo | izquierda */
+        width: calc(35% - 1.5rem);
+        max-width: 27rem;
         text-align: left;
     }
 
     .hero__text {
         max-width: none;
-        font-size: clamp(0.95rem, 1.35vw, 1.15rem);
+        font-size: clamp(0.7rem, 0.9vw, 1rem);
     }
 }

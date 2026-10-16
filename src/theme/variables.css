@@ -10,25 +10,29 @@
 
   --color-accent: #b4d3d9;
   --color-accent-light: #c9e8ec;
-  --color-accent-border: #8fb6bc;
+  --color-accent-border: #9B8EC7;
 
   --color-bg: #f2eae0;
   --color-text: #302c35;
   --color-text-muted: #6b6672;
   --color-card: #ededed;
-  --color-footer: #8570b5;
+  --color-footer: #8672B2;
   --color-white: #ffffff;
 
-  /* Degradado del hero (ajústalo con el cuentagotas sobre tus nubes) */
-  --gradient-hero: linear-gradient(
-          180deg,
-          #d6ccf8 0%,
-          #e4d0f1 20%,
-          #f6d0d2 40%,
-          #ffd3ab 62%,
-          #ffdfae 82%,
-          #ffe6c2 100%
-  );
+  --gradient-hero:
+          radial-gradient(ellipse 45% 40% at 0% 68%, #ffcea3 0%, transparent 70%),
+          radial-gradient(ellipse 45% 40% at 100% 70%, #ffd2a6 0%, transparent 70%),
+          radial-gradient(ellipse 65% 30% at 50% 96%, #fcfde0 0%, transparent 100%),
+          linear-gradient(
+                  180deg,
+                  #d9d6ff 0%,
+                  #dfd0f0 15%,
+                  #ecd2e0 35%,
+                  #f8d6c8 52%,
+                  #fee0c0 68%,
+                  #fff1d0 82%,
+                  #fdfbe0 100%
+          );
 
   /* ===== Tipografía ===== */
   --font-heading: 'Nunito', system-ui, sans-serif;
