@@ -38,20 +38,42 @@
 }
 
 .animals__slot {
+    position: relative;
     flex: 0 0 min(46vw, 15rem);
     display: flex;
     scroll-snap-align: start;
+}
+
+.animals__card-wrap {
+    display: flex;
+    width: 100%;
 }
 
 .animals__arrow {
     display: none;
 }
 
+/* Botón invisible que cubre las tarjetas clickeables */
+.animals__select {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.animals__select:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
 /* ===== Escritorio: carrusel con tarjeta central elevada ===== */
 @media (min-width: 700px) {
     .animals__stage {
-        --card-w: clamp(13.75rem, 18.8vw, 18.75rem);
-        --card-gap: calc(var(--card-w) * 0.19);
+        --card-w: clamp(14rem, 19vw, 19rem);
+        --card-gap: calc(var(--card-w) * 0.12);   /* antes 0.19 */
         --card-step: calc(var(--card-w) + var(--card-gap));
         --lift: 0.9rem;
         overflow: hidden;
@@ -72,8 +94,14 @@
         width: var(--card-w);
         flex: none;
         z-index: 1;
+        /* Cuanto más lejos del centro, más difuminada y más tenue */
+        opacity: calc(1 - var(--blur) * 0.15);
+        filter: blur(calc(var(--blur) * 1.5px));
         transform: translate(calc(var(--offset) * var(--card-step)), var(--lift));
-        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+        transition:
+                transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.5s ease,
+                filter 0.5s ease;
     }
 
     .animals__slot.is-active {
@@ -81,12 +109,31 @@
         transform: translate(0, 0);
     }
 
+    .animals__slot .animal-card {
+        transition: box-shadow 0.5s ease;
+    }
+
     .animals__slot.is-active .animal-card {
         box-shadow: var(--shadow-card);
     }
 
-    .animals__slot.is-jumping {
+    /* Tarjetas que dan la vuelta: se mueven sin deslizar y aparecen con fade */
+    .animals__slot.is-jumping-0 {
         transition: none;
+        animation: slot-appear-0 0.5s ease;
+    }
+
+    .animals__slot.is-jumping-1 {
+        transition: none;
+        animation: slot-appear-1 0.5s ease;
+    }
+
+    @keyframes slot-appear-0 {
+        from { opacity: 0; }
+    }
+
+    @keyframes slot-appear-1 {
+        from { opacity: 0; }
     }
 
     .animals__slot.is-hidden {

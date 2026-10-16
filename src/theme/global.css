@@ -48,12 +48,3 @@ img {
     margin: 0 auto;
     padding: 0 24px 48px;
 }
-
-@media (prefers-reduced-motion: reduce) {
-    *:not(.navbar)::before,
-    *:not(.navbar),
-    *::after {
-        transition: none !important;
-        animation: none !important;
-    }
-}

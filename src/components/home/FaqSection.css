@@ -1,5 +1,5 @@
 .faq {
-    padding: 3rem 1.5rem 3rem;
+    padding: 5rem 1.5rem 5rem;
 }
 
 .faq__inner {
@@ -8,43 +8,82 @@
 }
 
 .faq__eyebrow {
+    margin-bottom: 0.6rem;          /* espacio entre "¿Tienes alguna duda?" y el título */
     font-size: 0.85rem;
     color: var(--color-text-muted);
 }
 
 .faq__title {
-    margin: 0.3rem 0 1.5rem;
-    font-size: clamp(1.6rem, 2.2vw, 2rem);
+    margin: 0 0 1.5rem;           /* espacio entre el título y la lista */
+    font-size: clamp(1.5rem, 2.1vw, 2rem);
     font-weight: 400;
 }
 
 .faq-item {
-    border-bottom: 2px solid var(--color-text);
+    border-bottom: 1px solid var(--color-text);   /* antes: 2px */
+    transition: border-color 0.35s ease;
+}
+
+.faq-item.is-open {
+    border-bottom-color: var(--color-text-muted);
+}
+
+/* El h3 solo sirve para accesibilidad: no cambia el aspecto */
+.faq-item__heading {
+    margin: 0;
+    font: inherit;
 }
 
 .faq-item__summary {
     display: flex;
     align-items: center;
     gap: 0.9rem;
-    padding: 0.9rem 0;
-    list-style: none;
+    padding: 1.2rem 1rem;          /* antes: 1.2rem 0 */
+    margin-inline: -1rem;          /* compensa el padding para que el texto no se mueva */
+    width: calc(100% + 2rem);
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
     cursor: pointer;
+    transition: background 0.25s ease;
 }
 
-.faq-item__summary::-webkit-details-marker {
-    display: none;
+.faq-item__summary:hover {
+    background: rgba(155, 142, 199, 0.12);   /* lila de marca, muy suave */
+}
+
+.faq-item__chevron {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-size: 1.2rem;
+    transition: transform 0.35s ease;
+}
+
+.faq-item__summary:hover .faq-item__question {
+    color: var(--color-primary-dark);
 }
 
 .faq-item__question {
+    font-family: var(--font-body);
     font-size: 1rem;
+    transition: color 0.35s ease;
+}
+
+.faq-item.is-open .faq-item__question {
+    color: var(--color-primary-dark);
 }
 
 /* En el mockup móvil las etiquetas no se muestran */
 .faq-item__tag {
     display: none;
-    padding: 0.15rem 0.9rem;
+    padding: 0.4rem 1.2rem;
     border-radius: var(--radius-pill);
-    font-size: 0.7rem;
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    line-height: 1.2;
     white-space: nowrap;
 }
 
@@ -63,26 +102,49 @@
     color: var(--color-text);
 }
 
-.faq-item__chevron {
-    margin-left: auto;
-    flex-shrink: 0;
-    font-size: 1.2rem;
-    transition: transform 0.25s;
-}
-
-.faq-item[open] .faq-item__chevron {
+.faq-item.is-open .faq-item__chevron {
     transform: rotate(180deg);
 }
 
+/* ===== Animación de apertura ===== */
+.faq-item__panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s ease;
+}
+
+.faq-item.is-open .faq-item__panel {
+    grid-template-rows: 1fr;
+}
+
+.faq-item__panel-inner {
+    min-height: 0;
+    overflow: hidden;
+}
+
 .faq-item__answer {
-    padding: 0 0 1.1rem;
+    padding: 0 0 1.4rem;
     font-size: 0.95rem;
     line-height: 1.5;
     color: var(--color-text-muted);
+    opacity: 0;
+    transform: translateY(-0.5rem);
+    transition: opacity 0.3s ease, transform 0.35s ease;
+}
+
+.faq-item.is-open .faq-item__answer {
+    opacity: 1;
+    transform: none;
 }
 
 @media (min-width: 600px) {
     .faq-item__tag {
         display: inline-block;
+    }
+}
+
+@media (min-width: 800px) {
+    .faq {
+        padding-block: 4rem 5rem;   /* arriba | abajo */
     }
 }

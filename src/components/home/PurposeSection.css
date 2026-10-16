@@ -3,23 +3,25 @@
     background-repeat: no-repeat;
     background-position: center bottom;
     background-size: 100% auto;
+    padding-inline: 6rem;
 }
 
 .purpose__inner {
-    max-width: 1600px;
-    margin: 0 auto;
+    max-width: none;   /* antes: 1600px */
+    margin: 0;         /* antes: 0 auto */
     display: grid;
     gap: 2rem;
 }
 
 .purpose__eyebrow {
+    margin-top: -0.3rem;
     margin-bottom: 0.5rem;
     font-size: 1rem;
 }
 
 .purpose__title {
     font-size: clamp(1.8rem, 2.6vw, 2.8rem);
-    font-weight: 500;
+    font-weight: 700;
     line-height: 1.3;
 }
 
@@ -31,7 +33,7 @@
 .purpose__steps {
     position: relative;
     list-style: none;
-    margin: 2rem 0 0;
+    margin: 6.2rem 0 0;
     padding: 0 0 0 1.75rem;
 }
 
@@ -47,8 +49,10 @@
 }
 
 .purpose-step {
+    --num-w: 3.1rem;
+    --head-gap: 1rem;
     position: relative;
-    margin-bottom: 0.6rem;
+    margin-bottom: 1.8rem;
 }
 
 .purpose-step::before {
@@ -65,14 +69,14 @@
 .purpose-step__head {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: var(--head-gap);
 }
 
 .purpose-step__number {
     display: grid;
     place-items: center;
-    min-width: 3.1rem;
-    height: 2.6rem;
+    min-width: 3.6rem;
+    height: 3rem;
     padding-inline: 0.4rem;
     background: var(--color-primary);
     border-radius: var(--radius-sm);
@@ -82,12 +86,14 @@
 
 .purpose-step__title {
     font-size: 1.1rem;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .purpose-step__text {
     margin-top: 0.4rem;
-    font-size: 0.82rem;
+    font-size: 0.9rem;
+    max-width: 32rem;
+    text-wrap: balance;
     line-height: 1.4;
     color: var(--color-text-muted);
 }
@@ -107,13 +113,13 @@
 
 @media (min-width: 800px) {
     .purpose {
-        padding-block: 3.5rem 4rem;
+        padding-block: 5rem 12rem;
     }
 
     .purpose__inner {
         grid-template-columns: minmax(0, 0.45fr) minmax(0, 1fr);
         gap: 2.5rem;
-        align-items: center;
+        align-items: start;   /* antes: center */
     }
 
     .purpose__image {
