@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { IonIcon } from '@ionic/react';
 import { chevronDown, close, menu } from 'ionicons/icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -21,15 +21,32 @@ function ArrowUpRight() {
     );
 }
 
-export default function Navbar() {
+interface NavbarProps {
+    scrolled?: boolean;
+    onLogoClick?: () => void;
+}
+
+export default function Navbar({ scrolled = false, onLogoClick }: NavbarProps) {
     const { user, logout } = useAuth();
+    const { pathname } = useLocation();
     const [open, setOpen] = useState(false);
     const closeMenu = () => setOpen(false);
 
     return (
-        <header className="navbar">
+        <header className={`navbar${scrolled ? ' is-scrolled' : ''}`}>
             <div className="navbar__inner">
-                <Link to="/inicio" className="navbar__brand" onClick={closeMenu}>
+                <Link
+                    to="/inicio"
+                    className="navbar__brand"
+                    onClick={(e) => {
+                        closeMenu();
+                        // Si ya estás en el inicio, sube con animación en vez de recargar la ruta
+                        if (pathname === '/inicio' && onLogoClick) {
+                            e.preventDefault();
+                            onLogoClick();
+                        }
+                    }}
+                >
                     <img src={logoColor} alt="Huellas al Hogar" className="navbar__logo" />
                 </Link>
 

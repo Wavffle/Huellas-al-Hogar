@@ -50,11 +50,10 @@ img {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
+    *:not(.navbar)::before,
+    *:not(.navbar),
     *::after {
         transition: none !important;
         animation: none !important;
-        scroll-behavior: auto !important;
     }
 }
