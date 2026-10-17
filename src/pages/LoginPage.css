@@ -287,16 +287,17 @@
     font-size: 0.95rem;
     font-weight: 500;
     color: var(--color-bg);
+    font-weight: 200;   /* Medium */
 }
 
 .login__view--register .login__form {
-    gap: 0.8rem;
+    gap: 1.4rem;
 }
 
 .login__view--register .login__input {
-    height: 3rem;
+    height: 2.8rem;
     background: var(--color-bg);
-    font-size: 0.85rem;
+    font-size: 0.78rem;
 }
 
 .login__view--register .login__input::placeholder {
@@ -310,6 +311,7 @@
 
 .login__view--register .login__eye {
     color: var(--color-footer);
+    font-size: 1.4rem;
 }
 
 /* Checkbox de términos: invertido */
@@ -351,6 +353,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.6rem;
+    margin-top: 1.4rem;
     background: var(--color-bg);
     color: var(--color-footer);
 }
@@ -540,7 +543,7 @@
     }
 
     .login__view--register .login__logo {
-        width: 12rem;
+        width: 14rem;
     }
 
     .login__title {
@@ -549,7 +552,7 @@
     }
 
     .login__view--register .login__title {
-        font-size: 1.8rem;
+        font-size: 2rem;
     }
 
     .login__subtitle {
@@ -560,6 +563,7 @@
     }
 
     .login__view--register .login__subtitle {
-        margin-top: 1rem;
+        margin-top: 0.6rem;
+        font-size: 0.94rem
     }
 }
