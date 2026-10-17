@@ -1,14 +1,18 @@
 .purpose {
+    position: relative;
+}
+
+.purpose__sticky {
     padding: 2.5rem var(--page-gutter) 3.5rem;
+    padding-inline: 6rem;
     background-repeat: no-repeat;
     background-position: center bottom;
     background-size: 100% auto;
-    padding-inline: 6rem;
 }
 
 .purpose__inner {
-    max-width: none;   /* antes: 1600px */
-    margin: 0;         /* antes: 0 auto */
+    max-width: none;
+    margin: 0;
     display: grid;
     gap: 2rem;
 }
@@ -112,17 +116,49 @@
 }
 
 @media (min-width: 800px) {
+    /* Alto total = una pantalla fija + el recorrido extra que dura la animación */
     .purpose {
-        padding-block: 5rem 12rem;
+        height: 250vh;   /* sube para que cada paso requiera más scroll */
+    }
+
+    .purpose__sticky {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        padding-block: 5rem 5rem;   /* arriba | abajo */
+        padding-inline: 6rem;
     }
 
     .purpose__inner {
+        width: 100%;
         grid-template-columns: minmax(0, 0.45fr) minmax(0, 1fr);
         gap: 2.5rem;
-        align-items: start;   /* antes: center */
+        align-items: start;
     }
 
     .purpose__image {
         aspect-ratio: 841 / 429;
+        max-height: calc(100vh - 10rem);   /* nunca más alta que el bloque fijo */
+    }
+
+    /* Pasos ocultos al inicio */
+    .purpose-step {
+        opacity: 0;
+        translate: 0 1.5rem;
+        transition: opacity 0.5s ease, translate 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .purpose-step.is-visible {
+        opacity: 1;
+        translate: 0 0;
+    }
+
+    /* La línea de la timeline crece junto con los pasos */
+    .purpose__steps::before {
+        transform-origin: top;
+        transform: scaleY(calc(var(--count) / var(--total)));
+        transition: transform 0.6s ease;
     }
 }

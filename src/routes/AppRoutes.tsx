@@ -8,6 +8,7 @@ import EducationPage from '../pages/EducationPage';
 import LoginPage from '../pages/LoginPage';
 import ProfilePage from '../pages/ProfilePage';
 import PublishAnimalPage from '../pages/PublishAnimalPage';
+import AbandonmentConsequencesPage from '../pages/AbandonmentConsequencesPage';
 
 export default function AppRoutes() {
   return (
@@ -17,6 +18,7 @@ export default function AppRoutes() {
       <Route path="/adopciones" render={() => <PublicLayout><AdoptionsPage /></PublicLayout>} exact />
       <Route path="/adopciones/:animalId" render={() => <PublicLayout><AdoptionDetailPage /></PublicLayout>} exact />
       <Route path="/educacion" render={() => <PublicLayout><EducationPage /></PublicLayout>} exact />
+      <Route path="/educacion/consecuencias-abandono" render={() => <PublicLayout><AbandonmentConsequencesPage /></PublicLayout>} exact/>
       <ProtectedRoute path="/perfil" render={() => <PublicLayout><ProfilePage /></PublicLayout>} exact />
       <ProtectedRoute path="/publicar" render={() => <PublicLayout><PublishAnimalPage /></PublicLayout>} allowedRoles={['rescatista', 'administrador']} exact />
       <Redirect exact from="/" to="/inicio" />

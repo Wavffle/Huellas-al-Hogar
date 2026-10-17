@@ -110,6 +110,14 @@
     transition: background 0.2s;
 }
 
+.navbar__link--button {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+}
+
 .navbar__button:hover {
     background: var(--color-accent-light);
 }
@@ -148,5 +156,124 @@
 
     .navbar__link {
         font-size: 0.95rem;
+    }
+}
+
+/* ===== Menú desplegable "Aprende" ===== */
+.navbar__chevron {
+    transition: transform 0.3s ease;
+}
+
+/* Móvil: las opciones se ven siempre, dentro del panel */
+.navbar__dropdown-panel {
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0 0 0 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.navbar__dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.navbar__dropdown-icon {
+    width: 2.4rem;
+    height: 2.4rem;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
+.navbar__dropdown-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.navbar__dropdown-copy strong {
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.navbar__dropdown-copy span {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+/* Escritorio: aparece al pasar el mouse o al enfocar con teclado */
+@media (min-width: 800px) {
+    .navbar__item--dropdown {
+        position: relative;
+    }
+
+    .navbar__dropdown {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        width: 22rem;
+        margin-left: -11rem;   /* mitad del ancho: centrado bajo "Aprende" */
+        z-index: 30;
+        padding-top: 1rem;     /* puente invisible para que no se cierre al bajar el mouse */
+        opacity: 0;
+        visibility: hidden;
+        translate: 0 -0.5rem;
+        transition:
+                opacity 0.25s ease,
+                translate 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                visibility 0.25s;
+    }
+
+    .navbar__item--dropdown.is-open .navbar__dropdown {
+        opacity: 1;
+        visibility: visible;
+        translate: 0 0;
+    }
+
+    .navbar__item--dropdown.is-open .navbar__chevron {
+        transform: rotate(180deg);
+    }
+
+    .navbar__dropdown-panel {
+        position: relative;
+        width: 100%;
+        margin: 0;
+        padding: 1.4rem 1.6rem;
+        gap: 1.2rem;
+        background: rgba(242, 234, 224, 0.93);   /* un poco translúcido */
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-card);
+    }
+
+    /* Viñeta que apunta a "Aprende" */
+    .navbar__dropdown-panel::before {
+        content: '';
+        position: absolute;
+        top: -0.6rem;
+        left: 50%;
+        width: 1.3rem;
+        height: 0.6rem;
+        margin-left: -0.65rem;
+        background: rgba(242, 234, 224, 0.93);   /* mismo valor que el panel */
+        clip-path: polygon(50% 0, 0 100%, 100% 100%);
+    }
+
+    .navbar__dropdown-icon {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .navbar__dropdown-copy strong {
+        font-size: 0.9rem;
+    }
+
+    .navbar__dropdown-item:hover strong {
+        color: var(--color-primary);
     }
 }
