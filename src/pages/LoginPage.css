@@ -1,20 +1,565 @@
-.login-page {
-    --background: var(--color-bg);
+/* =====================================================
+   Estructura general
+   ===================================================== */
+.login {
+    container-type: inline-size;
+    position: relative;
+    overflow: hidden;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-secondary);
+}
+
+/* ===== Lado del formulario ===== */
+.login__side {
+    position: relative;
+    flex: 1;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    padding: 0;   /* el padding lo lleva cada vista */
+    background: var(--color-bg);
+    transition: background-color 0.9s ease;
+}
+
+.login--register .login__side {
+    background: var(--color-footer);
+}
+
+/* Cada vista (login / registro) tiene su propio padding */
+.login__view {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1.5rem 2.5rem;
+}
+
+.login__br {
+    display: none;   /* en móvil el texto fluye normal */
+}
+
+.login__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    align-self: flex-start;
+    color: var(--color-secondary-dark);
+    font-size: 1.05rem;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.login__back ion-icon {
+    font-size: 1.6rem;
+}
+
+.login__back:hover {
+    color: var(--color-primary-dark);
+}
+
+.login__card {
+    width: 100%;
+    max-width: 23rem;
+    margin: 0.5rem auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.login__logo {
+    display: block;
+    width: 10.5rem;
+    height: auto;
+    margin-bottom: 1.1rem;
+}
+
+.login__title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.login__subtitle {
+    margin-top: 1rem;
+    max-width: 17rem;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    line-height: 1.3;
+    color: var(--color-text-muted);
+    text-wrap: balance;
+}
+
+/* La cortina solo existe en escritorio */
+.login__curtain {
+    display: none;
+}
+
+/* =====================================================
+   Formulario (login)
+   ===================================================== */
+.login__form {
+    width: 100%;
+    margin-top: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    text-align: left;
+}
+
+.login__input {
+    width: 100%;
+    height: 3.4rem;
+    padding: 0 1.3rem;
+    border: 2px solid transparent;
+    border-radius: var(--radius-lg);
+    background: #d9d9d9;
+    color: var(--color-text);
+    font: 400 0.85rem var(--font-body);
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.login__input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.login__input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background: #dedbe6;
+}
+
+.login__field {
+    position: relative;
+}
+
+.login__input--password {
+    padding-right: 3.4rem;
+}
+
+.login__eye {
+    position: absolute;
+    top: 50%;
+    right: 0.9rem;
+    display: inline-flex;
+    padding: 0.3rem;
+    border: 0;
+    background: none;
+    color: var(--color-secondary-dark);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition: color 0.2s;
+}
+
+.login__eye:hover {
+    color: var(--color-primary-dark);
+}
+
+/* Checkbox */
+.login__remember {
     display: flex;
     align-items: center;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    cursor: default;
 }
 
-.login-panel {
-    width: calc(100% - 48px);
-    max-width: 440px;
-    margin: auto;
-    padding: 32px;
+.login__remember input {
+    appearance: none;
+    -webkit-appearance: none;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 1.3rem;
+    height: 1.3rem;
+    margin: 0;
+    border: 1.5px solid var(--color-text-muted);
+    border-radius: 0.4rem;
+    background: var(--color-bg);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.login__remember input:checked {
+    background: var(--color-footer);
+    border-color: var(--color-footer);
+}
+
+.login__remember input::after {
+    content: '';
+    width: 0.35rem;
+    height: 0.65rem;
+    margin-top: -0.1rem;
+    border-style: solid;
+    border-color: var(--color-bg);
+    border-width: 0 2px 2px 0;
+    rotate: 45deg;
+    scale: 0;
+    transition: scale 0.15s ease;
+}
+
+.login__remember input:checked::after {
+    scale: 1;
+}
+
+/* Botón principal */
+.login__submit {
+    height: 3rem;
+    margin-top: 0.6rem;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-footer);
+    box-shadow: 0 4px 8px rgba(48, 44, 53, 0.25);
+    color: var(--color-white);
+    font: 500 0.95rem var(--font-heading);
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.login__submit:hover {
+    background: var(--color-primary-dark);
+}
+
+.login__submit:active {
+    transform: scale(0.98);
+}
+
+/* ===== ¿No tienes una cuenta? ===== */
+.login__register {
+    width: 100%;
+    margin-top: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+.login__register::before,
+.login__register::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-secondary-dark);
+}
+
+.login__register-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-secondary-dark);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.login__register-link:hover {
+    color: var(--color-primary-dark);
+}
+
+/* =====================================================
+   Variante de registro (colores invertidos)
+   ===================================================== */
+.login__view--register {
+    color: var(--color-bg);
+}
+
+.login__view--register .login__back,
+.login__view--register .login__title,
+.login__view--register .login__subtitle {
+    color: var(--color-bg);
+}
+
+.login__view--register .login__back:hover {
+    color: var(--color-white);
+}
+
+.login__group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.login__label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-bg);
+}
+
+.login__view--register .login__form {
+    gap: 0.8rem;
+}
+
+.login__view--register .login__input {
+    height: 3rem;
+    background: var(--color-bg);
+    font-size: 0.85rem;
+}
+
+.login__view--register .login__input::placeholder {
+    color: var(--color-primary);
+}
+
+.login__view--register .login__input:focus {
+    border-color: var(--color-accent);
     background: var(--color-white);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-card);
 }
 
-.login-panel h1 {
-    margin-top: 0;
-    font-size: 2.6rem;
+.login__view--register .login__eye {
+    color: var(--color-footer);
+}
+
+/* Checkbox de términos: invertido */
+.login__remember--light {
+    color: var(--color-bg);
+}
+
+.login__remember--light input {
+    border-color: var(--color-bg);
+    background: transparent;
+}
+
+.login__remember--light input:checked {
+    background: var(--color-bg);
+    border-color: var(--color-bg);
+}
+
+.login__remember--light input::after {
+    border-color: var(--color-footer);
+}
+
+.login__terms {
+    align-items: flex-start;
+    font-size: 0.85rem;
+    line-height: 1.3;
+}
+
+.login__terms input {
+    margin-top: 0.1rem;
+}
+
+.login__terms strong {
+    font-weight: 700;
+}
+
+/* Botón crema con huella */
+.login__submit--light {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    background: var(--color-bg);
+    color: var(--color-footer);
+}
+
+.login__submit--light:hover {
+    background: var(--color-white);
+}
+
+.login__submit--light ion-icon {
+    font-size: 1.3rem;
+}
+
+.login__view--register .login__register {
+    color: var(--color-bg);
+}
+
+.login__view--register .login__register::before,
+.login__view--register .login__register::after {
+    background: var(--color-bg);
+}
+
+.login__view--register .login__register-link {
+    color: var(--color-accent);
+}
+
+.login__view--register .login__register-link:hover {
+    color: var(--color-white);
+}
+
+/* =====================================================
+   Patrón de fondo (franja abajo en móvil)
+   ===================================================== */
+.login__art {
+    position: relative;
+    flex: none;
+    height: 26vh;
+    min-height: 11rem;
+}
+
+.login__art-layer {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-secondary);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: opacity 0.9s ease;
+}
+
+/* En móvil el patrón de registro se mezcla con fade */
+.login__art-layer--register {
+    background-color: var(--color-bg);
+    opacity: 0;
+}
+
+.login--register .login__art-layer--register {
+    opacity: 1;
+}
+
+/* =====================================================
+   Móvil: solo se muestra la vista activa
+   ===================================================== */
+@media (max-width: 799px) {
+    .login__view:not(.is-active) {
+        display: none;
+    }
+}
+
+/* =====================================================
+   Escritorio: pantalla dividida con deslizamiento
+   ===================================================== */
+@media (min-width: 800px) {
+    .login {
+        display: block;
+        height: 100vh;
+        min-height: 46rem;
+    }
+
+    /* Panel del formulario: se desliza con translate */
+    .login__side {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 42cqw;
+        flex: none;
+        z-index: 2;
+        box-shadow: 23px 0 16px rgba(48, 44, 53, 0.25);
+        will-change: translate;
+        transition:
+                translate 0.9s cubic-bezier(0.65, 0, 0.35, 1),
+                box-shadow 0.9s ease,
+                background-color 0.9s ease;
+    }
+
+    /* ESTA ES LA REGLA QUE FALTABA: mueve el panel a la derecha */
+    .login--register .login__side {
+        translate: 58cqw 0;
+        box-shadow: -23px 0 16px rgba(48, 44, 53, 0.25);
+    }
+
+    /* Patrón de login: ocupa toda la pantalla y queda fijo */
+    .login__art {
+        position: absolute;
+        inset: 0;
+        height: auto;
+        min-height: 0;
+        z-index: 0;
+    }
+
+    /* En escritorio el patrón de registro lo lleva la cortina */
+    .login__art-layer--register {
+        display: none;
+    }
+
+    /* La cortina va pegada al borde izquierdo del panel y se mueve con él */
+    .login__curtain {
+        display: block;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 100%;
+        width: 100cqw;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    /* La imagen contrarresta el movimiento del panel, así que queda fija en pantalla */
+    .login__curtain-img {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 100cqw;
+        width: 100cqw;
+        background-color: var(--color-bg);
+        background-size: cover;
+        background-position: center;
+        will-change: translate;
+        transition: translate 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+
+    .login--register .login__curtain-img {
+        translate: -58cqw 0;   /* mismo desplazamiento que el panel, en sentido contrario */
+    }
+
+    /* Sombra interior del borde del panel sobre el patrón */
+    .login__curtain::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 2.5rem;
+        background: linear-gradient(to left, rgba(48, 44, 53, 0.3), transparent);
+    }
+
+    /* Las dos vistas se apilan y se mezclan con fade */
+    .login__view {
+        position: absolute;
+        inset: 0;
+        padding: 4rem 4rem 3rem 5rem;
+        overflow-y: auto;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.4s ease, visibility 0.4s;
+    }
+
+    .login__view.is-active {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.5s ease 0.35s, visibility 0s linear 0.35s;
+    }
+
+    .login__br {
+        display: inline;
+    }
+
+    .login__card {
+        margin-block: auto;
+        padding-right: 1rem;
+    }
+
+    .login__logo {
+        width: 15.5rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .login__view--register .login__logo {
+        width: 12rem;
+    }
+
+    .login__title {
+        font-size: 2rem;
+        white-space: nowrap;
+    }
+
+    .login__view--register .login__title {
+        font-size: 1.8rem;
+    }
+
+    .login__subtitle {
+        max-width: 23rem;
+        font-size: 1.04rem;
+        margin-top: 2rem;
+        text-wrap: wrap;
+    }
+
+    .login__view--register .login__subtitle {
+        margin-top: 1rem;
+    }
 }

@@ -241,6 +241,8 @@
         padding-left: 0;
         font-size: clamp(3rem, 5.4vw, 5.6rem);
         line-height: 0.96;
+        cursor: default;
+        user-select: none;
     }
 
     .hero__spark {

@@ -13,7 +13,7 @@ import AbandonmentConsequencesPage from '../pages/AbandonmentConsequencesPage';
 export default function AppRoutes() {
   return (
     <Switch>
-      <Route path="/login" component={LoginPage} exact />
+      <Route path={['/login', '/registro']} component={LoginPage} exact />
       <Route path="/inicio" render={() => <PublicLayout><HomePage /></PublicLayout>} exact />
       <Route path="/adopciones" render={() => <PublicLayout><AdoptionsPage /></PublicLayout>} exact />
       <Route path="/adopciones/:animalId" render={() => <PublicLayout><AdoptionDetailPage /></PublicLayout>} exact />
