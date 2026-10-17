@@ -3,9 +3,17 @@
   <img src="assets/logo-claro.png" alt="Logo de Huellas al Hogar" width="220">
 </p>
 
-Este repositorio contiene la documentación y el desarrollo de **Huellas al Hogar**, organizado en ramas independientes para el frontend y backend del proyecto.
+Este repositorio contiene la documentación y el desarrollo de **Huellas al Hogar**, organizado en ramas independientes según las distintas áreas y etapas del proyecto.
 
-La rama `main` concentra la documentación general, los requerimientos, la arquitectura de navegación y las decisiones de diseño. Las ramas `frontend` y `backend` contienen sus respectivas implementaciones técnicas.
+La rama `EP1-Documentación` contiene la documentación correspondiente a la **Entrega Parcial 1**, incluyendo la justificación del problema, usuarios objetivo, requerimientos, arquitectura de navegación y decisiones de diseño.
+
+Las ramas `frontend` y `backend` contienen las implementaciones técnicas de la aplicación, correspondientes a la interfaz de usuario y al servidor, respectivamente.
+
+### Organización del repositorio
+
+- `EP1-Documentación`: documentación de la Entrega Parcial 1.
+- `frontend`: implementación del frontend en Ionic + React + TypeScript.
+- `backend`: implementación del backend de la aplicación.
 
 ## Presentado por
 
