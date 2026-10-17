@@ -3,17 +3,20 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import animalesroute from "./routes/animales.routes.js";
+import solicitudesRoutes from "./routes/solicitudes.routes.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
 // Middlewares
 app.use(cors()); // Configuración temporal para desarrollo
 app.use(express.json());
 
 app.use("/api/animales", animalesroute);
+app.use("/api/solicitudes", solicitudesRoutes);
 
 // Ruta principal
 app.get("/", (req, res) => {

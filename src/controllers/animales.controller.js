@@ -1,43 +1,7 @@
-// constantes para testeo //
 
-const animalesPrueba = [
-  {
-    id: "cucurucho",
-    name: "Cucurucho",
-    species: "Perro",
-    age: "2 años",
-    size: "Mediano",
-    sex: "Macho",
-    location: "Valparaíso",
-    description: "Sociable y enérgico; disfruta los paseos.",
-    healthStatus: "Saludable",
-    specialCare: [],
-    behavior: "Amistoso con las personas",
-    history: "Rescatado en Valparaíso",
-    status: "En adopción",
-    imageUrl: null,
-  },
-  {
-    id: "luna",
-    name: "Luna",
-    species: "Gata",
-    age: "1 año",
-    size: "Pequeña",
-    sex: "Hembra",
-    location: "Viña del Mar",
-    description: "Cariñosa y tranquila.",
-    healthStatus: "Saludable",
-    specialCare: [],
-    behavior: "Tranquila y afectuosa",
-    history: "Rescatada en Viña del Mar",
-    status: "En adopción",
-    imageUrl: null,
-  },
-];
-
-//---------------------------------------------------------------------------------------------------//
 
 import { randomUUID } from "node:crypto"; //import para el id, por cambiar por el tema de base de datos
+import { animalesPrueba } from "../dataTest/animalesTest.js"; //para el testeo, esto se borra para la database despues
 
 // parte para el push post no me acuerdo el nombre //
 
