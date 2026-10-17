@@ -1,2 +1,16 @@
-import { IonCard, IonCardContent, IonCardHeader, IonCardTitle } from '@ionic/react';
-export default function EducationPage() { return <main className="page-shell"><p className="eyebrow">Información</p><h1>Tenencia responsable</h1><IonCard><IonCardHeader><IonCardTitle>Antes de adoptar</IonCardTitle></IonCardHeader><IonCardContent>Evalúa tu tiempo, espacio, presupuesto y compromiso a largo plazo.</IonCardContent></IonCard></main>; }
+import EducationHero from '../components/education/EducationHero';
+import CareSection from '../components/education/CareSection';
+import QuestionsSection from '../components/education/QuestionsSection';
+import CommitmentSection from '../components/education/CommitmentSection';
+import './EducationPage.css';
+
+export default function EducationPage() {
+    return (
+        <div className="edu-page">
+            <EducationHero />
+            <CareSection />
+            <QuestionsSection />
+            <CommitmentSection />
+        </div>
+    );
+}

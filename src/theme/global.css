@@ -48,3 +48,9 @@ img {
     margin: 0 auto;
     padding: 0 24px 48px;
 }
+
+/* Texto informativo que el usuario puede seleccionar y copiar */
+.selectable {
+    -webkit-user-select: text;
+    user-select: text;
+}

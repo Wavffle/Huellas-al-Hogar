@@ -1,0 +1,12 @@
+.edu-page {
+    --edu-gutter: clamp(1rem, 4.6vw, 4.5rem);
+    --edu-lilac-soft: #ebe2f3;
+    --edu-cream-light: #faf7ea;
+    overflow-x: clip;
+}
+
+@media (min-width: 800px) {
+    .edu-page {
+        --edu-gutter: clamp(2rem, 4.6vw, 5rem);
+    }
+}
