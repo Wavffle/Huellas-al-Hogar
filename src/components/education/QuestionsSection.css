@@ -1,7 +1,7 @@
 .ask {
-    max-width: 96rem;
+    max-width: 86rem;
     margin-inline: auto;
-    padding: clamp(2.5rem, 6vw, 5rem) var(--edu-gutter) clamp(2.5rem, 4vw, 4rem);
+    padding: clamp(3rem, 6vw, 5rem) clamp(2rem, 3.5vw, 4rem) clamp(4rem, 5vw, 5rem);
 }
 
 .ask__title {
@@ -48,7 +48,7 @@
 }
 
 .ask__icon {
-    width: 58%;
+    width: 48%;
     height: auto;
     object-fit: contain;
 }
@@ -147,8 +147,8 @@
 /* ===== Escritorio ===== */
 @media (min-width: 800px) {
     .ask__title {
-        margin-bottom: 2rem;
-        font-size: clamp(2.2rem, 3.4vw, 3.4rem);
+        margin-bottom: 3rem;
+        font-size: clamp(1rem, 2.9vw, 2.9rem);
     }
 
     .ask__layout {
@@ -159,19 +159,19 @@
 
     .ask__item {
         gap: 1.4vw;
-        padding-block: 1rem;
+        padding-block: 0.8rem;
     }
 
     .ask__icon-box {
-        flex-basis: clamp(5.2rem, 8.6vw, 8rem);
+        flex-basis: clamp(4.4rem, 6vw, 6rem);
     }
 
     .ask__text {
-        font-size: clamp(0.95rem, 1.35vw, 1.3rem);
+        font-size: clamp(0.85rem, 1.05vw, 1.05rem);
     }
 
     .needs {
-        aspect-ratio: 1.24 / 1;
+        aspect-ratio: 1.65 / 1;
     }
 
     .needs__label {
@@ -181,16 +181,17 @@
     }
 
     .needs__list {
-        top: 5.5cqw;
-        right: 7cqw;
-        width: 26cqw;
-        padding: 2cqw 2.2cqw;
+        top: 6cqw;
+        right: 10cqw;
+        width: 28cqw;
+        padding: 6cqw 3cqw;
         gap: 1.6cqw;
     }
 
     .needs__item {
         gap: 1.2cqw;
         font-size: 1.8cqw;
+        font-weight: 500;
     }
 
     .needs__check {
@@ -198,12 +199,12 @@
     }
 
     .needs__heart {
-        left: 5cqw;
-        top: 34cqw;
+        left: 20cqw;
+        top: 17cqw;
         width: 9cqw;
     }
 
     .needs__image {
-        width: 82cqw;
+        width: 60cqw;
     }
 }

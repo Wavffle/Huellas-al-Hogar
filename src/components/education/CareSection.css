@@ -45,7 +45,7 @@
 /* ===== Tarjetas ===== */
 .care__grid {
     list-style: none;
-    max-width: 96rem;
+    max-width: 88rem;
     margin: 1.8rem auto 0;
     padding: 0 var(--edu-gutter);
     display: grid;
@@ -71,7 +71,7 @@
 .care-card__image {
     display: block;
     width: 100%;
-    aspect-ratio: 2.3 / 1;
+    aspect-ratio: 2.7 / 1;
     object-fit: cover;
 }
 
@@ -110,11 +110,13 @@
 
 .care__quote-text {
     max-width: 11em;
-    font-family: 'Caveat', cursive;
+    font-family: var(--font-heading);
+    font-weight: 200;
+    font-style: italic;
     font-size: clamp(1.7rem, 7vw, 2.2rem);
-    font-weight: 400;
     line-height: 1.1;
-    rotate: -7deg;
+    white-space: nowrap;
+    rotate: -9deg;
 }
 
 .care__quote-art {
@@ -126,7 +128,7 @@
 /* ===== Escritorio ===== */
 @media (min-width: 800px) {
     .care {
-        margin-top: clamp(2.5rem, 5vw, 4.5rem);
+        margin-top: clamp(4rem, 7vw, 6.5rem);
     }
 
     .care__heading {
@@ -159,41 +161,118 @@
     }
 
     .care__grid {
-        margin-top: clamp(2rem, 4vw, 3.5rem);
+        margin-top: clamp(1.1rem, 2vw, 3rem);
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: clamp(1rem, 1.6vw, 1.6rem);
+        column-gap: clamp(2rem, 2.7vw, 2.6rem);
+        row-gap: clamp(2.5rem, 1.6vw, 1.8rem);
     }
 
     .care-card__body {
-        padding: 1.3rem 1.5rem 1.7rem;
+        padding: 1.6rem 1.6rem 2rem;
     }
 
     .care-card__title {
         font-size: 0.85rem;
+        font-weight: 200;
     }
 
     .care-card__text {
-        font-size: clamp(0.85rem, 1.1vw, 1rem);
+        font-size: clamp(0.6rem, 0.7vw, 0.9rem);
         line-height: 1.3;
+        font-weight: 300;
     }
 
     .care__quote {
-        align-items: flex-start;
-        padding: 1rem 0 1rem 2%;
+        align-items: center;
+        padding: 1rem 0;
+        container-type: inline-size;
     }
 
     .care__quote-text {
-        font-size: clamp(1.6rem, 2.5vw, 2.8rem);
-        transform-origin: left center;
+        font-size: clamp(0.6rem, 1.6vw, 2.2rem);
+        transform-origin: center;
+        margin-right: 2.5rem;
     }
 
     .care__quote-art {
         width: clamp(6rem, 9vw, 9rem);
-        margin-left: 12%;
+        margin-left: 2%;
     }
 }
 
 @keyframes care-marquee {
     from { translate: 0 0; }
     to   { translate: -50% 0; }
+}
+
+/* Tarjetas: aparecen una tras otra */
+.care--animated .care-card {
+    opacity: 0;
+    translate: 0 3rem;
+    scale: 0.94;
+    transition:
+        opacity 0.6s ease,
+        translate 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        scale 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: calc(var(--i, 0) * 0.22s);   /* desfase entre tarjetas */
+}
+
+.care--animated.is-cards .care-card {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+}
+
+/* Frase y dibujo: pop-up con rebote */
+.care--animated .care__quote-text,
+.care--animated .care__quote-art {
+    opacity: 0;
+    translate: 0 1.2rem;
+    scale: 0.55;
+    transition:
+        opacity 0.35s ease,
+        translate 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
+        scale 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.care--animated .care__quote-art {
+    transition-delay: 0.18s;   /* el dibujo entra justo después de la frase */
+}
+
+.care--animated.is-quote .care__quote-text,
+.care--animated.is-quote .care__quote-art {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+}
+
+/* ===== Hover de las tarjetas ===== */
+.care-card {
+    transition:
+            transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+            box-shadow 0.4s ease;
+}
+
+.care-card__image {
+    transition: scale 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.care--animated.is-cards .care-card {
+    transition:
+            opacity 0.6s ease calc(var(--i, 0) * 0.22s),
+            translate 0.7s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i, 0) * 0.22s),
+            scale 0.7s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i, 0) * 0.22s),
+            transform 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0s,
+            box-shadow 0.4s ease 0s;
+}
+
+@media (hover: hover) {
+    .care-card:hover {
+        transform: translateY(-0.5rem);
+        box-shadow: 0 1rem 1.6rem rgba(48, 44, 53, 0.22);
+    }
+
+    .care-card:hover .care-card__image {
+        scale: 1.06;
+    }
 }

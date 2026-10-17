@@ -113,6 +113,7 @@
         column-gap: 8vw;
         padding-top: 1.5rem;
         row-gap: 1.5rem;
+        translate: 6vw 0;
     }
 
     .edu-hero__visual {
@@ -122,6 +123,7 @@
 
     .edu-hero__copy {
         align-self: center;
+        translate: 0 2vw;
     }
 
     .edu-hero__title {
@@ -138,7 +140,7 @@
         grid-column: 1 / -1;
         justify-self: end;
         max-width: 62%;
-        margin-right: 14rem;
+        margin-right: 13rem;
         margin-top: 8px;
         padding: 0;
         background: none;
