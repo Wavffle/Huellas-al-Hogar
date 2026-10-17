@@ -1,26 +1,92 @@
-import { randomUUID } from "node:crypto";
 import { animalesPrueba } from "../dataTest/animalesTest.js";
 import { solicitudesPrueba } from "../dataTest/solicitudesTest.js";
 
-const estadosActivos = ["Pendiente", "En revisión"];
+//---------------------------------------------------------------------------------------------------//
+// funciones auxiliares //
 
-//estos son como los estados a los que puede pasar cada una, tipo pendiente puede pasar a revision que ahi es donde se decide si recibe el animal
+const estadosPermitidos = [
+  "PENDIENTE",
+  "APROBADA",
+  "RECHAZADA",
+];
+
 const transicionesPermitidas = {
-  Pendiente: ["En revisión", "Rechazada", "Cancelada"],
-  "En revisión": ["Aceptada", "Rechazada", "Cancelada"],
+  PENDIENTE: ["APROBADA", "RECHAZADA"],
 };
 
-// parte para get de las solicitudes //
+function esObjetoJson(body) {
+  return body !== null && typeof body === "object" && !Array.isArray(body);
+}
 
-//este para solicitudes en general
+function obtenerIdValido(idParametro) {
+  const id = Number(idParametro);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return null;
+  }
+
+  return id;
+}
+
+function obtenerSiguienteId() {
+  return solicitudesPrueba.reduce(
+    (mayorId, solicitud) => Math.max(mayorId, solicitud.id),
+    0
+  ) + 1;
+}
+
+//---------------------------------------------------------------------------------------------------//
+// parte para GET de las solicitudes //
+
 export const getSolicitudes = (req, res) => {
-  const { animalId, applicantId, status } = req.query;
+  const { animal_id, usuario_id, estado } = req.query;
+
+  let animalIdBuscado;
+  let usuarioIdBuscado;
+
+  if (animal_id !== undefined) {
+    animalIdBuscado = obtenerIdValido(animal_id);
+
+    if (animalIdBuscado === null) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: "animal_id debe ser un número entero positivo",
+        },
+      });
+    }
+  }
+
+  if (usuario_id !== undefined) {
+    usuarioIdBuscado = obtenerIdValido(usuario_id);
+
+    if (usuarioIdBuscado === null) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: "usuario_id debe ser un número entero positivo",
+        },
+      });
+    }
+  }
+
+  if (estado !== undefined && !estadosPermitidos.includes(estado)) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        message: "El estado de la solicitud no es válido",
+        allowedValues: estadosPermitidos,
+      },
+    });
+  }
 
   const resultado = solicitudesPrueba.filter((solicitud) => {
     return (
-      (!animalId || solicitud.animalId === animalId) &&
-      (!applicantId || solicitud.applicantId === applicantId) &&
-      (!status || solicitud.status === status)
+      (animalIdBuscado === undefined ||
+        solicitud.animal_id === animalIdBuscado) &&
+      (usuarioIdBuscado === undefined ||
+        solicitud.usuario_id === usuarioIdBuscado) &&
+      (estado === undefined || solicitud.estado === estado)
     );
   });
 
@@ -31,16 +97,31 @@ export const getSolicitudes = (req, res) => {
   });
 };
 
-// este para solicitudes por id
+//---------------------------------------------------------------------------------------------------//
+// parte para GET de una solicitud por id //
+
 export const getSolicitudPorId = (req, res) => {
+  const id = obtenerIdValido(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        message: "El id debe ser un número entero positivo",
+      },
+    });
+  }
+
   const solicitud = solicitudesPrueba.find(
-    (item) => item.id === req.params.id
+    (item) => item.id === id
   );
 
   if (!solicitud) {
     return res.status(404).json({
       success: false,
-      error: { message: "Solicitud no encontrada" },
+      error: {
+        message: "Solicitud no encontrada",
+      },
     });
   }
 
@@ -52,19 +133,26 @@ export const getSolicitudPorId = (req, res) => {
 };
 
 //---------------------------------------------------------------------------------------------------//
+// parte para POST, o sea para crear solicitudes de adopcion //
 
-// parte para POST, o sea para crearr solicitudes de adopcion //
 export const crearSolicitud = (req, res) => {
   const body = req.body;
 
-  if (!body || typeof body !== "object" || Array.isArray(body)) {
+  if (!esObjetoJson(body)) {
     return res.status(400).json({
       success: false,
-      error: { message: "El cuerpo debe ser un objeto JSON" }, //cancelado por cuerpo
+      error: {
+        message: "El cuerpo debe ser un objeto JSON",
+      },
     });
   }
 
-  const camposPermitidos = ["animalId", "applicantId", "answers"];
+  const camposPermitidos = [
+    "animal_id",
+    "usuario_id",
+    "notas",
+  ];
+
   const camposDesconocidos = Object.keys(body).filter(
     (campo) => !camposPermitidos.includes(campo)
   );
@@ -73,92 +161,98 @@ export const crearSolicitud = (req, res) => {
     return res.status(400).json({
       success: false,
       error: {
-        message: "Hay campos no permitidos", //cancelado por campos no permitidos
+        message: "Hay campos no permitidos",
         fields: camposDesconocidos,
       },
     });
   }
 
-  if (
-    typeof body.animalId !== "string" ||
-    body.animalId.trim().length === 0
-  ) {
+  const animalId = obtenerIdValido(body.animal_id);
+  const usuarioId = obtenerIdValido(body.usuario_id);
+
+  if (animalId === null) {
     return res.status(400).json({
       success: false,
-      error: { message: "animalId es obligatorio" },
+      error: {
+        message: "animal_id es obligatorio y debe ser un entero positivo",
+      },
     });
   }
 
-  // Temporal para las pruebas después se obtendrá del JWT porque falta eso todavia
-  if (
-    typeof body.applicantId !== "string" ||
-    body.applicantId.trim().length === 0
-  ) {
+  // Temporal para las pruebas.
+  // Más adelante, usuario_id se obtendrá del JWT.
+  if (usuarioId === null) {
     return res.status(400).json({
       success: false,
-      error: { message: "applicantId es obligatorio para estas pruebas" },
+      error: {
+        message: "usuario_id es obligatorio y debe ser un entero positivo",
+      },
     });
   }
 
-  if (
-    !body.answers ||
-    typeof body.answers !== "object" ||
-    Array.isArray(body.answers) ||
-    Object.keys(body.answers).length === 0
-  ) {
-    return res.status(400).json({
-      success: false,
-      error: { message: "answers debe ser un objeto con respuestas" },
-    });
+  let notas = null;
+
+  if (body.notas !== undefined && body.notas !== null) {
+    if (typeof body.notas !== "string" || body.notas.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: "notas debe ser un texto no vacío o null",
+        },
+      });
+    }
+
+    notas = body.notas.trim();
   }
 
-  //aqui recien ya termina de validar y empieza a buscar el animal al que se postula
+  // Busca el animal al que corresponde la solicitud.
   const animal = animalesPrueba.find(
-    (item) => item.id === body.animalId.trim()
+    (item) => item.id === animalId
   );
 
   if (!animal) {
     return res.status(404).json({
       success: false,
-      error: { message: "Animal no encontrado" },
-    });
-  }
-
-  if (animal.status !== "En adopción") {
-    return res.status(409).json({
-      success: false,
-      error: { message: "El animal no está disponible para postular" },
-    });
-  }
-
-  // y en este se pregunta si es que ya hay una solicitud activa de el mismo (varios distintos users pueden tener una solicitud en cucurucho por ejemplo pero no pueden tener 2 del mismo user)
-  const yaExisteSolicitudActiva = solicitudesPrueba.some(
-    (item) =>
-      item.animalId === animal.id &&
-      item.applicantId === body.applicantId.trim() &&
-      estadosActivos.includes(item.status)
-  );
-
-  if (yaExisteSolicitudActiva) {
-    return res.status(409).json({
-      success: false,
       error: {
-        message: "Ya existe una solicitud activa para este animal",
+        message: "Animal no encontrado",
       },
     });
   }
 
-  //aqui ya es que si se validó que no esté repetida y toma la fecha y todos los valores para guardar la solicitud
-  const fechaActual = new Date().toISOString();
+  if (animal.estado !== "EN_ADOPCION") {
+    return res.status(409).json({
+      success: false,
+      error: {
+        message: "El animal no está disponible para postular",
+      },
+    });
+  }
+
+  // No permite solicitudes pendientes duplicadas del mismo usuario
+  // para el mismo animal. Usuarios distintos sí pueden postular.
+  const yaExisteSolicitudPendiente = solicitudesPrueba.some(
+    (item) =>
+      item.animal_id === animalId &&
+      item.usuario_id === usuarioId &&
+      item.estado === "PENDIENTE"
+  );
+
+  if (yaExisteSolicitudPendiente) {
+    return res.status(409).json({
+      success: false,
+      error: {
+        message: "Ya existe una solicitud pendiente para este animal",
+      },
+    });
+  }
 
   const solicitud = {
-    id: randomUUID(),
-    animalId: animal.id,
-    applicantId: body.applicantId.trim(),
-    answers: body.answers,
-    status: "Pendiente",
-    createdAt: fechaActual,
-    updatedAt: fechaActual,
+    id: obtenerSiguienteId(),
+    estado: "PENDIENTE",
+    notas,
+    creado_en: new Date().toISOString(),
+    usuario_id: usuarioId,
+    animal_id: animalId,
   };
 
   solicitudesPrueba.push(solicitud);
@@ -169,82 +263,100 @@ export const crearSolicitud = (req, res) => {
     data: solicitud,
   });
 };
-//---------------------------------------------------------------------------------------------------//
 
+//---------------------------------------------------------------------------------------------------//
 // parte para PATCH de las solicitudes ya existentes //
 
 export const actualizarSolicitud = (req, res) => {
+  const id = obtenerIdValido(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        message: "El id debe ser un número entero positivo",
+      },
+    });
+  }
+
   const solicitud = solicitudesPrueba.find(
-    (item) => item.id === req.params.id
+    (item) => item.id === id
   );
 
   if (!solicitud) {
     return res.status(404).json({
       success: false,
-      error: { message: "Solicitud no encontrada" }, //no existe el id
+      error: {
+        message: "Solicitud no encontrada",
+      },
     });
   }
 
   const body = req.body;
 
-  if (!body || typeof body !== "object" || Array.isArray(body)) {
+  if (!esObjetoJson(body)) {
     return res.status(400).json({
       success: false,
-      error: { message: "El cuerpo debe ser un objeto JSON" }, //valida cuerpo
+      error: {
+        message: "El cuerpo debe ser un objeto JSON",
+      },
     });
   }
 
   const campos = Object.keys(body);
 
-  if (campos.length !== 1 || campos[0] !== "status") {
+  if (campos.length !== 1 || campos[0] !== "estado") {
     return res.status(400).json({
       success: false,
-      error: { message: "Solo se permite actualizar el estado" },
-    });
-  }
-
-  const transiciones = transicionesPermitidas[solicitud.status];
-
-  if (!transiciones || !transiciones.includes(body.status)) {
-    return res.status(409).json({
-      success: false,
       error: {
-        message: "No se permite ese cambio de estado",
-        currentStatus: solicitud.status,
-        allowedStatuses: transiciones ?? [],
+        message: "Solo se permite actualizar el estado",
       },
     });
   }
 
-  if (body.status === "Aceptada") {
+  const transiciones = transicionesPermitidas[solicitud.estado];
+
+  if (!transiciones || !transiciones.includes(body.estado)) {
+    return res.status(409).json({
+      success: false,
+      error: {
+        message: "No se permite ese cambio de estado",
+        estadoActual: solicitud.estado,
+        estadosPermitidos: transiciones ?? [],
+      },
+    });
+  }
+
+  if (body.estado === "APROBADA") {
     const animal = animalesPrueba.find(
-      (item) => item.id === solicitud.animalId
+      (item) => item.id === solicitud.animal_id
     );
 
-    if (!animal || animal.status === "Adoptado") {
+    if (!animal || animal.estado !== "EN_ADOPCION") {
       return res.status(409).json({
         success: false,
-        error: { message: "El animal ya no está disponible" },
+        error: {
+          message: "El animal ya no está disponible",
+        },
       });
     }
 
-    animal.status = "Adoptado";
+    animal.estado = "ADOPTADO";
 
-    // Al aceptar una postulación, las demás solicitudes activas para este se apagan, o sea ya no son vigentes
+    // Al aprobar una solicitud, rechaza las pendientes
+    // de otros usuarios para el mismo animal.
     for (const otraSolicitud of solicitudesPrueba) {
       if (
         otraSolicitud.id !== solicitud.id &&
-        otraSolicitud.animalId === solicitud.animalId &&
-        estadosActivos.includes(otraSolicitud.status)
+        otraSolicitud.animal_id === solicitud.animal_id &&
+        otraSolicitud.estado === "PENDIENTE"
       ) {
-        otraSolicitud.status = "Rechazada";
-        otraSolicitud.updatedAt = new Date().toISOString();
+        otraSolicitud.estado = "RECHAZADA";
       }
     }
   }
 
-  solicitud.status = body.status;
-  solicitud.updatedAt = new Date().toISOString();
+  solicitud.estado = body.estado;
 
   return res.status(200).json({
     success: true,
@@ -252,4 +364,42 @@ export const actualizarSolicitud = (req, res) => {
     data: solicitud,
   });
 };
+
+//---------------------------------------------------------------------------------------------------//
+// parte para DELETE de las solicitudes, dificil dar uso a esta si porq la idea es guardar un registro yo creo //
+
+export const eliminarSolicitud = (req, res) => {
+  const id = obtenerIdValido(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        message: "El id debe ser un número entero positivo",
+      },
+    });
+  }
+
+  const indice = solicitudesPrueba.findIndex(
+    (item) => item.id === id
+  );
+
+  if (indice === -1) {
+    return res.status(404).json({
+      success: false,
+      error: {
+        message: "Solicitud no encontrada",
+      },
+    });
+  }
+
+  const [solicitudEliminada] = solicitudesPrueba.splice(indice, 1);
+
+  return res.status(200).json({
+    success: true,
+    message: "Solicitud eliminada correctamente",
+    data: solicitudEliminada,
+  });
+};
+
 //---------------------------------------------------------------------------------------------------//

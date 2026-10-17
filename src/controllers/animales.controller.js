@@ -1,88 +1,213 @@
 
+import { animalesPrueba } from "../dataTest/animalesTest.js";
+import { solicitudesPrueba } from "../dataTest/solicitudesTest.js";
 
-import { randomUUID } from "node:crypto"; //import para el id, por cambiar por el tema de base de datos
-import { animalesPrueba } from "../dataTest/animalesTest.js"; //para el testeo, esto se borra para la database despues
+//---------------------------------------------------------------------------------------------------//
+// funciones auxiliares para testeos, reglas,etc //
 
-// parte para el push post no me acuerdo el nombre //
+const estadosPermitidos = [
+  "EN_ADOPCION",
+  "ADOPTADO",
+  "EN_TRATAMIENTO",
+];
+
+const camposTexto = [
+  "nombre",
+  "especie",
+  "sexo",
+  "tamanho",
+  "estado_salud",
+];
+
+const limitesTexto = {
+  nombre: 100,
+  especie: 50,
+  sexo: 20,
+  tamanho: 20,
+};
+
+const camposObligatoriosAlCrear = ["nombre", "especie"];
+
+const camposPermitidosAlCrear = [
+  ...camposTexto,
+  "edad",
+  "estado",
+  "usuario_id",
+];
+
+const camposPermitidosAlActualizar = [
+  ...camposTexto,
+  "edad",
+  "estado",
+];
+
+function esObjetoJson(body) {
+  return body !== null && typeof body === "object" && !Array.isArray(body);
+}
+
+function obtenerIdValido(idParametro) {
+  const id = Number(idParametro);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    return null;
+  }
+
+  return id;
+}
+
+function obtenerSiguienteId() {
+  return animalesPrueba.reduce(
+    (mayorId, animal) => Math.max(mayorId, animal.id),
+    0
+  ) + 1;
+}
+
+function validarDatosAnimal(body, { alCrear = false } = {}) {
+  const camposPermitidos = alCrear
+    ? camposPermitidosAlCrear
+    : camposPermitidosAlActualizar;
+
+  const camposDesconocidos = Object.keys(body).filter(
+    (campo) => !camposPermitidos.includes(campo)
+  );
+
+  if (camposDesconocidos.length > 0) {
+    return {
+      error: {
+        message: "Hay campos que no se permiten en esta operación",
+        fields: camposDesconocidos,
+      },
+    };
+  }
+
+  const datos = {};
+  const camposInvalidos = [];
+
+  for (const campo of camposTexto) {
+    const esObligatorio =
+      alCrear && camposObligatoriosAlCrear.includes(campo);
+
+    if (body[campo] === undefined) {
+      if (esObligatorio) {
+        camposInvalidos.push(campo);
+      }
+
+      continue;
+    }
+
+    const puedeSerNull = [
+      "sexo",
+      "tamanho",
+      "estado_salud",
+    ].includes(campo);
+
+    if (body[campo] === null && puedeSerNull) {
+      datos[campo] = null;
+      continue;
+    }
+
+    if (
+      typeof body[campo] !== "string" ||
+      body[campo].trim().length === 0
+    ) {
+      camposInvalidos.push(campo);
+      continue;
+    }
+
+    const valor = body[campo].trim();
+
+    if (limitesTexto[campo] && valor.length > limitesTexto[campo]) {
+      camposInvalidos.push(campo);
+      continue;
+    }
+
+    datos[campo] = valor;
+  }
+
+  if (body.edad !== undefined) {
+    if (
+      body.edad !== null &&
+      (!Number.isInteger(body.edad) || body.edad < 0)
+    ) {
+      camposInvalidos.push("edad");
+    } else {
+      datos.edad = body.edad;
+    }
+  } else if (alCrear) {
+    datos.edad = null;
+  }
+
+  if (body.estado !== undefined) {
+    if (!estadosPermitidos.includes(body.estado)) {
+      return {
+        error: {
+          message: "El estado del animal no es válido",
+          allowedValues: estadosPermitidos,
+        },
+      };
+    }
+
+    datos.estado = body.estado;
+  } else if (alCrear) {
+    datos.estado = "EN_ADOPCION";
+  }
+
+  if (alCrear) {
+    if (!Number.isInteger(body.usuario_id) || body.usuario_id <= 0) {
+      camposInvalidos.push("usuario_id");
+    } else {
+      datos.usuario_id = body.usuario_id;
+    }
+
+    for (const campo of ["sexo", "tamanho", "estado_salud"]) {
+      if (datos[campo] === undefined) {
+        datos[campo] = null;
+      }
+    }
+  }
+
+  if (camposInvalidos.length > 0) {
+    return {
+      error: {
+        message: "Hay campos obligatorios o con un formato inválido",
+        fields: [...new Set(camposInvalidos)],
+      },
+    };
+  }
+
+  return { datos };
+}
+
+//---------------------------------------------------------------------------------------------------//
+// parte para POST en animales //
 
 export const crearAnimal = (req, res) => {
   const body = req.body;
 
-  if (!body || typeof body !== "object" || Array.isArray(body)) {
+  if (!esObjetoJson(body)) {
     return res.status(400).json({
       success: false,
       error: {
-        message: "El cuerpo de la solicitud debe ser un objeto JSON",
+        message: "El cuerpo debe ser un objeto JSON",
       },
     });
   }
 
-  const camposObligatorios = [
-    "name",
-    "species",
-    "age",
-    "size",
-    "sex",
-    "location",
-    "description",
-  ];
+  const { datos, error } = validarDatosAnimal(body, {
+    alCrear: true,
+  });
 
-  const camposInvalidos = camposObligatorios.filter(
-    (campo) =>
-      typeof body[campo] !== "string" ||
-      body[campo].trim().length === 0
-  );
-
-  if (camposInvalidos.length > 0) {
+  if (error) {
     return res.status(400).json({
       success: false,
-      error: {
-        message: "Faltan campos obligatorios o están vacíos",
-        fields: camposInvalidos,
-      },
-    });
-  }
-
-  if (
-    body.specialCare !== undefined &&
-    (!Array.isArray(body.specialCare) ||
-      body.specialCare.some((item) => typeof item !== "string"))
-  ) {
-    return res.status(400).json({
-      success: false,
-      error: {
-        message: "specialCare debe ser una lista de textos",
-      },
+      error,
     });
   }
 
   const animal = {
-    id: randomUUID(),
-    name: body.name.trim(),
-    species: body.species.trim(),
-    age: body.age.trim(),
-    size: body.size.trim(),
-    sex: body.sex.trim(),
-    location: body.location.trim(),
-    description: body.description.trim(),
-    healthStatus:
-      typeof body.healthStatus === "string" && body.healthStatus.trim()
-        ? body.healthStatus.trim()
-        : "No informado",
-    specialCare: body.specialCare ?? [],
-    behavior:
-      typeof body.behavior === "string" && body.behavior.trim()
-        ? body.behavior.trim()
-        : "No informado",
-    history:
-      typeof body.history === "string" && body.history.trim()
-        ? body.history.trim()
-        : "No informado",
-    status: "En adopción",
-    imageUrl:
-      typeof body.imageUrl === "string" && body.imageUrl.trim()
-        ? body.imageUrl.trim()
-        : null,
+    id: obtenerSiguienteId(),
+    ...datos,
+    creado_en: new Date().toISOString(),
   };
 
   animalesPrueba.push(animal);
@@ -95,10 +220,10 @@ export const crearAnimal = (req, res) => {
 };
 
 //---------------------------------------------------------------------------------------------------//
-
 // parte para GET en animales //
+
 export const getAnimales = (req, res) => {
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
     message: "Lista de animales obtenida correctamente",
     data: animalesPrueba,
@@ -106,8 +231,19 @@ export const getAnimales = (req, res) => {
 };
 
 export const getAnimalPorId = (req, res) => {
+  const id = obtenerIdValido(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        message: "El id debe ser un número entero positivo",
+      },
+    });
+  }
+
   const animal = animalesPrueba.find(
-    (animal) => animal.id === req.params.id
+    (item) => item.id === id
   );
 
   if (!animal) {
@@ -127,136 +263,63 @@ export const getAnimalPorId = (req, res) => {
 };
 
 //---------------------------------------------------------------------------------------------------//
-
-// parte para patch en animales, o sea actualizar la info //
+// parte para PATCH en animales, o sea actualizar la info //
 
 export const actualizarAnimal = (req, res) => {
+  const id = obtenerIdValido(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        message: "El id debe ser un número entero positivo",
+      },
+    });
+  }
+
   const animal = animalesPrueba.find(
-    (animal) => animal.id === req.params.id
+    (item) => item.id === id
   );
 
   if (!animal) {
     return res.status(404).json({
       success: false,
-      error: { message: "Animal no encontrado" },
+      error: {
+        message: "Animal no encontrado",
+      },
     });
   }
 
   const body = req.body;
-//esto es para el postman, solo para confirmar eso del tipo de objeto nomas
-  if (!body || typeof body !== "object" || Array.isArray(body)) {
+
+  if (!esObjetoJson(body)) {
     return res.status(400).json({
       success: false,
-      error: { message: "El cuerpo debe ser un objeto JSON" },
+      error: {
+        message: "El cuerpo debe ser un objeto JSON",
+      },
     });
   }
 
   if (Object.keys(body).length === 0) {
     return res.status(400).json({
       success: false,
-      error: { message: "Debes enviar al menos un campo para actualizar" },
-    });
-  }
-
-  const camposTexto = [
-    "name",
-    "species",
-    "age",
-    "size",
-    "sex",
-    "location",
-    "description",
-    "healthStatus",
-    "behavior",
-    "history",
-    "status",
-  ];
-
-  const camposPermitidos = [...camposTexto, "specialCare", "imageUrl"];
-  const camposDesconocidos = Object.keys(body).filter(
-    (campo) => !camposPermitidos.includes(campo)
-  );
-
-  if (camposDesconocidos.length > 0) {
-    return res.status(400).json({
-      success: false,
       error: {
-        message: "Hay campos que no se pueden actualizar",
-        fields: camposDesconocidos,
-      },
-    });
-  }
-//hace un arreglo con los no validos para cancelar la accion
-  const camposInvalidos = camposTexto.filter(
-    (campo) =>
-      body[campo] !== undefined &&
-      (typeof body[campo] !== "string" || body[campo].trim().length === 0)
-  );
-
-  if (camposInvalidos.length > 0) {
-    return res.status(400).json({
-      success: false,
-      error: {
-        message: "Los campos de texto no pueden estar vacíos",
-        fields: camposInvalidos,
+        message: "Debes enviar al menos un campo para actualizar",
       },
     });
   }
 
-  const estadosPermitidos = ["En adopción", "En proceso", "Adoptado"];
+  const { datos, error } = validarDatosAnimal(body);
 
-  if (
-    body.status !== undefined &&
-    !estadosPermitidos.includes(body.status)
-  ) {
+  if (error) {
     return res.status(400).json({
       success: false,
-      error: {
-        message: "El estado del animal no es válido",
-        allowedValues: estadosPermitidos,
-      },
+      error,
     });
   }
 
-  if (
-    body.specialCare !== undefined &&
-    (!Array.isArray(body.specialCare) ||
-      body.specialCare.some(
-        (item) => typeof item !== "string" || item.trim().length === 0
-      ))
-  ) {
-    return res.status(400).json({
-      success: false,
-      error: { message: "specialCare debe ser una lista de textos" },
-    });
-  }
-
-  if (
-    body.imageUrl !== undefined &&
-    body.imageUrl !== null &&
-    (typeof body.imageUrl !== "string" || body.imageUrl.trim().length === 0)
-  ) {
-    return res.status(400).json({
-      success: false,
-      error: { message: "imageUrl debe ser un texto o null" },
-    });
-  }
-
-//quita espacios
-  for (const campo of camposTexto) {
-    if (body[campo] !== undefined) {
-      animal[campo] = body[campo].trim();
-    }
-  }
-
-  if (body.specialCare !== undefined) {
-    animal.specialCare = body.specialCare.map((item) => item.trim());
-  }
-
-  if (body.imageUrl !== undefined) {
-    animal.imageUrl =
-      body.imageUrl === null ? null : body.imageUrl.trim();
-  }
+  Object.assign(animal, datos);
 
   return res.status(200).json({
     success: true,
@@ -265,14 +328,25 @@ export const actualizarAnimal = (req, res) => {
   });
 };
 
-// parte para delete en animales //
+//---------------------------------------------------------------------------------------------------//
+// parte para DELETE en animales //
 
 export const eliminarAnimal = (req, res) => {
+  const id = obtenerIdValido(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        message: "El id debe ser un número entero positivo",
+      },
+    });
+  }
+
   const indice = animalesPrueba.findIndex(
-    (animal) => animal.id === req.params.id
+    (item) => item.id === id
   );
 
-  // cuando es -1 es porque no encontró el id, o sea error y 404
   if (indice === -1) {
     return res.status(404).json({
       success: false,
@@ -281,8 +355,15 @@ export const eliminarAnimal = (req, res) => {
       },
     });
   }
-// .splice es lo que borra el este
+
   const [animalEliminado] = animalesPrueba.splice(indice, 1);
+
+  // Simula ON DELETE CASCADE de solicitudes_adopcion.
+  for (let i = solicitudesPrueba.length - 1; i >= 0; i--) {
+    if (solicitudesPrueba[i].animal_id === id) {
+      solicitudesPrueba.splice(i, 1);
+    }
+  }
 
   return res.status(200).json({
     success: true,
@@ -290,3 +371,5 @@ export const eliminarAnimal = (req, res) => {
     data: animalEliminado,
   });
 };
+
+//---------------------------------------------------------------------------------------------------//
