@@ -1,5 +1,9 @@
 # Huellas al Hogar - `frontend`
 
+<p align="center">
+  <img src="src/assets/gif/inicio-demo.gif" alt="Vista inicial de Huellas al Hogar" width="900">
+</p>
+
 Esta rama contiene la interfaz de usuario desarrollada en **Ionic + React + TypeScript**, junto con la documentación de los requerimientos funcionales y no funcionales del proyecto.
 
 ## Integrantes
