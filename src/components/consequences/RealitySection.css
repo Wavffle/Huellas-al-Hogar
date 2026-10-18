@@ -38,6 +38,27 @@
     font-weight: 700;
 }
 
+/* Cada palabra aparece según el progreso del scroll.
+   --i = posición de la palabra, --n = total de elementos, --w = ventana de aparición.
+   Usa opacity y translate (no transform) para no pisar otros estilos. */
+.aban-reality__word {
+    display: inline-block;
+}
+
+.aban-reality__reveal {
+    opacity: 0;
+    translate: 0 0.5em;   /* sube mientras aparece; pon 0em para solo fundido */
+    transition:
+            opacity var(--word-duration, 800ms) ease,
+            translate var(--word-duration, 800ms) cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: calc(var(--i, 0) * var(--word-delay, 55ms));
+}
+
+.aban-reality.is-revealed .aban-reality__reveal {
+    opacity: 1;
+    translate: 0 0;
+}
+
 @media (min-width: 800px) {
     .aban-reality__lead {
         font-size: clamp(1.3rem, 2.2vw, 2.6rem);
