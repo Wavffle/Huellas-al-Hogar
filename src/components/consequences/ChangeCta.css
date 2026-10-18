@@ -1,0 +1,121 @@
+.aban-cta {
+    padding: clamp(2rem, 8vw, 2.6rem) var(--page-gutter) clamp(1.8rem, 6vw, 2.4rem);
+    background: var(--color-footer);
+    color: var(--color-bg);
+}
+
+.aban-cta__inner {
+    position: relative;
+    max-width: 100rem;
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 1.2rem 1rem;
+}
+
+.aban-cta__house {
+    width: 4.2rem;
+    height: auto;
+}
+
+.aban-cta__title {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.6rem;
+    font-size: clamp(1.15rem, 5vw, 1.4rem);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-bg);
+}
+
+.aban-cta__paw {
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: auto;
+    fill: var(--color-bg);
+}
+
+.aban-cta__text {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 200;
+    line-height: 1.35;
+    color: rgba(242, 234, 224, 0.8);
+}
+
+.aban-cta__button {
+    grid-column: 1 / -1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-bg);
+    color: var(--color-primary-dark);
+    font: 600 0.9rem var(--font-body);
+    text-decoration: none;
+    transition: background 0.2s ease, translate 0.2s ease;
+}
+
+.aban-cta__button:hover {
+    background: var(--color-white);
+    translate: 0 -2px;
+}
+
+.aban-cta__dash {
+    display: none;
+}
+
+/* ===== Escritorio ===== */
+@media (min-width: 800px) {
+    .aban-cta {
+        padding-block: clamp(2.5rem, 4.5vw, 4.5rem) clamp(2.5rem, 4vw, 4rem);
+    }
+
+    .aban-cta__inner {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        column-gap: clamp(1.2rem, 2vw, 2.4rem);
+        --cta-pad: clamp(1rem, 4vw, 4rem);
+        padding-inline: var(--cta-pad);
+    }
+
+    .aban-cta__house {
+        width: clamp(5rem, 10vw, 10rem);
+    }
+
+    .aban-cta__title {
+        justify-content: flex-start;
+        align-items: center;
+        gap: 0.7rem;
+        font-size: clamp(1.3rem, 2vw, 2.1rem);
+    }
+
+    .aban-cta__paw {
+        width: 1.1em;
+    }
+
+    .aban-cta__text {
+        max-width: 44rem;
+        font-size: clamp(0.4rem, 1vw, 1rem);
+    }
+
+    .aban-cta__button {
+        grid-column: auto;
+        padding: 1.25rem clamp(2.4rem, 4vw, 4.6rem);
+        font-size: clamp(0.85rem, 1vw, 1rem);
+    }
+
+    .aban-cta__dash {
+        --dash-h: clamp(4.5rem, 8.4vw, 9rem);
+        display: block;
+        position: absolute;
+        left: calc(var(--cta-pad) + (100% - 2 * var(--cta-pad)) * 0.1);
+        width: calc((100% - 2 * var(--cta-pad)) * 0.78);
+        height: var(--dash-h);
+        bottom: calc(var(--dash-h) * -0.66);
+        color: rgba(242, 234, 224, 0.55);
+        pointer-events: none;
+    }
+}

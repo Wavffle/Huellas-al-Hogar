@@ -1,0 +1,167 @@
+.aban-intro {
+    max-width: 112rem;
+    margin-inline: auto;
+    padding-inline: clamp(0.9rem, 2vw, 2.6rem);
+}
+
+.aban-intro__grid {
+    display: grid;
+    gap: 0.8rem;
+}
+
+/* ===== Panel celeste ===== */
+.aban-intro__panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.4rem;
+    padding: 2.4rem 1.6rem 2.6rem;
+    border-radius: var(--aban-big) var(--aban-big) var(--radius-sm) var(--radius-sm);
+    background: var(--color-accent);
+    text-align: center;
+}
+
+.aban-intro__eyebrow {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.aban-intro__text {
+    max-width: 24em;
+    font-size: clamp(1rem, 4vw, 1.35rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.2;
+}
+
+/* ===== Foto ===== */
+.aban-intro__photo {
+    position: relative;
+    aspect-ratio: 1.4 / 1;
+    overflow: hidden;
+    border-radius: var(--radius-sm) var(--radius-sm) var(--aban-big) var(--aban-big);
+}
+
+.aban-intro__photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ===== Estadísticas ===== */
+.aban-intro__stats {
+    list-style: none;
+    margin: 0.9rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.8rem;
+}
+
+.aban-stat {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.2rem;
+    border-radius: var(--radius-lg);
+    background: var(--aban-lilac-soft);
+}
+
+.aban-stat__icon {
+    flex: 0 0 2.8rem;
+    width: 2.8rem;
+    height: auto;
+}
+
+.aban-stat__value {
+    font-family: var(--font-heading);
+    font-size: clamp(1.3rem, 6vw, 1.6rem);
+    font-weight: 600;
+    line-height: 1.15;
+}
+
+.aban-stat__text {
+    margin-top: 0.2rem;
+    font-size: 0.85rem;
+    line-height: 1.3;
+    color: var(--color-text-muted);
+}
+
+.aban-intro__source {
+    margin-top: 0.9rem;
+    text-align: center;
+    font-size: 0.7rem;
+    line-height: 1.3;
+    color: var(--color-text-muted);
+}
+
+/* ===== Escritorio ===== */
+@media (min-width: 800px) {
+    .aban-intro__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: clamp(0.8rem, 1.7vw, 2rem);
+    }
+
+    .aban-intro__panel {
+        min-height: clamp(18rem, 38vw, 34rem);   /* alto de la fila: panel y foto */
+        padding: 2.2rem clamp(2rem, 4vw, 5rem);
+        border-radius: var(--aban-big) var(--radius-sm) var(--radius-sm) var(--radius-sm);
+    }
+
+    .aban-intro__eyebrow {
+        font-size: clamp(1rem, 1vw, 1.1rem);
+    }
+
+    .aban-intro__text {
+        font-size: clamp(1rem, 2vw, 2rem);
+    }
+
+    .aban-intro__photo {
+        aspect-ratio: auto;
+        border-radius: var(--radius-sm) var(--aban-big) var(--radius-sm) var(--radius-sm);
+    }
+
+    /* Las tres estadísticas pasan a ser una sola franja lila */
+    .aban-intro__stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0;
+        margin: clamp(0.7rem, 1.2vw, 1.4rem) 1vw 0;
+        padding: 1.2rem 0;
+        border-radius: var(--radius-lg);
+        background: var(--aban-lilac-soft);
+    }
+
+    .aban-stat {
+        padding: 0.2rem clamp(1rem, 2.2vw, 2.6rem);
+        border-radius: 0;
+        background: none;
+    }
+
+    .aban-stat + .aban-stat {
+        border-left: 1px solid rgba(155, 142, 199, 0.5);
+    }
+
+    .aban-stat__icon {
+        flex-basis: clamp(3rem, 4vw, 3rem);
+        width: clamp(2rem, 3vw, 4rem);
+    }
+
+    .aban-stat__value {
+        font-size: clamp(1.1rem, 1.7vw, 1.9rem);
+    }
+
+    .aban-stat__text {
+        font-size: clamp(0.75rem, 0.95vw, 0.95rem);    /* antes clamp(0.8rem, 1.05vw, 1.05rem) */
+        line-height: 1.25;
+    }
+
+    .aban-intro__source {
+        font-size: clamp(0.7rem, 0.9vw, 0.85rem);
+        margin-top: 1.7rem;
+    }
+}

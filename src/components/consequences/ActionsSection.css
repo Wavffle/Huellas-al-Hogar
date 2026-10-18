@@ -1,0 +1,151 @@
+.aban-act {
+    max-width: 100rem;
+    margin-inline: auto;
+    padding: clamp(1.5rem, 6vw, 2.5rem) var(--aban-gutter) clamp(2.5rem, 8vw, 8rem);
+}
+
+/* ===== Ilustraciones ===== */
+.aban-act__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 2.2rem;
+}
+
+.aban-act-item {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 22rem;
+    margin-inline: auto;
+    text-align: center;
+    --img-x: 50%;
+    --img-w: 70cqw;
+    --img-bottom: 0cqw;
+    --text-gap: 0rem;   /* separación entre la ilustración y el título (admite negativos) */
+}
+
+.aban-act-item__tile {
+    position: relative;
+    flex: 1;
+    aspect-ratio: 1.33 / 1;
+    border-radius: 0;
+    background: var(--aban-lilac-soft);
+}
+
+/* Ilustración + manchas: se posicionan juntas */
+.aban-act-item__art {
+    position: absolute;
+    left: var(--img-x);
+    bottom: var(--img-bottom);
+    translate: -50% 0;
+    width: var(--img-w);
+}
+
+.aban-act-item__art img {
+    position: relative;   /* por encima de las manchas */
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: none;
+}
+
+/* Manchas moradas ondulatorias detrás de la ilustración */
+.aban-act-item__blobs {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.aban-act-item__blob {
+    fill: var(--color-footer);   /* más claro: var(--color-primary) */
+}
+
+.aban-act-item:nth-child(1) { --img-x: 50%; --img-w: 80cqw; --img-bottom: -6.3cqw; --text-gap: 0rem; }   /* Adopta */
+.aban-act-item:nth-child(2) { --img-x: 50%; --img-w: 86cqw; --img-bottom: -3.7cqw; --text-gap: 0rem; }   /* Esteriliza */
+.aban-act-item:nth-child(3) { --img-x: 50%; --img-w: 78cqw; --img-bottom: -2.4cqw; --text-gap: 0rem; }   /* Educa */
+
+.aban-act-item__title {
+    /* baja lo mismo que sobresale la ilustración + el ajuste individual --text-gap */
+    margin-top: calc(max(0cqw, var(--img-bottom) * -1) + var(--text-gap));
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.aban-act-item__text {
+    margin-top: 0.15rem;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    color: var(--color-text-muted);
+}
+
+/* ===== Escritorio: una grande a la izquierda y dos apiladas a la derecha ===== */
+@media (min-width: 800px) {
+    /* La sección mide una pantalla y la cuadrícula queda centrada verticalmente */
+    .aban-act {
+        display: grid;
+        align-content: center;
+        min-height: 100vh;
+        padding-block: clamp(1.5rem, 3vw, 3rem);   /* sube o baja la cuadrícula si hace falta */
+    }
+
+    .aban-act__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: clamp(0.8rem, 1.4vw, 1.6rem);
+        row-gap: clamp(1rem, 1.6vw, 1.8rem);
+        margin: 0 2.5vw;
+        translate: 0 -1.9rem;
+    }
+
+    .aban-act-item {
+        max-width: none;
+        margin-inline: 0;
+    }
+
+    .aban-act-item:first-child {
+        grid-row: 1 / span 2;
+    }
+
+    .aban-act-item:first-child .aban-act-item__tile {
+        aspect-ratio: auto;
+        min-height: 18rem;
+    }
+
+    .aban-act-item:not(:first-child) .aban-act-item__tile {
+        flex: none;
+        aspect-ratio: 2.7 / 1;
+    }
+
+    .aban-act-item__title {
+        font-size: clamp(0.9rem, 1.3vw, 1.2rem);
+    }
+
+    .aban-act-item__text {
+        font-size: clamp(0.85rem, 1.2vw, 1.15rem);
+    }
+}
+
+@supports (height: 100dvh) {
+    @media (min-width: 800px) {
+        .aban-act {
+            min-height: 100dvh;
+        }
+    }
+}
+
+/* Adopta */
+.aban-act-item:nth-child(1) .aban-act-item__blob:nth-child(1) { translate: 5px 0px; scale: 1; }   /* detrás del pelo */
+.aban-act-item:nth-child(1) .aban-act-item__blob:nth-child(2) { translate: -6px 0px; scale: 1; }   /* detrás del perro */
+
+/* Esteriliza */
+.aban-act-item:nth-child(2) .aban-act-item__blob:nth-child(1) { translate: 12px 0px; scale: 1; }   /* izquierda */
+.aban-act-item:nth-child(2) .aban-act-item__blob:nth-child(2) { translate: -12px 6px; scale: 1; }   /* derecha */
+
+/* Educa */
+.aban-act-item:nth-child(3) .aban-act-item__blob:nth-child(1) { translate: -16px 18px; scale: 1.1; }   /* izquierda */
+.aban-act-item:nth-child(3) .aban-act-item__blob:nth-child(2) { translate: -12px 0px; scale: 1; }   /* derecha */

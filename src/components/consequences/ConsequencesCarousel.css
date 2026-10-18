@@ -1,0 +1,144 @@
+.aban-cons {
+    max-width: 112rem;
+    margin-inline: auto;
+    padding: clamp(2.6rem, 12vw, 3.5rem) clamp(0.9rem, 2vw, 2.6rem) 0;
+}
+
+.aban-cons__title {
+    margin-bottom: 1.1rem;
+    font-size: clamp(1.4rem, 6vw, 1.7rem);
+    font-weight: 500;
+    line-height: 1.15;
+}
+
+.aban-cons__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===== Móvil: se ve una a la vez ===== */
+.aban-cons-item:not(.is-active) {
+    display: none;
+}
+
+.aban-cons-item.is-active {
+    animation: aban-cons-in 0.4s ease both;
+}
+
+.aban-cons-item__image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 3.7 / 1;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+}
+
+.aban-cons-item__tag {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.45rem 1.3rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-primary);
+    color: var(--color-white);
+    font-size: 0.78rem;
+    line-height: 1.2;
+}
+
+.aban-cons-item__text {
+    margin-top: 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 400;
+    line-height: 1.3;
+}
+
+/* Flechas y puntitos */
+.aban-cons__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.2rem;
+}
+
+.aban-cons__arrow {
+    display: inline-flex;
+    padding: 0.2rem;
+    border: 0;
+    background: none;
+    color: var(--color-primary);
+    font-size: 1.9rem;
+    cursor: pointer;
+}
+
+.aban-cons__dots {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.aban-cons__dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(155, 142, 199, 0.35);
+    cursor: pointer;
+    transition: background 0.25s ease, scale 0.25s ease;
+}
+
+.aban-cons__dot.is-active {
+    background: var(--color-primary);
+    scale: 1.2;
+}
+
+/* ===== Escritorio: las 5 en columnas ===== */
+@media (min-width: 800px) {
+    .aban-cons {
+        padding-top: clamp(3rem, 7vw, 6.5rem);
+    }
+
+    .aban-cons__title {
+        margin-bottom: clamp(1.4rem, 2.4vw, 2.6rem);
+        font-size: clamp(1.5rem, 2.5vw, 2.6rem);
+        font-weight: 700;
+    }
+
+    .aban-cons__list {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        column-gap: clamp(1.2rem, 2.4vw, 3rem);
+    }
+
+    .aban-cons-item:not(.is-active),
+    .aban-cons-item {
+        display: block;
+        animation: none;
+    }
+
+    .aban-cons-item__image {
+        aspect-ratio: 0.76 / 1;
+    }
+
+    .aban-cons-item__tag {
+        margin-top: clamp(0.5rem, 0.8vw, 1rem);
+        padding: 0.6rem clamp(0.8rem, 1.2vw, 1.4rem);
+        font-size: clamp(0.7rem, 0.85vw, 0.85rem);
+    }
+
+    .aban-cons-item__text {
+        margin-top: clamp(0.7rem, 1vw, 1.1rem);
+        font-size: clamp(1rem, 1vw, 1rem);
+        font-weight: 300;
+    }
+
+    .aban-cons__nav {
+        display: none;
+    }
+}
+
+@keyframes aban-cons-in {
+    from { opacity: 0; translate: 0.8rem 0; }
+    to   { opacity: 1; translate: 0 0; }
+}

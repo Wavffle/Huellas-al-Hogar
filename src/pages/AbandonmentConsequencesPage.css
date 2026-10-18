@@ -1,0 +1,29 @@
+.aban-page {
+    --aban-top-gap: 0.5rem;
+    --aban-peek: 2.5rem;
+    --aban-gutter: clamp(1.1rem, 5.5vw, 1.8rem);
+    --aban-radius: clamp(2.2rem, 11vw, 3.2rem);   /* curva superior de la sección crema */
+    --aban-big: clamp(2.8rem, 16vw, 4.2rem);      /* esquinas grandes del panel celeste y la foto */
+    --aban-lilac-soft: #ebe2f3;
+    overflow-x: clip;
+}
+
+.aban-body {
+    position: relative;   /* queda por encima del hero */
+    margin-top: calc(var(--aban-radius) * -1);
+    padding-top: clamp(2.5rem, 11vw, 4rem);
+    border-radius: var(--aban-radius) var(--aban-radius) 0 0;
+    background: var(--color-bg);
+}
+
+@media (min-width: 800px) {
+    .aban-page {
+        --aban-gutter: clamp(1.5rem, 2.6vw, 3.5rem);
+        --aban-radius: clamp(2rem, 2vw, 2rem);
+        --aban-big: clamp(3.5rem, 5.5vw, 6rem);
+    }
+
+    .aban-body {
+        padding-top: clamp(4rem, 10vw, 10rem);
+    }
+}

@@ -1,0 +1,77 @@
+.aban-hero {
+    position: relative;
+    display: grid;
+    place-items: center;
+    margin-top: var(--aban-top-gap);
+    height: calc(100vh - var(--navbar-height) - var(--aban-top-gap) - var(--aban-peek) + var(--aban-radius));
+    min-height: 22rem;
+    overflow: hidden;
+    background: var(--color-text);
+}
+
+.aban-hero__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 75%;   /* qué parte de la foto se ve al recortar */
+}
+
+/* Oscurece un poco la foto para que se lea el texto */
+.aban-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(20, 16, 26, 0.3), rgba(20, 16, 26, 0.5));
+}
+
+.aban-hero__title {
+    /* Ajustes de la animación de entrada */
+    --start-delay: 0.25s;     /* espera antes de que aparezca la primera palabra */
+    --word-delay: 0.09s;      /* desfase entre una palabra y la siguiente */
+    --word-duration: 0.9s;    /* cuánto tarda cada palabra en aparecer */
+
+    position: relative;
+    z-index: 1;
+    max-width: 15em;
+    margin-inline: var(--aban-gutter);
+    padding-bottom: var(--aban-radius);   /* centra el texto en la parte visible */
+    color: var(--color-white);
+    font-family: var(--font-heading);
+    font-size: clamp(1.15rem, 5.2vw, 1.5rem);
+    font-weight: 700;
+    line-height: 1.3;
+    text-align: center;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
+    translate: 0 -2rem;
+}
+
+/* Cada palabra sube un poco mientras se aclara y se enfoca.
+   Usa translate (no transform) y va en la palabra, no en el título,
+   así no pisa el translate del h1. */
+.aban-hero__word {
+    display: inline-block;
+    animation: aban-word-in var(--word-duration) cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--start-delay) + var(--i, 0) * var(--word-delay));
+}
+
+@keyframes aban-word-in {
+    from {
+        opacity: 0;
+        translate: 0 0.6em;
+        filter: blur(6px);
+    }
+    to {
+        opacity: 1;
+        translate: 0 0;
+        filter: blur(0);
+    }
+}
+
+@media (min-width: 800px) {
+    .aban-hero__title {
+        max-width: 20em;
+        font-size: clamp(1.2rem, 2.2vw, 2.2rem);
+    }
+}
