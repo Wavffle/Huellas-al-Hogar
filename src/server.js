@@ -2,6 +2,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { pool } from "./config/database.js";
 
 //estos son rutas
 import animalesroute from "./routes/animales.routes.js";
@@ -41,6 +42,33 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// Ruta para comprobar que el backend también puede consultar PostgreSQL.
+app.get("/api/health/database", async (req, res) => {
+  try {
+    await pool.query("SELECT 1");
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        status: "OK",
+        database: "conectada",
+      },
+    });
+  } catch (error) {
+    console.error(
+      "No se pudo comprobar la conexión con PostgreSQL:",
+      error.code || error.message
+    );
+
+    return res.status(503).json({
+      success: false,
+      error: {
+        message: "La base de datos no está disponible",
+      },
+    });
+  }
+});
+
 // Manejo de rutas inexistentes
 app.use((req, res) => {
   res.status(404).json({
@@ -51,10 +79,9 @@ app.use((req, res) => {
   });
 });
 
-
-
 //---------------------------------------------------------------------------------------------------//
-// manejo de errores inesperados //
+
+// manejo de errores inesperados, porsiacaso nomas //
 
 app.use((error, req, res, next) => {
   // Si ya comenzó la respuesta, Express debe continuar con su manejo interno.
@@ -92,6 +119,9 @@ app.use((error, req, res, next) => {
     },
   });
 });
+
+//---------------------------------------------------------------------------------------------------//
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor ejecutándose en http://localhost:${PORT}`);

@@ -1,5 +1,5 @@
-import { contenidosEducativosPrueba } from "../dataTest/educativosTest.js";
 
+import { pool } from "../config/database.js";
 //---------------------------------------------------------------------------------------------------//
 //no mucha ciencia en este, total es contenido educativo de "extra"
 // funciones auxiliares //
@@ -16,13 +16,6 @@ function obtenerIdValido(idParametro) {
   }
 
   return id;
-}
-
-function obtenerSiguienteId() {
-  return contenidosEducativosPrueba.reduce(
-    (mayorId, contenido) => Math.max(mayorId, contenido.id),
-    0
-  ) + 1;
 }
 
 function validarContenido(body, { alCrear = false } = {}) {
@@ -98,7 +91,7 @@ function validarContenido(body, { alCrear = false } = {}) {
 //---------------------------------------------------------------------------------------------------//
 // parte para POST de contenidos educativos //
 
-export const crearContenidoEducativo = (req, res) => {
+export const crearContenidoEducativo = async (req, res, next) => {
   const body = req.body;
 
   if (!esObjetoJson(body)) {
@@ -121,191 +114,239 @@ export const crearContenidoEducativo = (req, res) => {
     });
   }
 
-  const nuevoContenido = {
-    id: obtenerSiguienteId(),
-    ...datos,
-    creado_en: new Date().toISOString(),
-  };
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO contenidos_educativos (titulo, categoria, contenido, usuario_id)
+       VALUES ($1, $2, $3, $4)
+       RETURNING *`,
+      [datos.titulo, datos.categoria, datos.contenido, datos.usuario_id]
+    );
 
-  contenidosEducativosPrueba.push(nuevoContenido);
+    return res.status(201).json({
+      success: true,
+      message: "Contenido educativo creado correctamente",
+      data: rows[0],
+    });
+  } catch (error) {
+    if (error.code === "23503") {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: "El usuario indicado no existe",
+        },
+      });
+    }
 
-  return res.status(201).json({
-    success: true,
-    message: "Contenido educativo creado correctamente",
-    data: nuevoContenido,
-  });
+    return next(error);
+  }
 };
 
 //---------------------------------------------------------------------------------------------------//
 // parte para GET de contenidos educativos //
 
-export const getContenidosEducativos = (req, res) => {
-  const { categoria, usuario_id } = req.query;
-  let usuarioIdBuscado;
+export const getContenidosEducativos = async (req, res, next) => {
+  try {
+    const { categoria, usuario_id } = req.query;
+    const condiciones = [];
+    const valores = [];
 
-  if (usuario_id !== undefined) {
-    usuarioIdBuscado = obtenerIdValido(usuario_id);
+    if (categoria !== undefined) {
+      if (typeof categoria !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "La categoría no es válida",
+        });
+      }
 
-    if (usuarioIdBuscado === null) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          message: "usuario_id debe ser un número entero positivo",
-        },
-      });
+      valores.push(categoria.trim());
+      condiciones.push(`LOWER(categoria) = LOWER($${valores.length})`);
     }
+
+    if (usuario_id !== undefined) {
+      const usuarioIdBuscado = obtenerIdValido(usuario_id);
+
+      if (usuarioIdBuscado === null) {
+        return res.status(400).json({
+          success: false,
+          message: "El usuario_id debe ser un número entero positivo",
+        });
+      }
+
+      valores.push(usuarioIdBuscado);
+      condiciones.push(`usuario_id = $${valores.length}`);
+    }
+
+    let consulta = "SELECT * FROM contenidos_educativos";
+
+    if (condiciones.length > 0) {
+      consulta += ` WHERE ${condiciones.join(" AND ")}`;
+    }
+
+    consulta += " ORDER BY id";
+
+    const { rows } = await pool.query(consulta, valores);
+
+    return res.status(200).json({
+      success: true,
+      message: "Contenidos educativos obtenidos correctamente",
+      data: rows,
+    });
+  } catch (error) {
+    return next(error);
   }
-
-  const resultado = contenidosEducativosPrueba.filter((item) => {
-    return (
-      (categoria === undefined ||
-        item.categoria.toLowerCase() === categoria.toLowerCase()) &&
-      (usuarioIdBuscado === undefined ||
-        item.usuario_id === usuarioIdBuscado)
-    );
-  });
-
-  return res.status(200).json({
-    success: true,
-    message: "Contenidos educativos obtenidos correctamente",
-    data: resultado,
-  });
 };
 
-export const getContenidoEducativoPorId = (req, res) => {
-  const id = obtenerIdValido(req.params.id);
+export const getContenidoEducativoPorId = async (req, res, next) => {
+  try {
+    const id = obtenerIdValido(req.params.id);
 
-  if (id === null) {
-    return res.status(400).json({
-      success: false,
-      error: {
-        message: "El id debe ser un número entero positivo",
-      },
-    });
-  }
+    if (id === null) {
+      return res.status(400).json({
+        success: false,
+        message: "El id del contenido debe ser un número entero positivo",
+      });
+    }
 
-  const contenido = contenidosEducativosPrueba.find(
-    (item) => item.id === id
-  );
+    const { rows } = await pool.query(
+      "SELECT * FROM contenidos_educativos WHERE id = $1",
+      [id]
+    );
 
-  if (!contenido) {
-    return res.status(404).json({
-      success: false,
-      error: {
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
         message: "Contenido educativo no encontrado",
-      },
-    });
-  }
+      });
+    }
 
-  return res.status(200).json({
-    success: true,
-    message: "Contenido educativo obtenido correctamente",
-    data: contenido,
-  });
+    return res.status(200).json({
+      success: true,
+      message: "Contenido educativo obtenido correctamente",
+      data: rows[0],
+    });
+  } catch (error) {
+    return next(error);
+  }
 };
 
 //---------------------------------------------------------------------------------------------------//
 // parte para PATCH de contenidos educativos //
 
-export const actualizarContenidoEducativo = (req, res) => {
-  const id = obtenerIdValido(req.params.id);
+export const actualizarContenidoEducativo = async (req, res, next) => {
+  try {
+    const id = obtenerIdValido(req.params.id);
 
-  if (id === null) {
-    return res.status(400).json({
-      success: false,
-      error: {
-        message: "El id debe ser un número entero positivo",
-      },
+    if (id === null) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: "El id debe ser un número entero positivo",
+        },
+      });
+    }
+
+    const body = req.body;
+
+    if (!esObjetoJson(body)) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: "El cuerpo debe ser un objeto JSON",
+        },
+      });
+    }
+
+    if (Object.keys(body).length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: "Debes enviar al menos un campo para actualizar",
+        },
+      });
+    }
+
+    const { datos, error } = validarContenido(body);
+
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        error,
+      });
+    }
+
+    const campos = Object.keys(datos);
+    const asignaciones = campos.map(
+      (campo, indice) => `${campo} = $${indice + 1}`
+    );
+    const valores = campos.map((campo) => datos[campo]);
+    valores.push(id);
+
+    const consulta = `
+      UPDATE contenidos_educativos
+      SET ${asignaciones.join(", ")}
+      WHERE id = $${valores.length}
+      RETURNING *
+    `;
+
+    const { rows } = await pool.query(consulta, valores);
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          message: "Contenido educativo no encontrado",
+        },
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Contenido educativo actualizado correctamente",
+      data: rows[0],
     });
+  } catch (error) {
+    return next(error);
   }
-
-  const contenido = contenidosEducativosPrueba.find(
-    (item) => item.id === id
-  );
-
-  if (!contenido) {
-    return res.status(404).json({
-      success: false,
-      error: {
-        message: "Contenido educativo no encontrado",
-      },
-    });
-  }
-
-  const body = req.body;
-
-  if (!esObjetoJson(body)) {
-    return res.status(400).json({
-      success: false,
-      error: {
-        message: "El cuerpo debe ser un objeto JSON",
-      },
-    });
-  }
-
-  if (Object.keys(body).length === 0) {
-    return res.status(400).json({
-      success: false,
-      error: {
-        message: "Debes enviar al menos un campo para actualizar",
-      },
-    });
-  }
-
-  const { datos, error } = validarContenido(body);
-
-  if (error) {
-    return res.status(400).json({
-      success: false,
-      error,
-    });
-  }
-
-  Object.assign(contenido, datos);
-
-  return res.status(200).json({
-    success: true,
-    message: "Contenido educativo actualizado correctamente",
-    data: contenido,
-  });
 };
 
 //---------------------------------------------------------------------------------------------------//
 // parte para DELETE de contenidos educativos //
 
-export const eliminarContenidoEducativo = (req, res) => {
-  const id = obtenerIdValido(req.params.id);
+export const eliminarContenidoEducativo = async (req, res, next) => {
+  try {
+    const id = obtenerIdValido(req.params.id);
 
-  if (id === null) {
-    return res.status(400).json({
-      success: false,
-      error: {
-        message: "El id debe ser un número entero positivo",
-      },
+    if (id === null) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: "El id debe ser un número entero positivo",
+        },
+      });
+    }
+
+    const { rows } = await pool.query(
+      "DELETE FROM contenidos_educativos WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          message: "Contenido educativo no encontrado",
+        },
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Contenido educativo eliminado correctamente",
+      data: rows[0],
     });
+  } catch (error) {
+    return next(error);
   }
-
-  const indice = contenidosEducativosPrueba.findIndex(
-    (item) => item.id === id
-  );
-
-  if (indice === -1) {
-    return res.status(404).json({
-      success: false,
-      error: {
-        message: "Contenido educativo no encontrado",
-      },
-    });
-  }
-
-  const [contenidoEliminado] =
-    contenidosEducativosPrueba.splice(indice, 1);
-
-  return res.status(200).json({
-    success: true,
-    message: "Contenido educativo eliminado correctamente",
-    data: contenidoEliminado,
-  });
 };
 
 //---------------------------------------------------------------------------------------------------//
