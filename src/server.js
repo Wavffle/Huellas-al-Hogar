@@ -53,6 +53,45 @@ app.use((req, res) => {
 
 
 
+//---------------------------------------------------------------------------------------------------//
+// manejo de errores inesperados //
+
+app.use((error, req, res, next) => {
+  // Si ya comenzó la respuesta, Express debe continuar con su manejo interno.
+  if (res.headersSent) {
+    return next(error);
+  }
+
+  console.error("Error inesperado en la API:", error);
+
+  let estado = Number(error?.status || error?.statusCode);
+
+  if (!Number.isInteger(estado) || estado < 400 || estado > 599) {
+    estado = 500;
+  }
+
+  let mensaje =
+    estado >= 500
+      ? "Error interno del servidor"
+      : "No se pudo procesar la solicitud";
+
+  if (error?.type === "entity.parse.failed") {
+    estado = 400;
+    mensaje = "El JSON enviado no tiene un formato válido";
+  }
+
+  if (error?.type === "entity.too.large") {
+    estado = 413;
+    mensaje = "El cuerpo de la solicitud es demasiado grande";
+  }
+
+  return res.status(estado).json({
+    success: false,
+    error: {
+      message: mensaje,
+    },
+  });
+});
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
