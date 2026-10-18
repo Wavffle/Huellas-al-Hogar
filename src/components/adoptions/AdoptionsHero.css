@@ -1,0 +1,138 @@
+.adop-hero {
+    position: relative;
+    container-type: inline-size;   /* las posiciones del desktop escalan con cqw */
+}
+
+/* ===== Móvil: arte arriba, textos debajo ===== */
+.adop-hero__art {
+    position: relative;
+    aspect-ratio: 412 / 200;
+    overflow: hidden;
+}
+
+.adop-hero__clouds {
+    position: absolute;
+    display: block;
+    height: auto;
+}
+
+.adop-hero__clouds--mobile {
+    left: 0;
+    bottom: 0;
+    width: 100%;
+}
+
+.adop-hero__clouds--left,
+.adop-hero__clouds--right {
+    display: none;
+}
+
+.adop-hero__paws {
+    position: absolute;
+    left: 3cqw;
+    top: 7cqw;
+    width: 93cqw;
+    height: auto;
+}
+
+.adop-hero__title {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    justify-items: start;
+    padding: 2rem var(--adop-gutter) 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.4rem, 5.8vw, 1.8rem);
+    font-weight: 400;
+    line-height: 1.25;
+}
+
+.adop-hero__badge {
+    margin-right: 0.8em;
+    padding: 0.4em 1.2em;
+    border: 1px solid currentColor;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.46em;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.adop-hero__accent {
+    grid-column: 1 / -1;
+    color: var(--color-primary);
+    font-style: normal;
+}
+
+.adop-hero__text {
+    padding: 0.9rem var(--adop-gutter) 0;
+    font-size: 0.9rem;
+    font-weight: 400;
+    line-height: 1.3;
+}
+
+@media (min-width: 800px) {
+    .adop-hero {
+        aspect-ratio: 1440 / 310;
+        margin-top: clamp(1rem, 0.6vw, 4rem);   /* nuevo */
+    }
+
+    .adop-hero__art {
+        position: absolute;
+        inset: 0;
+        aspect-ratio: auto;
+        overflow: visible;
+    }
+
+    .adop-hero__clouds--mobile {
+        display: none;
+    }
+
+    .adop-hero__clouds--left {
+        display: block;
+        left: 0;
+        bottom: 0;
+        height: 84%;
+        width: auto;
+    }
+
+    .adop-hero__clouds--right {
+        display: block;
+        right: 0;
+        bottom: 0;
+        height: 48%;
+        width: auto;
+    }
+
+    .adop-hero__paws {
+        left: 25cqw;
+        top: 3.3cqw;
+        width: 38cqw;
+    }
+
+    .adop-hero__title {
+        position: absolute;
+        left: 60cqw;
+        top: 3.6cqw;
+        padding: 0;
+        font-size: clamp(1.4rem, 2.4cqw, 3rem);
+    }
+
+    .adop-hero__badge {
+        font-size: 0.3em;
+    }
+
+    .adop-hero__text {
+        position: absolute;
+        left: 5.8cqw;
+        bottom: 1.7cqw;
+        max-width: 22cqw;
+        padding: 0;
+        color: var(--color-white);
+        font-size: clamp(0.9rem, 1cqw, 1rem);
+        font-weight: 400;
+        line-height: 1.25;
+    }
+}

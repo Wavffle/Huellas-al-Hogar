@@ -1,0 +1,264 @@
+.adop-page {
+    --adop-gutter: clamp(1rem, 4.8vw, 1.5rem);
+    overflow-x: clip;   /* clip (no hidden) para no romper el sticky del panel */
+}
+
+@media (min-width: 800px) {
+    .adop-page {
+        --adop-gutter: clamp(1.5rem, 3.4vw, 3.2rem);
+    }
+}
+
+/* ===== Layout del listado ===== */
+.adop-listing {
+    display: grid;
+    gap: 1.2rem;
+    max-width: 120rem;
+    margin-inline: auto;
+    padding: 1.4rem var(--adop-gutter) 3rem;
+}
+
+.adop-aside {
+    display: none;   /* móvil: los filtros van en el modal */
+}
+
+/* ===== Barra de herramientas ===== */
+.adop-toolbar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+    scroll-margin-top: calc(var(--navbar-height) + 1rem);
+}
+
+.adop-toolbar__search {
+    grid-column: 1 / -1;
+    position: relative;
+    display: block;
+    color: var(--color-primary);
+}
+
+.adop-toolbar__search ion-icon {
+    position: absolute;
+    left: 0.7rem;
+    top: 50%;
+    translate: 0 -50%;
+    font-size: 1.1rem;
+    pointer-events: none;
+}
+
+.adop-toolbar__search input {
+    width: 100%;
+    height: 2.6rem;
+    padding: 0 0.8rem 0 2.4rem;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+    font-size: 0.85rem;
+}
+
+.adop-toolbar__search input::placeholder {
+    color: var(--color-primary);
+}
+
+.adop-toolbar__filters {
+    height: 3rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: var(--color-primary);
+    color: var(--color-white);
+    font: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.adop-toolbar__count {
+    grid-column: 1 / -1;
+    margin-top: 0.4rem;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* ===== Ordenar por ===== */
+.adop-sort {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.adop-sort__label {
+    display: none;
+    font-size: 0.95rem;
+}
+
+.adop-sort__field {
+    position: relative;
+    display: block;
+    flex: 1;
+}
+
+.adop-sort__select {
+    appearance: none;
+    width: 100%;
+    height: 3rem;
+    padding: 0 2.2rem 0 1rem;
+    border: 1px solid var(--color-text);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.adop-sort__select:focus,
+.adop-sort__select:focus-visible {
+    outline: none;
+    border-color: var(--color-primary-dark);
+}
+
+.adop-sort__icon {
+    position: absolute;
+    right: 0.8rem;
+    top: 50%;
+    translate: 0 -50%;
+    pointer-events: none;
+}
+
+/* ===== Grilla de tarjetas ===== */
+.adop-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem 1.4rem;
+    margin-top: 1.2rem;
+    padding: 0;
+    list-style: none;
+}
+
+/* ===== Sin resultados ===== */
+.adop-empty {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+.adop-empty__button {
+    padding: 0.6rem 1.6rem;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-primary);
+    color: var(--color-white);
+    font: inherit;
+    cursor: pointer;
+}
+
+/* ===== Modal de filtros (móvil) ===== */
+.adop-modal {
+    padding: 1rem 1rem 2rem;
+}
+
+.adop-modal__close {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    margin: 0 0 0.6rem auto;
+    border: 0;
+    background: none;
+    color: var(--color-text);
+    font-size: 1.7rem;
+    cursor: pointer;
+}
+
+.adop-modal__apply {
+    width: 100%;
+    height: 3rem;
+    margin-top: 1.2rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: var(--color-text);
+    color: var(--color-white);
+    font: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* ===== Escritorio ===== */
+@media (min-width: 800px) {
+    .adop-listing {
+        grid-template-columns: clamp(14rem, 15.5vw, 17rem) minmax(0, 1fr);
+        column-gap: clamp(1.5rem, 5vw, 5rem);
+        align-items: start;
+        padding-top: 1.7rem;
+        padding-right: clamp(2rem, 5vw, 8rem);
+    }
+
+    .adop-aside {
+        display: block;
+        border-radius: var(--radius-md);
+    }
+
+    .adop-toolbar {
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .adop-toolbar__search,
+    .adop-toolbar__filters {
+        display: none;
+    }
+
+    .adop-toolbar__count {
+        grid-column: 1;
+        grid-row: 1;
+        margin: 0;
+    }
+
+    .adop-sort {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .adop-sort__label {
+        display: block;
+    }
+
+    .adop-sort__field {
+        flex: none;
+    }
+
+    .adop-sort__select {
+        width: 8.6rem;
+        height: 2.1rem;
+        padding: 0 1.8rem 0 0.7rem;
+        font-size: 0.72rem;
+    }
+
+    .adop-sort__icon {
+        right: 0.6rem;
+        font-size: 0.9rem;
+    }
+
+    .adop-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.3rem;
+        margin-top: 1.3rem;
+    }
+}
+
+@media (min-width: 1100px) {
+    .adop-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1300px) {
+    .adop-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+}
