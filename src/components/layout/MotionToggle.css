@@ -1,0 +1,18 @@
+.motion-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: none;
+    color: var(--color-text);
+    font-size: 1.6rem;
+    cursor: pointer;
+}
+
+.motion-toggle:hover {
+    color: var(--color-primary-dark);
+}

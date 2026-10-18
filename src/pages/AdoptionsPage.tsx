@@ -43,7 +43,7 @@ export default function AdoptionsPage() {
 
     const goToPage = (next: number) => {
         setPage(next);
-        toolbarRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        toolbarRef.current?.closest('ion-content')?.scrollToTop(0);
     };
 
     const countLabel = `(${results.length}) ${results.length === 1 ? 'Mascota esperándote' : 'Mascotas esperándote'}`;

@@ -54,3 +54,18 @@ img {
     -webkit-user-select: text;
     user-select: text;
 }
+
+/* ===== Animaciones desactivadas por el usuario (botón del Navbar) ===== */
+html[data-motion='off'] *,
+html[data-motion='off'] *::before,
+html[data-motion='off'] *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}
+
+/* PawLoader: sin animación los dedos quedarían casi invisibles */
+html[data-motion='off'] .paw-loader__toe {
+    opacity: 1 !important;
+    scale: 1 !important;
+}
