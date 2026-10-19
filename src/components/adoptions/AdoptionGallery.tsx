@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { CSSProperties } from 'react';
 import { IonIcon } from '@ionic/react';
 import { chevronBack, chevronForward } from 'ionicons/icons';
 import './AdoptionGallery.css';
@@ -39,12 +40,15 @@ export default function AdoptionGallery({ photos, name }: { photos: string[]; na
             </div>
 
             {photos.length > 1 && (
-                <ul className="det-gallery__thumbs">
+                <ul
+                    className="det-gallery__thumbs"
+                    style={{ '--count': photos.length, '--index': index } as CSSProperties}
+                >
                     {photos.map((photo, i) => (
                         <li key={photo} className="det-gallery__thumb-item">
                             <button
                                 type="button"
-                                className={`det-gallery__thumb${i === index ? ' is-active' : ''}`}
+                                className="det-gallery__thumb"
                                 aria-label={`Ver foto ${i + 1}`}
                                 aria-current={i === index}
                                 onClick={() => setIndex(i)}
@@ -53,6 +57,8 @@ export default function AdoptionGallery({ photos, name }: { photos: string[]; na
                             </button>
                         </li>
                     ))}
+                    {/* Borde que se desliza hasta la miniatura activa */}
+                    <li className="det-gallery__indicator" aria-hidden="true" />
                 </ul>
             )}
         </div>

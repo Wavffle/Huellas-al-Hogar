@@ -54,6 +54,7 @@
 .det-gallery__arrow--next { right: 0.7rem; }
 
 .det-gallery__thumbs {
+    position: relative;
     display: flex;
     gap: var(--det-thumb-gap);
     margin: 0;
@@ -72,7 +73,7 @@
     width: 100%;
     aspect-ratio: 2 / 1;
     padding: 0;
-    border: 2px solid transparent;
+    border: 0;
     border-radius: 0.5rem;
     overflow: hidden;
     background: none;
@@ -86,8 +87,22 @@
     object-fit: cover;
 }
 
-.det-gallery__thumb.is-active {
-    border-color: var(--color-footer);
+.det-gallery__indicator {
+    --thumb-w: min(
+            calc((100% - (var(--count) - 1) * var(--det-thumb-gap)) / var(--count)),
+            calc((100% - 3 * var(--det-thumb-gap)) / 4)
+    );
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: var(--thumb-w);
+    height: 100%;
+    border: 2px solid var(--color-footer);
+    border-radius: 0.5rem;
+    pointer-events: none;
+    translate: calc(var(--index) * (100% + var(--det-thumb-gap))) 0;
+    transition: translate 0.14s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (min-width: 800px) {

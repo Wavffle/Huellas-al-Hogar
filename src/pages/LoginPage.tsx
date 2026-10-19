@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link, useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { IonContent, IonIcon, IonPage } from '@ionic/react';
 import { arrowBack, eyeOffOutline, eyeOutline, paw } from 'ionicons/icons';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,7 +12,13 @@ import './LoginPage.css';
 
 export default function LoginPage() {
     const history = useHistory();
-    const { pathname } = useLocation();
+    const { pathname, state } = useLocation<{ from?: { pathname: string; search?: string } } | undefined>();
+    const redirectTo = state?.from ? `${state.from.pathname}${state.from.search ?? ''}` : '/inicio';
+
+    const goBack = () => {
+        if (history.length > 1) history.goBack();
+        else history.push('/inicio');
+    };
     const { login } = useAuth();
     const isRegister = pathname === '/registro';
 
@@ -25,14 +31,14 @@ export default function LoginPage() {
     const submitLogin = (e: FormEvent) => {
         e.preventDefault();
         login();
-        history.replace('/inicio');
+        history.replace(redirectTo);
     };
 
     // Provisional: aún no hay backend, así que "crear cuenta" inicia sesión directamente
     const submitRegister = (e: FormEvent) => {
         e.preventDefault();
         login();
-        history.replace('/inicio');
+        history.replace(redirectTo);
     };
 
     useEffect(() => {
@@ -59,10 +65,10 @@ export default function LoginPage() {
                             className={`login__view${!isRegister ? ' is-active' : ''}`}
                             aria-hidden={isRegister}
                         >
-                            <Link to="/inicio" className="login__back" tabIndex={isRegister ? -1 : 0}>
+                            <button type="button" className="login__back" tabIndex={isRegister ? -1 : 0} onClick={goBack}>
                                 <IonIcon icon={arrowBack} aria-hidden="true" />
                                 Volver
-                            </Link>
+                            </button>
 
                             <div className="login__card">
                                 <img src={logoColor} alt="Huellas al Hogar" className="login__logo" />
@@ -136,7 +142,7 @@ export default function LoginPage() {
                                             type="button"
                                             className="login__register-link"
                                             tabIndex={isRegister ? -1 : 0}
-                                            onClick={() => history.push('/registro')}
+                                            onClick={() => history.replace('/registro', state)}
                                         >
                                             Regístrate
                                         </button>
@@ -150,10 +156,10 @@ export default function LoginPage() {
                             className={`login__view login__view--register${isRegister ? ' is-active' : ''}`}
                             aria-hidden={!isRegister}
                         >
-                            <Link to="/inicio" className="login__back" tabIndex={isRegister ? 0 : -1}>
+                            <button type="button" className="login__back" tabIndex={isRegister ? 0 : -1} onClick={goBack}>
                                 <IonIcon icon={arrowBack} aria-hidden="true" />
                                 Volver
-                            </Link>
+                            </button>
 
                             <div className="login__card">
                                 <img src={logoClaro} alt="Huellas al Hogar" className="login__logo" />
@@ -280,7 +286,7 @@ export default function LoginPage() {
                                             type="button"
                                             className="login__register-link"
                                             tabIndex={isRegister ? 0 : -1}
-                                            onClick={() => history.push('/login')}
+                                            onClick={() => history.replace('/login', state)}
                                         >
                                             Inicia sesión
                                         </button>
