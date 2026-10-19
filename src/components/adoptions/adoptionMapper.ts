@@ -1,11 +1,27 @@
 import type { AdoptionAnimal, Sex, Size, Species } from '../data/adoptions';
 
-function normalize(value: unknown): string {
+/** Origen del backend: las rutas /uploads se sirven desde ahí. */
+const API_ORIGIN = 'http://localhost:3000';
+
+export function normalize(value: unknown): string {
     return String(value ?? '')
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .toLowerCase()
         .trim();
+}
+
+export function resolveImage(path: string): string {
+    if (!path) return '';
+    if (/^(https?:|data:)/.test(path)) return path;
+    if (path.startsWith('/uploads')) return `${API_ORIGIN}${path}`;
+    return path;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getPhotos(raw: any): string[] {
+    const list: unknown[] = Array.isArray(raw.fotos) ? raw.fotos : raw.foto_url ? [raw.foto_url] : [];
+    return list.map((p) => resolveImage(String(p))).filter(Boolean);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,6 +45,6 @@ export function mapAnimal(raw: any): AdoptionAnimal {
         size,
         sex,
         city: raw.ciudad ?? 'Sin ciudad',
-        image: raw.foto_url ?? '',
+        image: getPhotos(raw)[0] ?? '',
     };
 }

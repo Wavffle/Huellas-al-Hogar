@@ -1,0 +1,458 @@
+.det-page {
+    --det-gutter: clamp(1.2rem, 6vw, 1.6rem);
+    --det-lilac-soft: #ebe2f3;
+    padding: 1.2rem 0 5rem;
+    overflow-x: clip;
+}
+
+.det-page--center {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 1rem;
+    min-height: 50vh;
+    text-align: center;
+}
+
+.det-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 0 var(--det-gutter) 1.2rem;
+    font-size: 0.85rem;
+    text-decoration: none;
+}
+
+.det-back:hover {
+    color: var(--color-primary-dark);
+}
+
+/* ===== Layout (móvil ===== */
+.det-layout {
+    display: grid;
+    gap: 1.4rem;
+    padding-inline: var(--det-gutter);
+}
+
+/* ===== Columna de información ===== */
+.det-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+}
+
+/* Móvil: etiqueta, nombre, datos y ciudad */
+.det-badge { order: -2; }
+.det-name  { order: -1; }
+
+.det-badge {
+    padding: 0.3rem 1.2rem;
+    border: 1px solid var(--color-text);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.det-name {
+    margin-top: -0.6rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: clamp(2.6rem, 3.6vw, 3.4rem);
+    margin-bottom: 0.3rem;
+}
+
+.det-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 1.2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.det-meta li {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.det-meta ion-icon,
+.det-meta img {
+    flex: none;
+    width: 1.4rem;
+    height: 1.4rem;
+    font-size: 1.4rem;
+    color: var(--color-footer);
+}
+
+.det-city {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    margin-top: -0.3rem;
+    margin-bottom: -0.86rem;
+    font-size: 0.85rem;
+}
+
+.det-city ion-icon {
+    color: var(--color-footer);
+    font-size: 1.2rem;
+}
+
+/* ===== Tarjetas lilas ===== */
+.det-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem;
+    width: 100%;
+    margin: 0.3rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.det-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    padding: 0.8rem 0.4rem;
+    border-radius: var(--radius-md);
+    background: var(--det-lilac-soft);
+    text-align: center;
+    font-size: 0.7rem;
+}
+
+.det-tile ion-icon,
+.det-tile img {
+    width: 1.9rem;
+    height: 1.9rem;
+    margin-bottom: 0.25rem;
+    font-size: 1.9rem;
+    color: var(--color-footer);
+}
+
+.det-tile__label {
+    color: var(--color-text-muted);
+}
+
+.det-tile strong {
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* ===== Botón ===== */
+.det-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
+    height: 3.4rem;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: var(--color-footer);
+    color: var(--color-white);
+    font: inherit;
+    font-size: 1.1rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.det-button:hover {
+    background: var(--color-primary-dark);
+}
+
+.det-button ion-icon {
+    font-size: 1.7rem;
+    margin-right: 0.1rem;
+}
+
+.det-button--small {
+    width: auto;
+    height: auto;
+    padding: 0.6rem 1.6rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.95rem;
+}
+
+/* ===== Etiquetas ===== */
+.det-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.det-tags li {
+    padding: 0.45rem 1.3rem;
+    border-radius: 0.4rem;
+    background: var(--det-lilac-soft);
+    font-size: 0.85rem;
+}
+
+/* ===== Sobre / Información adicional ===== */
+.det-heading {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.det-about__text {
+    margin-top: 0.9rem;
+    font-size: 0.95rem;
+    line-height: 1.3;
+}
+
+.det-extra__list {
+    display: grid;
+    gap: 1rem;
+    margin: 1rem 0 0;
+}
+
+.det-extra__row {
+    display: grid;
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+    align-items: center;
+    column-gap: 0.6rem;
+}
+
+.det-extra__row dt {
+    display: flex;
+    align-items: center;
+    gap: 0.44rem;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.det-extra__row dt ion-icon,
+.det-extra__row dt img {
+    flex: none;
+    width: 1.3rem;
+    height: 1.3rem;
+    font-size: 1.3rem;
+    color: var(--color-footer);
+}
+
+.det-extra__row dd {
+    margin: -4px;
+    color: var(--color-text-muted);
+    font-weight: 300;   /* Inter Light */
+    font-size: 0.95rem;
+}
+
+/* ===== Más animales ===== */
+.det-more {
+    margin-top: 2.5rem;
+    padding-inline: var(--det-gutter);
+}
+
+.det-more__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.det-more__title {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.det-more__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    text-decoration: none;
+}
+
+.det-more__link:hover {
+    color: var(--color-primary-dark);
+}
+
+.det-more__link--top {
+    display: none;
+}
+
+.det-more__link--bottom {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.6rem;
+}
+
+.det-more__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 0;
+    list-style: none;
+}
+
+/* Móvil: imagen ancha en cada tarjeta */
+.det-more .adop-card__media {
+    aspect-ratio: 326 / 109;
+}
+
+/* ===== Escritorio ===== */
+@media (min-width: 800px) {
+    .det-page {
+        --det-gutter: clamp(2rem, 14vw, 16rem);
+        padding-top: 2rem;
+    }
+
+    .det-back {
+        margin-bottom: 1.6rem;
+        translate: 3vw 0;
+    }
+
+    .det-layout {
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);   /* antes: 1.87fr 1fr */
+        grid-template-areas:
+        'gallery info'
+        'about   extra';
+        column-gap: 0;                                            /* antes: clamp(2rem, 4.3vw, 4rem) */
+        row-gap: 2.2rem;
+        align-items: start;
+        translate: 3vw 0;
+    }
+
+    .det-gallery-area { grid-area: gallery; }
+
+    .det-info {
+        grid-area: info;
+        gap: 1.5rem;
+        padding-left: clamp(2rem, 5vw, 5rem);   /* nuevo: reemplaza al column-gap */
+    }
+    .det-about
+    {
+        grid-area: about;
+        padding-top: 0.4rem;
+        padding-right: 3rem;
+    }
+
+    .det-extra {
+        grid-area: extra;
+        align-self: stretch;
+        margin-left: 0;                         /* antes: calc(-1 * clamp(1rem, 2.1vw, 2rem)) */
+        padding-left: clamp(2rem, 5vw, 5rem);   /* mismo valor que .det-info */
+    }
+
+    /* Desktop: etiqueta, datos, nombre y ciudad */
+    .det-badge,
+    .det-name {
+        order: 0;
+    }
+
+    .det-badge {
+        padding: 0.4rem 1.3rem;
+        font-size: 0.8rem;
+    }
+
+    .det-tiles,
+    .det-button,
+    .det-tags {
+        max-width: 80%;
+    }
+
+    .det-tags {
+        width: 100%;
+        gap: 0.6rem;
+    }
+
+    .det-tags li {
+        flex: 1 1 auto;
+        padding: 0.8rem 1.5rem;
+        text-align: center;
+        font-size: 0.85rem;
+    }
+
+    .det-name {
+        margin-top: -0.9rem;
+        font-size: clamp(2.2rem, 3.2vw, 3.2rem);
+    }
+
+    .det-meta li {
+        font-size: clamp(0.85rem, 1.15vw, 1.05rem);
+        font-weight: 500;
+    }
+
+    .det-city {
+        font-size: 0.8rem;
+    }
+
+    .det-tile {
+        padding: 1rem 0.4rem;
+        font-size: 0.75rem;
+    }
+
+    .det-button {
+        height: 4rem;
+        font-size: 1.12rem;   /* antes: 1.3rem */
+        font-weight: 300;    /* Inter Medium */
+    }
+
+    .det-heading {
+        font-family: var(--font-body);   /* Inter */
+        font-weight: 600;                /* SemiBold */
+        font-size: clamp(1.3rem, 1.7vw, 1.6rem);
+    }
+
+    .det-about__text {
+        margin-top: 2rem;
+        font-weight: 300;
+        font-size: 0.96rem;
+        line-height: 1.3;
+    }
+
+    .det-extra {
+        border-left: 1px solid rgba(48, 44, 53, 0.45);
+    }
+
+    .det-extra__list {
+        gap: 1.1rem;
+        margin-top: 1.3rem;
+    }
+
+    .det-extra__row {
+        grid-template-columns: 10rem minmax(0, 1fr);
+    }
+
+    .det-extra__row dd {
+        font-size: 0.9rem;
+    }
+
+    .det-more {
+        --det-more-gutter: clamp(1rem, 3.6vw, 3.6rem);
+        margin-top: 8rem;
+        padding-inline: var(--det-more-gutter);
+    }
+
+    .det-more__title {
+        font-size: 1.15rem;
+    }
+
+    .det-more__link--top {
+        display: inline-flex;
+    }
+
+    .det-more__link--bottom {
+        display: none;
+    }
+
+    .det-more__grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 1.1rem;
+    }
+
+    .det-more .adop-card__media {
+        aspect-ratio: 3 / 2;
+    }
+}

@@ -9,9 +9,11 @@
 
 .animal-card__image {
     display: block;
+    flex: none;
     width: 100%;
     aspect-ratio: 243 / 89;
     object-fit: cover;
+    object-position: center 50%;
 }
 
 .animal-card__body {

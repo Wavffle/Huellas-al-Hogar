@@ -1,12 +1,12 @@
-import guppy from '../../assets/images/animals/guppy.webp';
-import simba from '../../assets/images/animals/simba.webp';
-import luna from '../../assets/images/animals/luna.webp';
-import nala from '../../assets/images/animals/nala.webp';
-import rex from '../../assets/images/animals/rex.webp';
-import max from '../../assets/images/animals/max.webp';
-import mia from '../../assets/images/animals/mia.webp';
-import toby from '../../assets/images/animals/toby.webp';
-import cleo from '../../assets/images/animals/cleo.webp';
+import guppy from '../../../public/fotos-prueba/guppy.webp';
+import simba from '../../../public/fotos-prueba/simba.webp';
+import luna from '../../../public/fotos-prueba/luna.webp';
+import nala from '../../../public/fotos-prueba/nala.webp';
+import rex from '../../../public/fotos-prueba/rex.webp';
+import max from '../../../public/fotos-prueba/max.webp';
+import mia from '../../../public/fotos-prueba/mia.webp';
+import toby from '../../../public/fotos-prueba/toby.webp';
+import cleo from '../../../public/fotos-prueba/cleo.webp';
 
 export interface Animal {
     id: string;

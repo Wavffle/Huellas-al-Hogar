@@ -2,17 +2,18 @@ import { useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { IonIcon } from '@ionic/react';
 import { chevronBack, chevronForward } from 'ionicons/icons';
-import { animals } from '../data/animals';
-import AnimalCard from './AnimalCard';
+import { getAnimales } from '../../services/animalService';
+import { mapAnimal } from '../adoptions/adoptionMapper';
+import { formatAge } from '../adoptions/adoptionUtils';
+import AnimalCard, { type HomeAnimal } from './AnimalCard';
 import './AnimalsCarousel.css';
 
-const total = animals.length;
-const half = Math.floor(total / 2);
 const DESKTOP_QUERY = '(min-width: 700px)';
 const MAX_CLICKABLE = 3; // hasta qué distancia del centro se puede hacer click
+const MAX_ANIMALS = 9;
 
 /** Posición relativa al centro (…-2, -1, 0, 1, 2…) con vuelta circular. */
-function getOffset(index: number, position: number) {
+function getOffset(index: number, position: number, total: number, half: number) {
     return ((((index - position + half) % total) + total) % total) - half;
 }
 
@@ -30,21 +31,62 @@ function useIsDesktop() {
     return isDesktop;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function recency(raw: any): number {
+    const time = raw.creado_en ? new Date(raw.creado_en).getTime() : 0;
+    return time || Number(raw.id) || 0;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function toHomeAnimal(raw: any): HomeAnimal {
+    const animal = mapAnimal(raw);
+    const tags: string[] = Array.isArray(raw.etiquetas) ? raw.etiquetas.map(String) : [];
+    return {
+        id: animal.id,
+        name: animal.name,
+        age: formatAge(animal.ageMonths),
+        description: tags.slice(0, 2).join(' · '),
+        image: animal.image,
+    };
+}
+
 export default function AnimalsCarousel() {
-    const start = 2; // Luna queda al centro, como en el mockup
-    const [{ position, previous, moves }, setState] = useState({
-        position: start,
-        previous: start,
-        moves: 0,
-    });
+    const [animals, setAnimals] = useState<HomeAnimal[]>([]);
+    const [{ position, previous, moves }, setState] = useState({ position: 0, previous: 0, moves: 0 });
     const isDesktop = useIsDesktop();
+
+    useEffect(() => {
+        let cancelled = false;
+        getAnimales()
+            .then((response) => {
+                if (cancelled) return;
+                const list = Array.isArray(response) ? response : response?.data ?? [];
+                setAnimals(
+                    list
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        .filter((a: any) => !a.estado || a.estado === 'EN_ADOPCION')
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        .sort((a: any, b: any) => recency(b) - recency(a))
+                        .slice(0, MAX_ANIMALS)
+                        .map(toHomeAnimal),
+                );
+            })
+            .catch(() => {
+                if (!cancelled) setAnimals([]);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     /** Mueve el carrusel `steps` posiciones (positivo = derecha, negativo = izquierda). */
     const move = (steps: number) =>
         setState((s) => ({ previous: s.position, position: s.position + steps, moves: s.moves + 1 }));
 
+    const total = animals.length;
     if (total === 0) return null;
 
+    const half = Math.floor(total / 2);
     const delta = position - previous;
 
     return (
@@ -65,10 +107,10 @@ export default function AnimalsCarousel() {
 
                 <ul className="animals__track">
                     {animals.map((animal, index) => {
-                        const offset = getOffset(index, position);
+                        const offset = getOffset(index, position, total, half);
                         const distance = Math.abs(offset);
                         // Una tarjeta "da la vuelta" si no se movió lo esperado (-delta)
-                        const jumped = offset - getOffset(index, previous) !== -delta;
+                        const jumped = offset - getOffset(index, previous, total, half) !== -delta;
                         const isActive = offset === 0;
                         const isClickable = isDesktop && !isActive && distance <= MAX_CLICKABLE;
                         const classes = [
