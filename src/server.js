@@ -8,6 +8,7 @@ import { pool } from "./config/database.js";
 import animalesroute from "./routes/animales.routes.js";
 import solicitudesRoutes from "./routes/solicitudes.routes.js";
 import contenidosEducativosRoutes from "./routes/educativos.routes.js";
+import authRoutes from "./routes/auth.routes.js";
 dotenv.config();
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use("/api/animales", animalesroute);
 app.use("/api/solicitudes", solicitudesRoutes);
 app.use("/api/contenidos-educativos", contenidosEducativosRoutes);
+app.use("/api/auth", authRoutes);
 
 // Ruta principal
 app.get("/", (req, res) => {
