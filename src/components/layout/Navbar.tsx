@@ -166,13 +166,11 @@ export default function Navbar({ scrolled = false, onLogoClick }: NavbarProps) {
                             </div>
                         </li>
 
-                        {user?.role !== 'adoptante' && (
-                            <li>
-                                <Link to="/publicar" className="navbar__link" onClick={closeMenu}>
-                                    Publicar Animal <ArrowUpRight />
-                                </Link>
-                            </li>
-                        )}
+                        <li>
+                            <Link to="/publicar" className="navbar__link" onClick={closeMenu}>
+                                Publicar Animal <ArrowUpRight />
+                            </Link>
+                        </li>
                     </ul>
 
                     {user ? (

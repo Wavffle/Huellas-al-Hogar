@@ -7,7 +7,7 @@ import AdoptionDetailPage from '../pages/AdoptionDetailPage';
 import EducationPage from '../pages/EducationPage';
 import LoginPage from '../pages/LoginPage';
 import ProfilePage from '../pages/ProfilePage';
-import PublishAnimalPage from '../pages/PublishAnimalPage';
+import PublishGate from './PublishGate';
 import AbandonmentConsequencesPage from '../pages/AbandonmentConsequencesPage';
 import AdoptionRequestPage from '../pages/AdoptionRequestPage';
 
@@ -22,7 +22,7 @@ export default function AppRoutes() {
       <Route path="/educacion" render={() => <PublicLayout><EducationPage /></PublicLayout>} exact />
       <Route path="/educacion/consecuencias-abandono" render={() => <PublicLayout><AbandonmentConsequencesPage /></PublicLayout>} exact/>
       <ProtectedRoute path="/perfil" render={() => <PublicLayout><ProfilePage /></PublicLayout>} exact />
-      <ProtectedRoute path="/publicar" render={() => <PublicLayout><PublishAnimalPage /></PublicLayout>} allowedRoles={['rescatista', 'administrador']} exact />
+      <Route path="/publicar" render={() => <PublicLayout><PublishGate /></PublicLayout>} exact />
       <Redirect exact from="/" to="/inicio" />
     </Switch>
   );

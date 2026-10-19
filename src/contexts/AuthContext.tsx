@@ -1,11 +1,11 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 
 export type UserRole = 'adoptante' | 'rescatista' | 'administrador';
-export type User = { name: string; role: UserRole };
+export type User = { name: string; role: UserRole; email?: string };
 
 type AuthContextValue = {
   user: User | null;
-  login: (role?: UserRole) => void;
+  login: (role?: UserRole, email?: string) => void;
   logout: () => void;
 };
 
@@ -15,7 +15,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const value = useMemo(() => ({
     user,
-    login: (role: UserRole = 'adoptante') => setUser({ name: 'Usuario de prueba', role }),
+    login: (role: UserRole = 'adoptante', email?: string) =>
+        setUser({ name: 'Usuario de prueba', role, email }),
     logout: () => setUser(null),
   }), [user]);
 
