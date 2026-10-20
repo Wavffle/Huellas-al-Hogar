@@ -11,7 +11,7 @@ A continuación se presentan el Modelo Entidad-Relación y el Esquema Relacional
 ![Modelo Entidad Relación](./docs/merHuellasAlHogar.png)
 
 ### Esquema Relacional (Modelo Lógico)
-![Esquema Relacional](./docs/erHuellasAlHogar.png)
+![Esquema Relacional](./docs/erHAH.png)
 
 
 ### 2. Estructura de Tablas y Relaciones
