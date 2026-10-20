@@ -7,6 +7,12 @@ El sistema utiliza una base de datos relacional implementada en PostgreSQL.
 ### 1. Diagramas de diseño
 A continuación se presentan el Modelo Entidad-Relación y el Esquema Relacional del sitio web:
 
+### Modelo Entidad-Relación (MER)
+![Modelo Entidad Relación](./docs/merHuellasAlHogar.png)
+
+### Esquema Relacional (Modelo Lógico)
+![Esquema Relacional](./docs/erHuellasAlHogar.png)
+
 
 ### 2. Estructura de Tablas y Relaciones
 * **`usuarios`**: Almacena las cuentas registradas con sus credenciales encriptadas (`password_hash`) y sus roles (`ADMIN`, `RESCATISTA`, `ADOPTANTE`).
