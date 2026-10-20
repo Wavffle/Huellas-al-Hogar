@@ -15,11 +15,11 @@ A continuación se presentan el Modelo Entidad-Relación y el Esquema Relacional
 
 
 ### 2. Estructura de Tablas y Relaciones
-* **`usuarios`**: Almacena las cuentas registradas con sus credenciales encriptadas (`password_hash`) y sus roles (`ADMIN`, `RESCATISTA`, `ADOPTANTE`).
-* **`animales`**: Guarda la información de las mascotas en adopción. Mantiene una relación con la tabla `usuarios` mediante `usuario_id`.
-* **`solicitudes_adopcion`**: Entidad asociativa que conecta a un adoptante con un animal para realizar el seguimiento del estado de la adopción (`PENDIENTE`, `APROBADA`, `RECHAZADA`).
-* **`contenidos_educativos`**: Publicaciones y artículos informativos creados por usuarios con permisos.
-
+- **usuarios**: Almacena las cuentas registradas con sus credenciales encriptadas (`password_hash`), sus roles (`ADMIN`, `RESCATISTA`, `ADOPTANTE`) y datos de contacto como la `ciudad`.
+- **animales**: Guarda la información detallada de las mascotas en adopción (datos de salud, esterilización, tipo de rescate, rasgos de personalidad, etiquetas de compatibilidad y ciudad). Mantiene una relación con la tabla `usuarios` mediante `usuario_id`.
+- **foto_animales**: Almacena la galería de imágenes asociadas a cada mascota (con `imagen_url` y `orden` correlativo para gestionar un límite de hasta 5 fotos por animal). Se relaciona directamente con `animales` a través de `animal_id`.
+- **solicitudes_adopcion**: Entidad asociativa que conecta a un adoptante (`usuario_id`) con un animal (`animal_id`). Almacena los datos completos del formulario de postulación (tipo de vivienda, patio, experiencia previa, convivencia y motivo de adopción) y realiza el seguimiento del estado de la solicitud (`PENDIENTE`, `APROBADA`, `RECHAZADA`) junto con notas internas de administración.
+- **contenidos_educativos**: Publicaciones y artículos informativos creados por usuarios con permisos (`usuario_id`).
 # Configuración e Instalación Local
 ### 1. Requisitos Previos
 * Node.js v18+ 
