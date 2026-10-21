@@ -110,11 +110,11 @@ Entre las necesidades identificadas para este grupo se encuentran:
 
 ## Roles del Sistema
 
-- **Administrador:** Usuario encargado de la gestión general de la plataforma, verificación de rescatistas, moderación y gestión de contenido estático.
-- **Rescatista:** Usuario autorizado para publicar animales en adopción, gestionar sus fichas, revisar solicitudes y modificar el estado de sus publicaciones.
-- **Adoptante:** Usuario registrado habilitado para enviar solicitudes formales de adopción y consultar el estado de sus propias solicitudes.
+- **Administrador:** Usuario encargado de la gestión general de la plataforma, verificación de rescatistas, moderación y gestión de contenido estático. Este rol no se elige al registrarse.
+- **Rescatista:** Usuario autorizado para publicar animales en adopción, gestionar sus fichas, revisar solicitudes y modificar el estado de sus publicaciones. El rol es asignado por un administrador.
+- **Adoptante:** Usuario registrado, rol por defecto al crear una cuenta, habilitado para enviar solicitudes formales de adopción y consultar el estado de sus propias solicitudes.
 
-**Usuario no registrado:** corresponde a un estado de acceso y no a un rol del sistema. Puede explorar animales, revisar sus fichas y consultar contenido educativo. También puede acceder al proceso de solicitud, pero deberá iniciar sesión antes de enviarla formalmente.
+**Usuario no registrado:** corresponde a un estado de acceso y no a un rol del sistema. Puede explorar animales, revisar sus fichas y consultar contenido educativo. Para solicitar una adopción deberá iniciar sesión; tras hacerlo, regresa a la solicitud del animal seleccionado.
 
 ### Definición de conceptos
 
@@ -249,8 +249,7 @@ Los requerimientos funcionales describen las acciones principales que deberá pe
 Las siguientes funcionalidades son necesarias para el funcionamiento general de la aplicación, pero no forman parte de los requerimientos funcionales principales del dominio.
 
 - **FT-01:** El sistema deberá permitir el registro de usuarios en la plataforma.
-- **FT-02:** El sistema deberá permitir a los usuarios iniciar sesión. Un usuario no registrado podrá explorar los animales y acceder al proceso de solicitud, pero deberá autenticarse antes de enviar formalmente una solicitud de adopción.
-- **FT-03:** El sistema deberá permitir cerrar una sesión activa.
+- **FT-02:** El sistema deberá permitir a los usuarios iniciar sesión. Un usuario no registrado podrá explorar los animales, pero deberá autenticarse para acceder al formulario de solicitud de adopción, y al hacerlo regresará al mismo animal.- **FT-03:** El sistema deberá permitir cerrar una sesión activa.
 - **FT-04:** El sistema deberá restringir las funcionalidades disponibles de acuerdo con el rol del usuario autenticado.
 
 ---
@@ -275,13 +274,13 @@ En los formularios críticos, como **Publicar animal** y **Solicitud de adopció
 
 #### RNF-UX-03 — Conservación de contexto
 
-Durante el flujo de adopción, un usuario no registrado podrá avanzar hasta la solicitud. Si intenta enviarla sin estar autenticado, el sistema deberá solicitar el inicio de sesión y, tras autenticarse correctamente, devolverlo al mismo proceso sin obligarlo a buscar nuevamente al animal.
+Durante el flujo de adopción, si un usuario no registrado pulsa "Solicitar adopción", el sistema deberá solicitar el inicio de sesión y, tras autenticarse correctamente, devolverlo al formulario de solicitud del mismo animal sin obligarlo a buscarlo nuevamente.
 
 **Criterio de verificación:** en el **100 % de las pruebas del flujo de autenticación desde una solicitud**, el sistema deberá conservar el animal seleccionado y retornar al usuario al formulario correspondiente.
 
 #### RNF-UX-04 — Navegación clara y consistente
 
-El sistema deberá utilizar navegación contextual en las vistas secundarias. Por ejemplo, en el detalle del animal se utilizará **“Volver a adopciones”** y, en la solicitud, **“Volver al perfil”**, evitando depender exclusivamente del botón de retroceso del navegador.
+El sistema deberá utilizar navegación contextual en las vistas secundarias. Por ejemplo, en el detalle del animal se utilizará **“Volver a adopciones”** y, en la solicitud, **“Volver al animal”**, evitando depender exclusivamente del botón de retroceso del navegador.
 
 **Criterio de verificación:** el **100 % de las vistas secundarias definidas en el prototipo** deberá contar con una acción visible de regreso al nivel anterior del flujo.
 
@@ -393,6 +392,8 @@ En la versión de escritorio se utilizará una **Barra de Navegación Superior (
 Logo | Adopciones | Aprende ▼ | Publicar Animal | Iniciar sesión / Perfil
 ```
 
+La opción **Publicar Animal** es visible para todos los usuarios. Para rescatistas y administradores abre el formulario de publicación; para el resto, una página con los requisitos para ser rescatista. La barra incluye además un botón para desactivar las animaciones.
+
 La opción **Aprende** agrupa:
 
 - Tenencia responsable.
@@ -407,7 +408,7 @@ En las vistas secundarias se utilizarán controles contextuales de regreso en lu
 Ejemplos:
 
 - **Volver a adopciones** desde el detalle de un animal.
-- **Volver al perfil** desde la solicitud de adopción.
+- **Volver al animal** desde la solicitud de adopción.
 
 La navegación entre vistas será gestionada mediante `react-router-dom`.
 
@@ -428,7 +429,7 @@ Tiene acceso a:
 - Consecuencias del abandono.
 - Inicio del proceso de solicitud de adopción.
 
-Puede completar el flujo hasta la solicitud, pero deberá iniciar sesión antes de enviarla formalmente.
+Puede llegar hasta el detalle del animal. Al pulsar "Solicitar adopción" se le pedirá iniciar sesión y regresará al formulario de ese animal. Si entra a **Publicar animal**, verá los requisitos para ser rescatista.
 
 ---
 
@@ -440,6 +441,8 @@ Además, al encontrarse autenticado podrá:
 
 - enviar solicitudes de adopción;
 - consultar el estado de sus solicitudes.
+
+Si accede a **Publicar animal**, verá los requisitos para ser rescatista y cómo solicitar el rol a un administrador.
 
 ---
 
@@ -497,20 +500,19 @@ Detalle del animal
   ↓
 Solicitar adopción
   ↓
-Formulario de solicitud
-  ↓
-Completar información
-  ↓
 ¿Usuario autenticado?
    ↓            ↓
   No            Sí
    ↓             ↓
-Iniciar        Validar
-sesión         formulario
+Iniciar        Formulario
+sesión         de solicitud
    ↓             ↓
-Retomar        Enviar solicitud
-solicitud        ↓
-          Mostrar confirmación
+Volver al      Completar y
+formulario     validar
+               ↓
+          Enviar solicitud
+               ↓
+        Mostrar confirmación
 ```
 
 ---
@@ -547,7 +549,7 @@ Los principales puntos críticos de interacción identificados son:
 
 1. **Solicitud de adopción:** el formulario debe mantener una estructura clara, dividir la información por secciones y mostrar errores de forma comprensible.
 
-2. **Inicio de sesión dentro del flujo de adopción:** un usuario no registrado debe poder llegar hasta la solicitud y ser informado de que necesita iniciar sesión únicamente antes del envío formal, evitando perder el contexto del animal seleccionado.
+2. **Inicio de sesión dentro del flujo de adopción:** un usuario no registrado que pulse "Solicitar adopción" debe ser informado de que necesita iniciar sesión y, tras hacerlo, volver al formulario del mismo animal, evitando perder el contexto.
 
 3. **Publicación de animal:** el rescatista debe poder identificar claramente qué información es obligatoria y recibir retroalimentación frente a errores de validación.
 
@@ -581,7 +583,7 @@ Las vistas secundarias emplean controles contextuales como **Volver a adopciones
 
 #### Eficiencia de interacción
 
-El usuario puede explorar animales y acceder al formulario de solicitud sin necesidad de iniciar sesión previamente. La autenticación se solicita únicamente antes del envío formal, reduciendo interrupciones durante la exploración.
+El usuario puede explorar animales y revisar sus fichas sin iniciar sesión. La autenticación se solicita únicamente al iniciar una solicitud, y al completarla el usuario regresa al formulario del animal seleccionado.
 
 Los filtros de la vista de adopciones permiten acotar el catálogo por especie, edad, tamaño, sexo y ubicación, además de buscar por nombre.
 
@@ -620,15 +622,25 @@ Se desarrolló la estructura base del frontend en **Ionic con React**, utilizand
 
 ### Requisitos
 
-- Node.js 20 o superior.
-- npm 10 o superior.
+- Node.js 20 o superior y npm 10 o superior.
+- Para ver animales reales: el backend (rama `backend`) corriendo en `http://localhost:3000`. Su instalación y configuración están en el README de esa rama.
 
 ### Instalación y ejecución
+
+Cada rama se ejecuta en su propia carpeta y terminal. Si ya tienes el repositorio clonado, la forma más simple de tener ambas ramas abiertas es:
+
+```bash
+git worktree add ../huellas-backend backend
+```
+
+Con el backend ya en marcha (terminal 1), en el frontend (terminal 2):
 
 ```bash
 npm install
 npm run dev
 ```
+
+La aplicación se abre en `http://localhost:5173`. Si el backend está apagado, el catálogo muestra un mensaje de error con un botón para reintentar.
 
 Para compilar en producción:
 
@@ -641,46 +653,49 @@ npm run preview
 
 ```text
 src/
-├── components/
-├── contexts/
-├── pages/
-├── routes/
-├── theme/
+├── assets/        # Imágenes, íconos y logos
+├── components/    # Componentes por sección (adoptions, home, education, layout...)
+├── contexts/      # Estado compartido (sesión)
+├── pages/         # Vistas principales
+├── routes/        # Rutas, rutas protegidas y control de acceso por rol
+├── services/      # Comunicación con el backend
+├── theme/         # Variables y estilos globales
+├── utils/         # Utilidades
 ├── App.tsx
-├── main.tsx
-├── ...
-└── ...
+└── main.tsx
 ```
 
 ### Rutas implementadas
 
-Las siguientes rutas corresponden a la estructura actualmente implementada en el frontend:
-
-| Ruta                    | Acceso                     | Descripción                                |
-|-------------------------|----------------------------|--------------------------------------------|
-| `/inicio`               | Público                    | Landing principal                          |
-| `/adopciones`           | Público                    | Catálogo de animales                       |
-| `/adopciones/:animalId` | Público                    | Detalle de adopción                        |
-| `/educacion`            | Público                    | Contenido educativo / tenencia responsable |
-| `/login`                | Público                    | Inicio de sesión                           |
-| `/perfil`               | Protegido                  | Perfil del usuario                         |
-| `/publicar`             | Rescatista / Administrador | Publicación de animales                    |
+| Ruta                                | Acceso                      | Descripción                                          |
+|-------------------------------------|-----------------------------|------------------------------------------------------|
+| `/inicio`                           | Público                     | Landing principal                                    |
+| `/adopciones`                       | Público                     | Catálogo de animales con filtros y paginación        |
+| `/adopciones/:animalId`             | Público                     | Detalle de adopción                                  |
+| `/adopciones/:animalId/solicitar`   | Usuario autenticado         | Solicitud de adopción                                |
+| `/educacion`                        | Público                     | Tenencia responsable                                 |
+| `/educacion/consecuencias-abandono` | Público                     | Consecuencias del abandono                           |
+| `/login`, `/registro`               | Público                     | Inicio de sesión y creación de cuenta                |
+| `/perfil`                           | Protegido                   | Perfil del usuario                                   |
+| `/publicar`                         | Público, control por rol    | Formulario (rescatista/administrador) o requisitos   |
 
 ### Consideraciones
 
 - La navegación se gestiona con `react-router-dom`.
-- Las rutas sensibles se protegen mediante `ProtectedRoute`.
-- Si un usuario no autenticado intenta acceder directamente a una ruta protegida, se redirige a `/login`.
-- El flujo de adopción permite llegar hasta la solicitud sin iniciar sesión; la autenticación se requiere antes del envío formal.
+- Las rutas sensibles se protegen mediante `ProtectedRoute`, que conserva la ruta de origen: tras iniciar sesión, el usuario regresa a donde estaba.
+- Si un usuario no autenticado pulsa "Solicitar adopción", se redirige a `/login` y, al autenticarse, regresa a la solicitud del mismo animal.
+- En `/publicar`, un componente decide según el rol si muestra el formulario o los requisitos para ser rescatista.
+- Los animales se cargan desde el backend (`/api/animales`). El envío de la solicitud de adopción está simulado hasta que exista el endpoint correspondiente.
 - La lógica de sesión actual es una simulación local para esta etapa y servirá como base para la autenticación mediante JWT en el backend.
 
 ### Tecnologías y herramientas utilizadas
 
-- **Frontend:** Ionic Framework + React + TypeScript.
+- **Frontend:** Ionic Framework + React + TypeScript + Vite.
 - **Navegación:** React Router (`react-router-dom`).
+- **Comunicación con el backend:** Axios.
 - **Diseño UI/UX:** Figma.
 - **Control de versiones:** GitHub.
 
 ### Resultado
 
-La aplicación cuenta con una base funcional de frontend en Ionic + React, una estructura modular y una navegación coherente con la propuesta de **Huellas al Hogar**.
+La aplicación cuenta con un frontend funcional en Ionic + React que incluye la landing, el catálogo con filtros, el detalle del animal, el formulario de solicitud de adopción y el contenido educativo, con una estructura modular y una navegación coherente con la propuesta de **Huellas al Hogar**. Quedan en desarrollo la publicación de animales y el perfil de usuario.

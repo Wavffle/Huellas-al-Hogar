@@ -145,3 +145,5 @@ vite.config.ts.timestamp-*
 # IntelliJ IDEA
 .idea/
 *.iml
+
+.assets
