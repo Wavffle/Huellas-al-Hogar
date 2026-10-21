@@ -24,9 +24,16 @@ export function getPhotos(raw: any): string[] {
     return list.map((p) => resolveImage(String(p))).filter(Boolean);
 }
 
+function toSpecies(value: unknown): Species {
+    const text = normalize(value);
+    if (text.startsWith('gat')) return 'gato';
+    if (!text || text.startsWith('perr')) return 'perro';
+    return 'otro';
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapAnimal(raw: any): AdoptionAnimal {
-    const species: Species = normalize(raw.especie).startsWith('gat') ? 'gato' : 'perro';
+    const species = toSpecies(raw.especie);
 
     const sizeRaw = normalize(raw.tamanho);
     const size: Size = sizeRaw === 'pequeno' ? 'pequeño' : sizeRaw === 'grande' ? 'grande' : 'mediano';

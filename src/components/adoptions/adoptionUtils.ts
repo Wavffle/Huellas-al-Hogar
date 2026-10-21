@@ -1,6 +1,6 @@
 import type { AdoptionAnimal, AgeGroup, Sex, Size, Species } from '../data/adoptions';
 
-export const SPECIES_LABEL: Record<Species, string> = { perro: 'Perro', gato: 'Gato' };
+export const SPECIES_LABEL: Record<Species, string> = { perro: 'Perro', gato: 'Gato', otro: 'Otro' };
 
 export function formatAge(months: number): string {
     if (months < 12) return `${months} ${months === 1 ? 'Mes' : 'Meses'}`;
@@ -18,6 +18,7 @@ export function getAgeGroup(months: number): AgeGroup {
 export const SPECIES_OPTIONS: { value: Species; label: string }[] = [
     { value: 'perro', label: 'Perros' },
     { value: 'gato', label: 'Gatos' },
+    { value: 'otro', label: 'Otros' },
 ];
 export const AGE_OPTIONS: { value: AgeGroup; label: string }[] = [
     { value: 'cachorro', label: 'Cachorro (0 - 1 año)' },

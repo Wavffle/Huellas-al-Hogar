@@ -1,0 +1,178 @@
+.pub-hero {
+    position: relative;
+    isolation: isolate;
+    container-type: inline-size;   /* las posiciones escalan con cqw */
+}
+
+/* ===== Móvil: arte arriba, textos debajo ===== */
+.pub-hero__art {
+    position: relative;
+    aspect-ratio: 412 / 311;
+    overflow: hidden;
+}
+
+.pub-hero__img {
+    position: absolute;
+    display: block;
+    height: auto;
+    max-width: none;
+    pointer-events: none;
+    user-select: none;
+}
+
+.pub-hero__mancha,
+.pub-hero__olas--desktop,
+.pub-hero__quote,
+.pub-hero__text--right {
+    display: none;
+}
+
+.pub-hero__olas--mobile {
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 2;
+}
+
+.pub-hero__pets {
+    left: 17cqw;
+    top: 2cqw;
+    width: 70cqw;
+    z-index: 1;
+}
+
+.pub-hero__heart {
+    left: 59.5cqw;
+    top: 10.4cqw;
+    width: 8cqw;
+    z-index: 3;
+}
+
+.pub-hero__title {
+    padding: 1.9rem 9cqw 0;
+    font-size: clamp(1.7rem, 7.8cqw, 2.4rem);
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.pub-hero__title span {
+    display: block;
+}
+
+.pub-hero__text {
+    padding: 0.9rem 9cqw 0;
+    font-size: clamp(0.95rem, 4cqw, 1.1rem);
+    line-height: 1.25;
+}
+
+/* ===== Escritorio (mockup de 1440 px) ===== */
+@media (min-width: 800px) {
+    .pub-hero {
+        aspect-ratio: 1440 / 525;
+        /* Sube el hero para que quede detrás del navbar transparente */
+        margin-top: calc(var(--navbar-height) * -1);
+    }
+
+    .pub-hero__art {
+        position: absolute;
+        inset: 0;
+        aspect-ratio: auto;
+        overflow: visible;
+    }
+
+    .pub-hero__mancha {
+        display: block;
+        right: 0;
+        top: 0;
+        width: 30.2cqw;
+        z-index: 0;
+    }
+
+    .pub-hero__pets {
+        left: 29.4cqw;
+        top: 0.2cqw;
+        width: 36.8cqw;
+        z-index: 2;
+    }
+
+    .pub-hero__olas--desktop {
+        display: block;
+        right: 0;
+        bottom: 0;
+        width: 84.7cqw;
+        z-index: 3;
+    }
+
+    .pub-hero__olas--mobile {
+        display: none;
+    }
+
+    .pub-hero__heart {
+        left: 54.7cqw;
+        top: 5.9cqw;
+        width: 3.5cqw;
+        z-index: 4;
+    }
+
+    .pub-hero__quote {
+        display: block;
+        position: absolute;
+        left: 77.4cqw;
+        top: 2cqw;
+        z-index: 1;
+        width: 8cqw;
+        color: var(--color-bg);
+        font-size: clamp(0.8rem, 1.2cqw, 1.3rem);
+        font-style: italic;
+        font-weight: 300;
+        line-height: 1.15;
+        rotate: -8deg;
+        pointer-events: none;
+    }
+
+    /* El título y los textos van detrás del perro (z-index menor que .pub-hero__pets) */
+    .pub-hero__title {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        padding: 0;
+        pointer-events: none;
+    }
+
+    .pub-hero__title span {
+        position: absolute;
+        top: 15.5cqw;
+        font-size: clamp(1.6rem, 2.75cqw, 3.4rem);
+        line-height: 1.1;
+        white-space: nowrap;
+    }
+
+    .pub-hero__title-left {
+        left: 3.8cqw;
+    }
+
+    .pub-hero__title-right {
+        left: 62cqw;
+    }
+
+    .pub-hero__text {
+        position: absolute;
+        top: 20.8cqw;
+        z-index: 1;
+        padding: 0;
+        font-size: clamp(0.85rem, 1.4cqw, 1.4rem);
+        line-height: 1.2;
+    }
+
+    .pub-hero__text--left {
+        left: 2.2cqw;
+        max-width: 29.5cqw;
+    }
+
+    .pub-hero__text--right {
+        display: block;
+        right: 8.8cqw;
+        max-width: 26.5cqw;
+        text-align: right;
+    }
+}

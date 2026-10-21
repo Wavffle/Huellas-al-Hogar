@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { CSSProperties, FormEvent, ReactNode } from 'react';
+import type { CSSProperties, FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { IonIcon } from '@ionic/react';
 import {
@@ -23,10 +23,15 @@ import { getAnimalPorId } from '../services/animalService';
 import { createSolicitud } from '../services/solicitudService';
 import { CIUDADES } from '../components/data/ciudades';
 import PawLoader from '../components/common/PawLoader';
+import Field from '../components/forms/Field';
+import Select from '../components/forms/Select';
+import Choice from '../components/forms/Choice';
+import TextArea from '../components/forms/TextArea';
 import AdoptionGallery from '../components/adoptions/AdoptionGallery';
 import { capitalize, mapAnimalDetail, type AnimalDetail } from '../components/adoptions/adoptionDetail';
 import { formatAge } from '../components/adoptions/adoptionUtils';
 import { useMotionOff } from '../utils/useMotionOff';
+import { useIsDesktop } from '../utils/useIsDesktop';
 import iconRegla from '../assets/icons/detalle-regla.svg';
 import iconSexo from '../assets/icons/detalle-sexo.svg';
 import doodle from '../assets/images/solicitud/solicitud-garabato.svg';
@@ -48,7 +53,6 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 type Phase = 'idle' | 'loading' | 'burst';
 
-/** Quita todo lo que no sea número, recorta el +56 y limita a 9 dígitos. */
 type Country = { code: string; name: string; dial: string; min: number; max: number };
 
 /** Países frecuentes. min/max = cantidad de dígitos del número nacional. */
@@ -105,6 +109,9 @@ const STEP_KEYS: Key[][] = [
 ];
 const SELECT_KEYS: Key[] = ['ciudad', 'vivienda', 'patio', 'tuvoMascotas', 'tieneMascotas'];
 
+/** id del control de cada campo (lo usan Field, aria y los mensajes de error). */
+const fid = (k: Key) => `req-${k}`;
+
 function validate(v: Values, keys: Key[]): Errors {
     const errors: Errors = {};
     for (const k of keys) {
@@ -132,158 +139,6 @@ function validate(v: Values, keys: Key[]): Errors {
         }
     }
     return errors;
-}
-
-function useIsDesktop() {
-    const query = '(min-width: 800px)';
-    const [isDesktop, setIsDesktop] = useState(() => window.matchMedia(query).matches);
-    useEffect(() => {
-        const mql = window.matchMedia(query);
-        const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-        mql.addEventListener('change', onChange);
-        return () => mql.removeEventListener('change', onChange);
-    }, []);
-    return isDesktop;
-}
-
-/* ===== Piezas del formulario ===== */
-function Field({
-                   k,
-                   label,
-                   error,
-                   full,
-                   group,
-                   children,
-               }: {
-    k: Key;
-    label: string;
-    error?: string;
-    full?: boolean;
-    /** true cuando el control es un grupo de botones (no un input con label asociado) */
-    group?: boolean;
-    children: ReactNode;
-}) {
-    const text = (
-        <>
-            {label} <span className="req-required" aria-hidden="true">*</span>
-        </>
-    );
-    return (
-        <div className={`req-field${full ? ' req-field--full' : ''}${group ? ' req-field--choice' : ''}`}>
-            {group ? (
-                <span id={`req-${k}-label`} className="req-label">
-                    {text}
-                </span>
-            ) : (
-                <label htmlFor={`req-${k}`} className="req-label">
-                    {text}
-                </label>
-            )}
-            {children}
-            {error && (
-                <p id={`req-${k}-error`} className="req-error" role="alert">
-                    {error}
-                </p>
-            )}
-        </div>
-    );
-}
-
-function Select({
-                    value,
-                    options,
-                    onChange,
-                    aria,
-                }: {
-    value: string;
-    options: string[];
-    onChange: (value: string) => void;
-    aria: object;
-}) {
-    return (
-        <div className="req-select">
-            <select
-                {...aria}
-                className={`req-input${value ? '' : ' is-empty'}`}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-            >
-                <option value="">Selecciona una opción</option>
-                {options.map((o) => (
-                    <option key={o} value={o}>
-                        {o}
-                    </option>
-                ))}
-            </select>
-            <IonIcon icon={chevronDown} aria-hidden="true" />
-        </div>
-    );
-}
-
-/** Botones de elección única (radio). Para pocas opciones, como Sí/No. */
-function Choice({
-                    k,
-                    value,
-                    options,
-                    error,
-                    onChange,
-                }: {
-    k: Key;
-    value: string;
-    options: string[];
-    error?: string;
-    onChange: (value: string) => void;
-}) {
-    return (
-        <div
-            id={`req-${k}`}
-            className="req-choice"
-            role="radiogroup"
-            aria-labelledby={`req-${k}-label`}
-            aria-invalid={error ? true : undefined}
-            aria-describedby={error ? `req-${k}-error` : undefined}
-            tabIndex={-1}
-        >
-            {options.map((o) => (
-                <label key={o} className="req-choice__option">
-                    <input
-                        type="radio"
-                        name={`req-${k}`}
-                        value={o}
-                        checked={value === o}
-                        onChange={() => onChange(o)}
-                    />
-                    <span>{o}</span>
-                </label>
-            ))}
-        </div>
-    );
-}
-
-function TextArea({
-                      value,
-                      placeholder,
-                      onChange,
-                      aria,
-                  }: {
-    value: string;
-    placeholder: string;
-    onChange: (value: string) => void;
-    aria: object;
-}) {
-    return (
-        <div className="req-textarea">
-            <textarea
-                {...aria}
-                className="req-input"
-                maxLength={250}
-                placeholder={placeholder}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-            />
-            <span className="req-count">{value.length}/250</span>
-        </div>
-    );
 }
 
 function SubmitButton({ phase, className = '' }: { phase: Phase; className?: string }) {
@@ -390,9 +245,9 @@ export default function AdoptionRequestPage() {
     };
 
     const aria = (k: Key) => ({
-        id: `req-${k}`,
+        id: fid(k),
         'aria-invalid': errors[k] ? true : undefined,
-        'aria-describedby': errors[k] ? `req-${k}-error` : undefined,
+        'aria-describedby': errors[k] ? `${fid(k)}-error` : undefined,
     });
 
     const focusFirstError = () =>
@@ -597,10 +452,10 @@ export default function AdoptionRequestPage() {
                             Tu información
                         </h2>
                         <div className="req-grid">
-                            <Field k="nombre" label="Nombre completo" error={errors.nombre}>
+                            <Field id={fid('nombre')} label="Nombre completo" error={errors.nombre}>
                                 <input
                                     {...aria('nombre')}
-                                    className="req-input"
+                                    className="form-input"
                                     type="text"
                                     placeholder="Tu nombre completo"
                                     autoComplete="name"
@@ -608,10 +463,10 @@ export default function AdoptionRequestPage() {
                                     onChange={(e) => set('nombre', e.target.value)}
                                 />
                             </Field>
-                            <Field k="correo" label="Correo electrónico" error={errors.correo}>
+                            <Field id={fid('correo')} label="Correo electrónico" error={errors.correo}>
                                 <input
                                     {...aria('correo')}
-                                    className="req-input"
+                                    className="form-input"
                                     type="email"
                                     placeholder="tucorreo@ejemplo.com"
                                     autoComplete="email"
@@ -619,40 +474,40 @@ export default function AdoptionRequestPage() {
                                     onChange={(e) => set('correo', e.target.value)}
                                 />
                             </Field>
-                            <Field k="telefono" label="Número de teléfono" error={errors.telefono}>
+                            <Field id={fid('telefono')} label="Número de teléfono" error={errors.telefono}>
                                 <div className="req-phone">
-                                <div className="req-phone__country">
-                                    <select
-                                        className="req-input"
-                                        aria-label="País del teléfono"
-                                        value={values.pais}
-                                        onChange={(e) => {
-                                            const c = getCountry(e.target.value);
-                                            setValues((v) => ({ ...v, pais: c.code, telefono: cleanPhone(v.telefono, c) }));
-                                            setErrors((er) => (er.telefono ? { ...er, telefono: undefined } : er));
-                                        }}
-                                    >
-                                        {COUNTRIES.map((c) => (
-                                            <option key={c.code} value={c.code}>
-                                                {c.code} {c.dial}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <IonIcon icon={chevronDown} aria-hidden="true" />
-                                </div>
-                                <input
-                                    {...aria('telefono')}
-                                    className="req-input"
-                                    type="tel"
-                                    inputMode="numeric"
-                                    autoComplete="tel-national"
-                                    placeholder={'9'.padEnd(getCountry(values.pais).min, '1')}
-                                    value={values.telefono}
-                                    onChange={(e) => set('telefono', cleanPhone(e.target.value, getCountry(values.pais)))}
-                                />
+                                    <div className="req-phone__country">
+                                        <select
+                                            className="form-input"
+                                            aria-label="País del teléfono"
+                                            value={values.pais}
+                                            onChange={(e) => {
+                                                const c = getCountry(e.target.value);
+                                                setValues((v) => ({ ...v, pais: c.code, telefono: cleanPhone(v.telefono, c) }));
+                                                setErrors((er) => (er.telefono ? { ...er, telefono: undefined } : er));
+                                            }}
+                                        >
+                                            {COUNTRIES.map((c) => (
+                                                <option key={c.code} value={c.code}>
+                                                    {c.code} {c.dial}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <IonIcon icon={chevronDown} aria-hidden="true" />
+                                    </div>
+                                    <input
+                                        {...aria('telefono')}
+                                        className="form-input"
+                                        type="tel"
+                                        inputMode="numeric"
+                                        autoComplete="tel-national"
+                                        placeholder={'9'.padEnd(getCountry(values.pais).min, '1')}
+                                        value={values.telefono}
+                                        onChange={(e) => set('telefono', cleanPhone(e.target.value, getCountry(values.pais)))}
+                                    />
                                 </div>
                             </Field>
-                            <Field k="ciudad" label="Ciudad de residencia" error={errors.ciudad}>
+                            <Field id={fid('ciudad')} label="Ciudad de residencia" error={errors.ciudad}>
                                 <Select
                                     aria={aria('ciudad')}
                                     value={values.ciudad}
@@ -670,9 +525,9 @@ export default function AdoptionRequestPage() {
                             Tu hogar
                         </h2>
                         <div className="req-grid req-grid--home">
-                            <Field k="vivienda" label="¿Vives en?" error={errors.vivienda} group>
+                            <Field id={fid('vivienda')} label="¿Vives en?" error={errors.vivienda} group>
                                 <Choice
-                                    k="vivienda"
+                                    id={fid('vivienda')}
                                     value={values.vivienda}
                                     options={VIVIENDAS}
                                     error={errors.vivienda}
@@ -680,13 +535,13 @@ export default function AdoptionRequestPage() {
                                 />
                             </Field>
                             <Field
-                                k="patio"
+                                id={fid('patio')}
                                 label="¿Cuentas con patio o espacio exterior?"
                                 error={errors.patio}
                                 group
                             >
                                 <Choice
-                                    k="patio"
+                                    id={fid('patio')}
                                     value={values.patio}
                                     options={SI_NO}
                                     error={errors.patio}
@@ -695,10 +550,10 @@ export default function AdoptionRequestPage() {
                             </Field>
                             <div className={`req-reveal${values.vivienda === 'Otro' ? ' is-open' : ''}`}>
                                 <div className="req-reveal__inner">
-                                    <Field k="viviendaOtro" label="¿Cuál?" error={errors.viviendaOtro} full>
+                                    <Field id={fid('viviendaOtro')} label="¿Cuál?" error={errors.viviendaOtro} full>
                                         <input
                                             {...aria('viviendaOtro')}
-                                            className="req-input"
+                                            className="form-input"
                                             type="text"
                                             maxLength={60}
                                             placeholder="Ej. parcela, pieza arrendada, etc."
@@ -708,7 +563,7 @@ export default function AdoptionRequestPage() {
                                     </Field>
                                 </div>
                             </div>
-                            <Field k="convive" label="¿Con quién convives?" error={errors.convive} full>
+                            <Field id={fid('convive')} label="¿Con quién convives?" error={errors.convive} full>
                                 <TextArea
                                     aria={aria('convive')}
                                     value={values.convive}
@@ -727,13 +582,13 @@ export default function AdoptionRequestPage() {
                         </h2>
                         <div className="req-grid">
                             <Field
-                                k="tuvoMascotas"
+                                id={fid('tuvoMascotas')}
                                 label="¿Has tenido mascotas antes?"
                                 error={errors.tuvoMascotas}
                                 group
                             >
                                 <Choice
-                                    k="tuvoMascotas"
+                                    id={fid('tuvoMascotas')}
                                     value={values.tuvoMascotas}
                                     options={SI_NO}
                                     error={errors.tuvoMascotas}
@@ -741,20 +596,20 @@ export default function AdoptionRequestPage() {
                                 />
                             </Field>
                             <Field
-                                k="tieneMascotas"
+                                id={fid('tieneMascotas')}
                                 label="¿Actualmente tienes otras mascotas?"
                                 error={errors.tieneMascotas}
                                 group
                             >
                                 <Choice
-                                    k="tieneMascotas"
+                                    id={fid('tieneMascotas')}
                                     value={values.tieneMascotas}
                                     options={SI_NO}
                                     error={errors.tieneMascotas}
                                     onChange={(v) => set('tieneMascotas', v)}
                                 />
                             </Field>
-                            <Field k="experiencia" label="Cuéntanos tu experiencia" error={errors.experiencia} full>
+                            <Field id={fid('experiencia')} label="Cuéntanos tu experiencia" error={errors.experiencia} full>
                                 <TextArea
                                     aria={aria('experiencia')}
                                     value={values.experiencia}
@@ -773,7 +628,7 @@ export default function AdoptionRequestPage() {
                         </h2>
                         <div className="req-grid">
                             <Field
-                                k="motivo"
+                                id={fid('motivo')}
                                 label={`¿Por qué te gustaría adoptar a ${animal.name}?`}
                                 error={errors.motivo}
                                 full

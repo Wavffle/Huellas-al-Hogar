@@ -278,144 +278,7 @@
     margin-top: 1.5rem;
 }
 
-.req-field {
-    display: grid;
-    align-content: start;
-    gap: 0.8rem;
-}
-
-.req-label {
-    font-size: 0.95rem;
-    font-weight: 500;
-}
-
-.req-required {
-    color: #d11a2a;
-}
-
-.req-input {
-    width: 100%;
-    height: 2.9rem;
-    padding: 0 1rem;
-    border: 1px solid var(--color-text);
-    border-radius: 0.55rem;
-    background: transparent;
-    color: var(--color-text);
-    font-family: inherit;   /* nuevo */
-    font-weight: 400;       /* antes: 300 */
-    font-size: 0.9rem;
-}
-
-.req-select select.is-empty {
-    color: #8d8791;
-    font-weight: 300;       /* nuevo */
-}
-
-.req-input::placeholder {
-    color: #8d8791;
-    font-weight: 300;
-}
-
-.req-input[aria-invalid='true'] {
-    border-color: var(--req-error);
-}
-
-.req-select {
-    position: relative;
-}
-
-.req-select select {
-    appearance: none;
-    padding-right: 2.6rem;
-    cursor: pointer;
-}
-
-.req-select select.is-empty {
-    color: #8d8791;
-}
-
-.req-select ion-icon {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    translate: 0 -50%;
-    font-size: 1.1rem;
-    pointer-events: none;
-}
-
-.req-textarea textarea {
-    display: block;
-    height: 7.5rem;
-    padding: 0.8rem 1rem;
-    resize: none;
-}
-
-/* ===== Botones de elección (Sí/No, vivienda) ===== */
-.req-choice {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-}
-
-.req-choice__option {
-    position: relative;
-    display: block;
-    cursor: pointer;
-}
-
-.req-choice__option input {
-    position: absolute;
-    inset: 0;
-    margin: 0;
-    opacity: 0;
-    cursor: pointer;
-}
-
-.req-choice__option span {
-    display: grid;
-    place-items: center;
-    height: 2.9rem;
-    min-width: 5.5rem;
-    padding: 0 1.6rem;
-    border: 1px solid var(--color-text);
-    border-radius: 0.55rem;
-    font-size: 0.9rem;
-    font-weight: 400;
-    transition: background 0.2s, color 0.2s, border-color 0.2s;
-}
-
-.req-choice__option:hover span {
-    background: rgba(134, 114, 178, 0.12);
-}
-
-.req-choice__option input:checked + span {
-    border-color: var(--req-lilac);
-    background: var(--req-lilac);
-    color: var(--color-white);
-}
-
-.req-choice__option input:focus-visible + span {
-    outline: 3px solid var(--color-primary);
-    outline-offset: 2px;
-}
-
-.req-choice[aria-invalid='true'] .req-choice__option span {
-    border-color: var(--req-error);
-}
-
-.req-choice:focus {
-    outline: none;
-}
-
-.req-count {
-    display: block;
-    margin-top: 0.7rem;
-    color: var(--color-text-muted);
-    font-size: 0.85rem;
-    font-weight: 300;
-    opacity: 0.6;
-    text-align: right;
-}
+/* Los estilos de Field, Select, Choice y TextArea están en components/forms/forms.css */
 
 .req-error {
     color: var(--req-error);
@@ -430,7 +293,7 @@
 /* Checkbox de compromiso */
 .req-check {
     display: flex;
-    align-items: center;      /* antes: flex-start */
+    align-items: center;
     gap: 0.8rem;
     margin-top: 1.4rem;
     font-size: 0.9rem;
@@ -550,7 +413,7 @@
 /* ===== Campo de teléfono con prefijo ===== */
 .req-phone {
     display: grid;
-    grid-template-columns: 8.6rem minmax(0, 1fr);   /* antes: 7.2rem */
+    grid-template-columns: 8.6rem minmax(0, 1fr);
     gap: 0.6rem;
 }
 
@@ -765,12 +628,12 @@
         padding-inline: 0;
     }
 
-    .req-grid:has(.req-field--choice) {
+    .req-grid:has(.form-field--choice) {
         grid-template-columns: auto auto 1fr;
         column-gap: 4rem;
     }
 
-    .req-grid:has(.req-field--choice) .req-field--full {
+    .req-grid:has(.form-field--choice) .form-field--full {
         grid-column: 1 / -1;
     }
 
@@ -831,11 +694,11 @@
         margin-left: calc(18rem + 2.5rem);
     }
 
-    .req-grid--home > .req-reveal .req-field {
+    .req-grid--home > .req-reveal .form-field {
         margin-right: 2.5rem;
     }
 
-    .req-grid--home > .req-reveal:not(.is-open) .req-field {
+    .req-grid--home > .req-reveal:not(.is-open) .form-field {
         margin-right: 0;
     }
 
@@ -951,7 +814,7 @@
         margin-top: 1.6rem;
     }
 
-    .req-field--full {
+    .form-field--full {
         grid-column: 1 / -1;
     }
 

@@ -1,4 +1,4 @@
-export type Species = 'perro' | 'gato';
+export type Species = 'perro' | 'gato' | 'otro';
 export type AgeGroup = 'cachorro' | 'adulto' | 'senior';
 export type Size = 'pequeño' | 'mediano' | 'grande';
 export type Sex = 'macho' | 'hembra';

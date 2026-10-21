@@ -1,0 +1,168 @@
+.pub-page {
+    --pub-gutter: clamp(1.1rem, 4.6vw, 1.6rem);
+    --pub-lilac: var(--color-footer);
+    --pub-panel: #ece2f1;
+    --pub-line: rgba(134, 114, 178, 0.6);
+    overflow-x: clip;
+}
+
+/* ===== Asistente (móvil: apilado y sin tarjeta) ===== */
+.pub-wizard {
+    display: grid;
+    gap: 2.2rem;
+    padding: 1.8rem var(--pub-gutter) 4rem;
+}
+
+.pub-panel__inner {
+    animation: pub-step-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes pub-step-in {
+    from {
+        opacity: 0;
+        translate: 0 0.8rem;
+    }
+}
+
+.pub-panel__head {
+    padding-inline: 0.4rem;
+}
+
+.pub-panel__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.pub-panel__title:focus {
+    outline: none;
+}
+
+.pub-panel__subtitle {
+    margin-top: 0.7rem;
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    line-height: 1.25;
+}
+
+.pub-step {
+    margin-top: 1.8rem;
+}
+
+.pub-placeholder {
+    padding: 2rem 1rem;
+    border: 2px dashed var(--pub-line);
+    border-radius: var(--radius-md);
+    color: var(--color-text-muted);
+    text-align: center;
+}
+
+/* ===== Botones Volver / Siguiente ===== */
+.pub-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.pub-nav--single {
+    grid-template-columns: minmax(0, 13.5rem);
+    justify-content: center;
+}
+
+.pub-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-width: 0;
+    height: 3.7rem;
+    padding: 0 1.4rem;
+    border: 3px solid var(--pub-lilac);
+    border-radius: 1rem;
+    background: var(--pub-lilac);
+    color: var(--color-white);
+    font: inherit;
+    font-size: 1.3rem;
+    font-weight: 400;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.pub-btn:hover {
+    border-color: var(--color-primary-dark);
+    background: var(--color-primary-dark);
+}
+
+.pub-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.pub-btn:disabled:hover {
+    border-color: var(--pub-lilac);
+    background: var(--pub-lilac);
+}
+
+.pub-btn ion-icon {
+    font-size: 1.4rem;
+}
+
+.pub-btn--outline {
+    background: transparent;
+    color: var(--pub-lilac);
+}
+
+.pub-btn--outline:hover {
+    border-color: var(--color-primary-dark);
+    background: rgba(134, 114, 178, 0.12);
+    color: var(--color-primary-dark);
+}
+
+/* ===== Escritorio ===== */
+@media (min-width: 800px) {
+    .pub-wizard {
+        grid-template-columns: minmax(16rem, 309fr) minmax(0, 963fr);
+        grid-template-rows: minmax(60rem, auto);
+        gap: 1.9rem;
+        margin: 2.5rem 0 2.75rem;
+        padding: 0 4.8vw;
+    }
+
+    .pub-panel {
+        border-radius: 1.5rem;
+        background: var(--pub-panel);
+        padding: 3.4rem 4.1rem 3.2rem 3.9rem;
+    }
+
+    .pub-panel__head {
+        padding-inline: 0;
+    }
+
+    .pub-panel__title {
+        font-size: 2.1rem;
+    }
+
+    .pub-panel__subtitle {
+        margin-top: 0.55rem;
+    }
+
+    .pub-step {
+        margin-top: 2.2rem;
+    }
+
+    .pub-nav {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2.2rem;
+    }
+
+    .pub-nav--single {
+        justify-content: flex-end;
+    }
+
+    .pub-btn {
+        min-width: 13.5rem;
+    }
+}
