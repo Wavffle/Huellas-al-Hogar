@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { FormEvent, ReactNode } from 'react';
+import type { CSSProperties, FormEvent, ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { IonIcon } from '@ionic/react';
 import {
@@ -26,6 +26,7 @@ import PawLoader from '../components/common/PawLoader';
 import AdoptionGallery from '../components/adoptions/AdoptionGallery';
 import { capitalize, mapAnimalDetail, type AnimalDetail } from '../components/adoptions/adoptionDetail';
 import { formatAge } from '../components/adoptions/adoptionUtils';
+import { useMotionOff } from '../utils/useMotionOff';
 import iconRegla from '../assets/icons/detalle-regla.svg';
 import iconSexo from '../assets/icons/detalle-sexo.svg';
 import doodle from '../assets/images/solicitud/solicitud-garabato.svg';
@@ -40,12 +41,51 @@ const SI_NO = ['Sí', 'No'];
 const STEP_LABELS = ['Información', 'Hogar', 'Experiencia', 'Compromiso'];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const LOAD_MS = 1600; // duración de la barra de carga
+const BURST_MS = 800; // duración de las chispas antes de mostrar la pantalla final
+const SPARKS = 14;
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+type Phase = 'idle' | 'loading' | 'burst';
+
+/** Quita todo lo que no sea número, recorta el +56 y limita a 9 dígitos. */
+type Country = { code: string; name: string; dial: string; min: number; max: number };
+
+/** Países frecuentes. min/max = cantidad de dígitos del número nacional. */
+const COUNTRIES: Country[] = [
+    { code: 'CL', name: 'Chile', dial: '+56', min: 9, max: 9 },
+    { code: 'AR', name: 'Argentina', dial: '+54', min: 10, max: 11 },
+    { code: 'BO', name: 'Bolivia', dial: '+591', min: 8, max: 8 },
+    { code: 'BR', name: 'Brasil', dial: '+55', min: 10, max: 11 },
+    { code: 'CO', name: 'Colombia', dial: '+57', min: 10, max: 10 },
+    { code: 'EC', name: 'Ecuador', dial: '+593', min: 9, max: 9 },
+    { code: 'ES', name: 'España', dial: '+34', min: 9, max: 9 },
+    { code: 'US', name: 'Estados Unidos', dial: '+1', min: 10, max: 10 },
+    { code: 'MX', name: 'México', dial: '+52', min: 10, max: 10 },
+    { code: 'PY', name: 'Paraguay', dial: '+595', min: 9, max: 9 },
+    { code: 'PE', name: 'Perú', dial: '+51', min: 9, max: 9 },
+    { code: 'UY', name: 'Uruguay', dial: '+598', min: 8, max: 9 },
+    { code: 'VE', name: 'Venezuela', dial: '+58', min: 10, max: 10 },
+];
+const DEFAULT_COUNTRY = 'CL';
+const getCountry = (code: string) => COUNTRIES.find((c) => c.code === code) ?? COUNTRIES[0];
+
+/** Solo dígitos, sin el prefijo del país si lo pegaron, y limitado al largo máximo. */
+function cleanPhone(raw: string, country: Country): string {
+    let digits = raw.replace(/\D/g, '');
+    const dial = country.dial.slice(1);
+    if (digits.length > country.max && digits.startsWith(dial)) digits = digits.slice(dial.length);
+    return digits.slice(0, country.max);
+}
+
 type Values = {
     nombre: string;
     correo: string;
+    pais: string;
     telefono: string;
     ciudad: string;
     vivienda: string;
+    viviendaOtro: string;
     patio: string;
     convive: string;
     tuvoMascotas: string;
@@ -59,7 +99,7 @@ type Errors = Partial<Record<Key, string>>;
 
 const STEP_KEYS: Key[][] = [
     ['nombre', 'correo', 'telefono', 'ciudad'],
-    ['vivienda', 'patio', 'convive'],
+    ['vivienda', 'viviendaOtro', 'patio', 'convive'],
     ['tuvoMascotas', 'tieneMascotas', 'experiencia'],
     ['motivo', 'acepta'],
 ];
@@ -72,13 +112,24 @@ function validate(v: Values, keys: Key[]): Errors {
             if (!v.acepta) errors.acepta = 'Debes aceptar para enviar la solicitud.';
             continue;
         }
+        // "¿Cuál?" solo es obligatorio cuando se eligió "Otro"
+        if (k === 'viviendaOtro' && v.vivienda !== 'Otro') continue;
         if (!v[k].trim()) errors[k] = SELECT_KEYS.includes(k) ? 'Selecciona una opción.' : 'Este campo es obligatorio.';
     }
     if (keys.includes('correo') && !errors.correo && !EMAIL_RE.test(v.correo.trim())) {
         errors.correo = 'Ingresa un correo válido.';
     }
-    if (keys.includes('telefono') && !errors.telefono && v.telefono.replace(/\D/g, '').length < 9) {
-        errors.telefono = 'Ingresa un número de teléfono válido.';
+    if (keys.includes('telefono') && !errors.telefono) {
+        const c = getCountry(v.pais);
+        const len = v.telefono.length;
+        if (len < c.min || len > c.max) {
+            errors.telefono =
+                c.min === c.max
+                    ? `Ingresa un número de ${c.min} dígitos para ${c.name}.`
+                    : `Ingresa un número de ${c.min} a ${c.max} dígitos para ${c.name}.`;
+        } else if (v.pais === 'CL' && !v.telefono.startsWith('9')) {
+            errors.telefono = 'Los celulares de Chile empiezan con 9.';
+        }
     }
     return errors;
 }
@@ -101,19 +152,33 @@ function Field({
                    label,
                    error,
                    full,
+                   group,
                    children,
                }: {
     k: Key;
     label: string;
     error?: string;
     full?: boolean;
+    /** true cuando el control es un grupo de botones (no un input con label asociado) */
+    group?: boolean;
     children: ReactNode;
 }) {
+    const text = (
+        <>
+            {label} <span className="req-required" aria-hidden="true">*</span>
+        </>
+    );
     return (
-        <div className={`req-field${full ? ' req-field--full' : ''}`}>
-            <label htmlFor={`req-${k}`} className="req-label">
-                {label} <span className="req-required" aria-hidden="true">*</span>
-            </label>
+        <div className={`req-field${full ? ' req-field--full' : ''}${group ? ' req-field--choice' : ''}`}>
+            {group ? (
+                <span id={`req-${k}-label`} className="req-label">
+                    {text}
+                </span>
+            ) : (
+                <label htmlFor={`req-${k}`} className="req-label">
+                    {text}
+                </label>
+            )}
             {children}
             {error && (
                 <p id={`req-${k}-error`} className="req-error" role="alert">
@@ -155,6 +220,46 @@ function Select({
     );
 }
 
+/** Botones de elección única (radio). Para pocas opciones, como Sí/No. */
+function Choice({
+                    k,
+                    value,
+                    options,
+                    error,
+                    onChange,
+                }: {
+    k: Key;
+    value: string;
+    options: string[];
+    error?: string;
+    onChange: (value: string) => void;
+}) {
+    return (
+        <div
+            id={`req-${k}`}
+            className="req-choice"
+            role="radiogroup"
+            aria-labelledby={`req-${k}-label`}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? `req-${k}-error` : undefined}
+            tabIndex={-1}
+        >
+            {options.map((o) => (
+                <label key={o} className="req-choice__option">
+                    <input
+                        type="radio"
+                        name={`req-${k}`}
+                        value={o}
+                        checked={value === o}
+                        onChange={() => onChange(o)}
+                    />
+                    <span>{o}</span>
+                </label>
+            ))}
+        </div>
+    );
+}
+
 function TextArea({
                       value,
                       placeholder,
@@ -181,10 +286,46 @@ function TextArea({
     );
 }
 
+function SubmitButton({ phase, className = '' }: { phase: Phase; className?: string }) {
+    const busy = phase !== 'idle';
+    return (
+        <button
+            type="submit"
+            className={`req-btn req-send ${className}${busy ? ` is-${phase}` : ''}`}
+            disabled={busy}
+            style={{ '--load': `${LOAD_MS}ms` } as CSSProperties}
+        >
+            <span className="req-send__fill" aria-hidden="true" />
+            <span className="req-send__label">
+                {phase === 'burst' ? '¡Listo!' : busy ? 'Enviando…' : 'Enviar solicitud'}
+            </span>
+            <IonIcon icon={arrowForward} aria-hidden="true" />
+            {phase === 'burst' && (
+                <span className="req-sparks" aria-hidden="true">
+                    {Array.from({ length: SPARKS }, (_, i) => (
+                        <span
+                            key={i}
+                            style={
+                                {
+                                    '--angle': `${(360 / SPARKS) * i}deg`,
+                                    '--dist': `${i % 2 ? 4.2 : 6}rem`,
+                                } as CSSProperties
+                            }
+                        >
+                            <i />
+                        </span>
+                    ))}
+                </span>
+            )}
+        </button>
+    );
+}
+
 export default function AdoptionRequestPage() {
     const { animalId } = useParams<{ animalId: string }>();
     const { user } = useAuth();
     const isDesktop = useIsDesktop();
+    const motionOff = useMotionOff();
     const rootRef = useRef<HTMLDivElement>(null);
 
     const [animal, setAnimal] = useState<AnimalDetail | null>(null);
@@ -193,15 +334,18 @@ export default function AdoptionRequestPage() {
 
     const [step, setStep] = useState(1);
     const [errors, setErrors] = useState<Errors>({});
-    const [sending, setSending] = useState(false);
+    const [phase, setPhase] = useState<Phase>('idle');
+    const sending = phase !== 'idle';
     const [sendError, setSendError] = useState('');
     const [done, setDone] = useState(false);
     const [values, setValues] = useState<Values>({
         nombre: '',
         correo: user?.email ?? '',
+        pais: DEFAULT_COUNTRY,
         telefono: '',
         ciudad: '',
         vivienda: '',
+        viviendaOtro: '',
         patio: '',
         convive: '',
         tuvoMascotas: '',
@@ -240,6 +384,11 @@ export default function AdoptionRequestPage() {
         setErrors((e) => (e[key] ? { ...e, [key]: undefined } : e));
     };
 
+    const setVivienda = (value: string) => {
+        setValues((v) => ({ ...v, vivienda: value, viviendaOtro: value === 'Otro' ? v.viviendaOtro : '' }));
+        setErrors((e) => ({ ...e, vivienda: undefined, ...(value !== 'Otro' ? { viviendaOtro: undefined } : {}) }));
+    };
+
     const aria = (k: Key) => ({
         id: `req-${k}`,
         'aria-invalid': errors[k] ? true : undefined,
@@ -263,6 +412,7 @@ export default function AdoptionRequestPage() {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        if (sending) return;
         // En móvil, Enter en un paso intermedio avanza en vez de enviar
         if (!isDesktop && step < 4) {
             goNext();
@@ -278,16 +428,15 @@ export default function AdoptionRequestPage() {
             return;
         }
 
-        setSending(true);
+        setPhase('loading');
         setSendError('');
         try {
-            if (SIMULAR_ENVIO) {
-                await new Promise((resolve) => setTimeout(resolve, 600));
-            } else {
-                // Nombre, correo, teléfono y ciudad salen de la cuenta (tabla usuarios)
-                await createSolicitud({
+            // Nombre, correo, teléfono y ciudad salen de la cuenta (tabla usuarios)
+            const request = SIMULAR_ENVIO
+                ? Promise.resolve()
+                : createSolicitud({
                     animal_id: Number(animalId),
-                    tipo_vivienda: values.vivienda,
+                    tipo_vivienda: values.vivienda === 'Otro' ? values.viviendaOtro.trim() : values.vivienda,
                     tiene_patio: values.patio,
                     con_quien_convive: values.convive.trim(),
                     tuvo_mascotas: values.tuvoMascotas === 'Sí',
@@ -296,12 +445,17 @@ export default function AdoptionRequestPage() {
                     motivo: values.motivo.trim(),
                     acepta_compromiso: true,
                 });
+
+            // La barra dura al menos LOAD_MS; si el servidor tarda más, espera al 100%
+            await Promise.all([request, wait(motionOff ? 0 : LOAD_MS)]);
+            if (!motionOff) {
+                setPhase('burst');
+                await wait(BURST_MS);
             }
             setDone(true);
         } catch {
             setSendError('No se pudo enviar la solicitud. Intenta de nuevo.');
-        } finally {
-            setSending(false);
+            setPhase('idle');
         }
     };
 
@@ -466,15 +620,37 @@ export default function AdoptionRequestPage() {
                                 />
                             </Field>
                             <Field k="telefono" label="Número de teléfono" error={errors.telefono}>
+                                <div className="req-phone">
+                                <div className="req-phone__country">
+                                    <select
+                                        className="req-input"
+                                        aria-label="País del teléfono"
+                                        value={values.pais}
+                                        onChange={(e) => {
+                                            const c = getCountry(e.target.value);
+                                            setValues((v) => ({ ...v, pais: c.code, telefono: cleanPhone(v.telefono, c) }));
+                                            setErrors((er) => (er.telefono ? { ...er, telefono: undefined } : er));
+                                        }}
+                                    >
+                                        {COUNTRIES.map((c) => (
+                                            <option key={c.code} value={c.code}>
+                                                {c.code} {c.dial}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <IonIcon icon={chevronDown} aria-hidden="true" />
+                                </div>
                                 <input
                                     {...aria('telefono')}
                                     className="req-input"
                                     type="tel"
-                                    placeholder="+56 9 1234 5678"
-                                    autoComplete="tel"
+                                    inputMode="numeric"
+                                    autoComplete="tel-national"
+                                    placeholder={'9'.padEnd(getCountry(values.pais).min, '1')}
                                     value={values.telefono}
-                                    onChange={(e) => set('telefono', e.target.value)}
+                                    onChange={(e) => set('telefono', cleanPhone(e.target.value, getCountry(values.pais)))}
                                 />
+                                </div>
                             </Field>
                             <Field k="ciudad" label="Ciudad de residencia" error={errors.ciudad}>
                                 <Select
@@ -493,23 +669,45 @@ export default function AdoptionRequestPage() {
                             <IonIcon icon={homeOutline} aria-hidden="true" />
                             Tu hogar
                         </h2>
-                        <div className="req-grid">
-                            <Field k="vivienda" label="¿Vives en?" error={errors.vivienda}>
-                                <Select
-                                    aria={aria('vivienda')}
+                        <div className="req-grid req-grid--home">
+                            <Field k="vivienda" label="¿Vives en?" error={errors.vivienda} group>
+                                <Choice
+                                    k="vivienda"
                                     value={values.vivienda}
                                     options={VIVIENDAS}
-                                    onChange={(v) => set('vivienda', v)}
+                                    error={errors.vivienda}
+                                    onChange={setVivienda}
                                 />
                             </Field>
-                            <Field k="patio" label="¿Cuentas con patio o espacio exterior?" error={errors.patio}>
-                                <Select
-                                    aria={aria('patio')}
+                            <Field
+                                k="patio"
+                                label="¿Cuentas con patio o espacio exterior?"
+                                error={errors.patio}
+                                group
+                            >
+                                <Choice
+                                    k="patio"
                                     value={values.patio}
                                     options={SI_NO}
+                                    error={errors.patio}
                                     onChange={(v) => set('patio', v)}
                                 />
                             </Field>
+                            <div className={`req-reveal${values.vivienda === 'Otro' ? ' is-open' : ''}`}>
+                                <div className="req-reveal__inner">
+                                    <Field k="viviendaOtro" label="¿Cuál?" error={errors.viviendaOtro} full>
+                                        <input
+                                            {...aria('viviendaOtro')}
+                                            className="req-input"
+                                            type="text"
+                                            maxLength={60}
+                                            placeholder="Ej. parcela, pieza arrendada, etc."
+                                            value={values.viviendaOtro}
+                                            onChange={(e) => set('viviendaOtro', e.target.value)}
+                                        />
+                                    </Field>
+                                </div>
+                            </div>
                             <Field k="convive" label="¿Con quién convives?" error={errors.convive} full>
                                 <TextArea
                                     aria={aria('convive')}
@@ -528,11 +726,17 @@ export default function AdoptionRequestPage() {
                             Tu experiencia
                         </h2>
                         <div className="req-grid">
-                            <Field k="tuvoMascotas" label="¿Has tenido mascotas antes?" error={errors.tuvoMascotas}>
-                                <Select
-                                    aria={aria('tuvoMascotas')}
+                            <Field
+                                k="tuvoMascotas"
+                                label="¿Has tenido mascotas antes?"
+                                error={errors.tuvoMascotas}
+                                group
+                            >
+                                <Choice
+                                    k="tuvoMascotas"
                                     value={values.tuvoMascotas}
                                     options={SI_NO}
+                                    error={errors.tuvoMascotas}
                                     onChange={(v) => set('tuvoMascotas', v)}
                                 />
                             </Field>
@@ -540,11 +744,13 @@ export default function AdoptionRequestPage() {
                                 k="tieneMascotas"
                                 label="¿Actualmente tienes otras mascotas?"
                                 error={errors.tieneMascotas}
+                                group
                             >
-                                <Select
-                                    aria={aria('tieneMascotas')}
+                                <Choice
+                                    k="tieneMascotas"
                                     value={values.tieneMascotas}
                                     options={SI_NO}
+                                    error={errors.tieneMascotas}
                                     onChange={(v) => set('tieneMascotas', v)}
                                 />
                             </Field>
@@ -581,18 +787,19 @@ export default function AdoptionRequestPage() {
                             </Field>
                         </div>
 
-                        <label className="req-check">
+                        <div className="req-check">
                             <input
                                 {...aria('acepta')}
                                 type="checkbox"
                                 checked={values.acepta}
                                 onChange={(e) => set('acepta', e.target.checked)}
+                                aria-label="Entiendo que la adopción implica un compromiso a largo plazo con su bienestar, cuidado y tenencia responsable"
                             />
-                            <span>
+                            <p className="req-check__text selectable">
                                 Entiendo que la adopción implica un compromiso a largo plazo con su{' '}
                                 <strong>bienestar, cuidado y tenencia responsable</strong>
-                            </span>
-                        </label>
+                            </p>
+                        </div>
                         {errors.acepta && (
                             <p id="req-acepta-error" className="req-error" role="alert">
                                 {errors.acepta}
@@ -600,10 +807,7 @@ export default function AdoptionRequestPage() {
                         )}
 
                         {/* Solo desktop: en móvil se usan los botones de pasos */}
-                        <button type="submit" className="req-btn req-submit" disabled={sending}>
-                            {sending ? 'Enviando…' : 'Enviar solicitud'}
-                            <IonIcon icon={arrowForward} aria-hidden="true" />
-                        </button>
+                        <SubmitButton phase={phase} className="req-submit" />
                     </section>
 
                     {sendError && (
@@ -630,10 +834,7 @@ export default function AdoptionRequestPage() {
                                 <IonIcon icon={arrowForward} aria-hidden="true" />
                             </button>
                         ) : (
-                            <button type="submit" className="req-btn" disabled={sending}>
-                                {sending ? 'Enviando…' : 'Enviar solicitud'}
-                                <IonIcon icon={arrowForward} aria-hidden="true" />
-                            </button>
+                            <SubmitButton phase={phase} />
                         )}
                     </div>
                 </form>

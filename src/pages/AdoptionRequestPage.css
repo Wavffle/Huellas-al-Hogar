@@ -6,6 +6,7 @@
     --req-error: #c0392b;
     padding: 1.2rem 0 3rem;
     overflow-x: clip;
+    --req-rose: #ece2f1;
 }
 
 .req-page--center {
@@ -224,24 +225,25 @@
     display: flex;
     align-items: flex-start;
     gap: 1rem;
-    padding: 1.1rem 1.2rem;
+    padding: 1.7rem 1.4rem 1.7rem;
     border-radius: var(--radius-md);
     background: var(--req-rose);
 }
 
 .req-note > ion-icon {
     flex: none;
-    font-size: 1.9rem;
+    font-size: 2.2rem;
 }
 
 .req-note__title {
     font-family: var(--font-body);
     font-size: 0.85rem;
     font-weight: 600;
+    margin-bottom: 0.7rem;
 }
 
 .req-note__text {
-    margin-top: 0.3rem;
+    margin-top: 0.7rem;
     color: rgba(48, 44, 53, 0.65);
     font-size: 0.72rem;
     font-weight: 300;
@@ -270,20 +272,21 @@
 }
 
 .req-grid {
+    --req-gap: 1.3rem;
     display: grid;
-    gap: 1.3rem;
+    gap: var(--req-gap);
     margin-top: 1.5rem;
 }
 
 .req-field {
     display: grid;
     align-content: start;
-    gap: 0.5rem;
+    gap: 0.8rem;
 }
 
 .req-label {
     font-size: 0.95rem;
-    font-weight: 400;
+    font-weight: 500;
 }
 
 .req-required {
@@ -298,12 +301,19 @@
     border-radius: 0.55rem;
     background: transparent;
     color: var(--color-text);
-    font: inherit;
+    font-family: inherit;   /* nuevo */
+    font-weight: 400;       /* antes: 300 */
     font-size: 0.9rem;
+}
+
+.req-select select.is-empty {
+    color: #8d8791;
+    font-weight: 300;       /* nuevo */
 }
 
 .req-input::placeholder {
     color: #8d8791;
+    font-weight: 300;
 }
 
 .req-input[aria-invalid='true'] {
@@ -340,11 +350,70 @@
     resize: none;
 }
 
+/* ===== Botones de elección (Sí/No, vivienda) ===== */
+.req-choice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.req-choice__option {
+    position: relative;
+    display: block;
+    cursor: pointer;
+}
+
+.req-choice__option input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.req-choice__option span {
+    display: grid;
+    place-items: center;
+    height: 2.9rem;
+    min-width: 5.5rem;
+    padding: 0 1.6rem;
+    border: 1px solid var(--color-text);
+    border-radius: 0.55rem;
+    font-size: 0.9rem;
+    font-weight: 400;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.req-choice__option:hover span {
+    background: rgba(134, 114, 178, 0.12);
+}
+
+.req-choice__option input:checked + span {
+    border-color: var(--req-lilac);
+    background: var(--req-lilac);
+    color: var(--color-white);
+}
+
+.req-choice__option input:focus-visible + span {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.req-choice[aria-invalid='true'] .req-choice__option span {
+    border-color: var(--req-error);
+}
+
+.req-choice:focus {
+    outline: none;
+}
+
 .req-count {
     display: block;
-    margin-top: 0.5rem;
+    margin-top: 0.7rem;
     color: var(--color-text-muted);
     font-size: 0.85rem;
+    font-weight: 300;
+    opacity: 0.6;
     text-align: right;
 }
 
@@ -361,12 +430,16 @@
 /* Checkbox de compromiso */
 .req-check {
     display: flex;
-    align-items: flex-start;
+    align-items: center;      /* antes: flex-start */
     gap: 0.8rem;
     margin-top: 1.4rem;
     font-size: 0.9rem;
     line-height: 1.3;
-    cursor: pointer;
+}
+
+.req-check__text {
+    margin: 0;
+    max-width: 40rem;
 }
 
 .req-check input {
@@ -474,6 +547,161 @@
     display: none;
 }
 
+/* ===== Campo de teléfono con prefijo ===== */
+.req-phone {
+    display: grid;
+    grid-template-columns: 8.6rem minmax(0, 1fr);   /* antes: 7.2rem */
+    gap: 0.6rem;
+}
+
+.req-phone__country {
+    position: relative;
+}
+
+.req-phone__country select {
+    appearance: none;
+    padding: 0 2rem 0 0.9rem;   /* izquierda | derecha: deja sitio a la flecha */
+    text-align: left;
+    text-align-last: left;      /* alinea el valor seleccionado, no solo la lista */
+    text-indent: 0;
+    cursor: pointer;
+}
+
+.req-phone__country ion-icon {
+    position: absolute;
+    right: 0.7rem;
+    top: 50%;
+    translate: 0 -50%;
+    font-size: 1rem;
+    pointer-events: none;
+}
+
+/* ===== Botón de envío animado ===== */
+.req-send {
+    position: relative;
+}
+
+.req-send:disabled {
+    opacity: 1;
+}
+
+.req-send:disabled:hover {
+    background: var(--req-lilac);
+    border-color: var(--req-lilac);
+}
+
+.req-send__label,
+.req-send ion-icon {
+    position: relative;
+    z-index: 1;
+}
+
+/* Barra de carga: se rellena de izquierda a derecha */
+.req-send__fill {
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.req-send__fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--color-primary-dark);
+    transform-origin: left center;
+    scale: 0 1;
+}
+
+.req-send.is-loading .req-send__fill::after {
+    animation: req-fill var(--load, 1.6s) cubic-bezier(0.45, 0.05, 0.3, 1) forwards;
+}
+
+.req-send.is-burst .req-send__fill::after {
+    scale: 1 1;
+}
+
+/* La flecha avanza mientras carga */
+.req-send.is-loading ion-icon {
+    animation: req-arrow 0.7s ease-in-out infinite;
+}
+
+/* Chispas */
+.req-sparks {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.req-sparks::before {
+    content: '';
+    position: absolute;
+    left: -3rem;
+    top: -3rem;
+    width: 6rem;
+    height: 6rem;
+    border: 2px solid var(--color-accent);
+    border-radius: 50%;
+    animation: req-ring 0.6s ease-out forwards;
+}
+
+.req-sparks > span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    rotate: var(--angle);
+}
+
+.req-sparks i {
+    position: absolute;
+    left: 0;
+    top: -0.25rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--radius-pill);
+    background: var(--req-lilac);
+    animation: req-spark 0.7s ease-out forwards;
+}
+
+.req-sparks > span:nth-child(even) i {
+    top: -0.15rem;
+    width: 0.9rem;
+    height: 0.3rem;
+}
+
+.req-sparks > span:nth-child(3n + 1) i {
+    background: var(--color-accent);
+}
+
+.req-sparks > span:nth-child(3n + 2) i {
+    background: var(--color-primary-light);
+}
+
+@keyframes req-fill {
+    to { scale: 1 1; }
+}
+
+@keyframes req-arrow {
+    50% { translate: 0.5rem 0; }
+}
+
+@keyframes req-spark {
+    from { translate: 1rem 0; scale: 1; opacity: 1; }
+    to   { translate: var(--dist) 0; scale: 0.2; opacity: 0; }
+}
+
+@keyframes req-ring {
+    from { scale: 0.3; opacity: 1; }
+    to   { scale: 2.6; opacity: 0; }
+}
+
 @media (max-width: 799px) {
     .req-step-hidden {
         display: none !important;
@@ -537,6 +765,85 @@
         padding-inline: 0;
     }
 
+    .req-grid:has(.req-field--choice) {
+        grid-template-columns: auto auto 1fr;
+        column-gap: 4rem;
+    }
+
+    .req-grid:has(.req-field--choice) .req-field--full {
+        grid-column: 1 / -1;
+    }
+
+    .req-grid.req-grid--home {
+        grid-template-columns: auto 0 1fr;
+        column-gap: 0;
+        transition: none;
+    }
+
+    .req-grid--home > :nth-child(1) {
+        grid-column: 1;
+        grid-row: 1;
+        margin-right: 2.5rem;
+    }
+
+    .req-grid--home > .req-reveal {
+        grid-column: 2;
+        grid-row: 1;
+        position: relative;
+        display: block;
+        margin: 0;
+        opacity: 0;
+        translate: -0.75rem 0;
+        pointer-events: none;
+        transition:
+                opacity 0.25s ease,
+                translate 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .req-grid--home > .req-reveal.is-open {
+        opacity: 1;
+        translate: 0 0;
+        pointer-events: auto;
+    }
+
+    .req-grid--home .req-reveal__inner {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 18rem;
+        min-height: 0;
+        overflow: visible;
+    }
+
+    .req-grid--home .req-reveal.is-open .req-reveal__inner {
+        overflow: visible;
+    }
+
+    .req-grid--home > :nth-child(2) {
+        grid-column: 3;
+        grid-row: 1;
+        justify-self: start;
+        margin-left: 0;
+        transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .req-grid--home:has(.req-reveal.is-open) > :nth-child(2) {
+        margin-left: calc(18rem + 2.5rem);
+    }
+
+    .req-grid--home > .req-reveal .req-field {
+        margin-right: 2.5rem;
+    }
+
+    .req-grid--home > .req-reveal:not(.is-open) .req-field {
+        margin-right: 0;
+    }
+
+    .req-grid--home > :nth-child(4) {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+
     .req-clouds {
         display: block;
         position: absolute;
@@ -556,7 +863,7 @@
 
     .req-animal .det-gallery__main,
     .req-animal .det-gallery__empty {
-        aspect-ratio: 1 / 1.02;
+        aspect-ratio: 1 / 0.9;
         border-radius: 1.4rem;
     }
 
@@ -571,20 +878,21 @@
     }
 
     .req-animal__name {
-        margin-top: 1.6rem;
-        font-size: clamp(2.4rem, 3.2vw, 3.2rem);
+        margin-top: 1.8rem;
+        font-size: clamp(2.2rem, 3vw, 3rem);
     }
 
     .req-meta {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 1rem;
-        margin-top: 1.4rem;
+        margin-top: 1.5rem;
     }
 
     .req-meta li {
         order: 0;
         font-size: clamp(1rem, 1.4vw, 1.25rem);
+        font-weight: 400;
     }
 
     .req-meta__age,
@@ -593,8 +901,13 @@
     .req-meta__city {
         order: 0;
         flex-basis: auto;
-        font-size: clamp(1rem, 1.4vw, 1.25rem) !important;
-        font-weight: 500 !important;
+        font-size: clamp(1rem, 1vw, 1.1rem) !important;
+        font-weight: 400 !important;
+    }
+
+    .req-meta__size,
+    .req-meta__city {
+        justify-self: end;
     }
 
     .req-meta__city ion-icon {
@@ -604,14 +917,15 @@
     }
 
     .req-notes {
-        margin-top: 2.6rem;
+        gap: 1.4rem;
+        margin-top: 4rem;
     }
 
     .req-form {
         align-self: stretch;
         position: relative;
         z-index: 1;
-        padding: 2.8rem 3.1vw 3.2rem 3vw;
+        padding: 3rem 3.1vw 3.2rem 3vw;
         border-left: 1px solid var(--req-line);
     }
 
@@ -631,8 +945,9 @@
     }
 
     .req-grid {
+        --req-gap: 1.4rem;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1.5rem 2.8vw;
+        gap: var(--req-gap) 2.8vw;
         margin-top: 1.6rem;
     }
 
@@ -647,12 +962,51 @@
     .req-submit {
         display: inline-flex;
         width: 100%;
-        height: 4rem;
-        margin-top: 1.4rem;
+        height: 5.2rem;
+        margin-top: 2.4rem;
         font-size: 1.25rem;
+        font-weight: 400;
+    }
+
+    .req-submit ion-icon {
+        font-size: 1.6rem;
     }
 
     .req-nav {
         display: none;
     }
+}
+
+/* ===== Campo que se despliega (¿Cuál?) ===== */
+.req-reveal {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-rows: 0fr;
+    margin-block: calc(-0.5 * var(--req-gap));
+    opacity: 0;
+    translate: 0 -0.5rem;
+    transition:
+            grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+            margin-block 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+            opacity 0.25s ease,
+            translate 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.req-reveal.is-open {
+    grid-template-rows: 1fr;
+    margin-block: 0;
+    opacity: 1;
+    translate: 0 0;
+}
+
+.req-reveal__inner {
+    min-height: 0;
+    overflow: hidden;
+    visibility: hidden;                      /* cerrado: fuera del tab y de lectores */
+    transition: visibility 0s linear 0.35s;  /* se oculta al terminar de cerrar */
+}
+
+.req-reveal.is-open .req-reveal__inner {
+    visibility: visible;
+    transition-delay: 0s;
 }
