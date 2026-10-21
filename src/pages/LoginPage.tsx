@@ -3,7 +3,7 @@ import type { FormEvent } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { IonContent, IonIcon, IonPage } from '@ionic/react';
 import { arrowBack, eyeOffOutline, eyeOutline, paw } from 'ionicons/icons';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, roleForTestEmail } from '../contexts/AuthContext';
 import logoColor from '../assets/images/logo/logo-color.svg';
 import logoClaro from '../assets/images/logo/logo-claro.svg';
 import patternLogin from '../assets/images/login/patron-fondo.webp';
@@ -28,9 +28,10 @@ export default function LoginPage() {
     const [showConfirm, setShowConfirm] = useState(false);
     const [accepted, setAccepted] = useState(false);
 
-    const submitLogin = (e: FormEvent) => {
+    const submitLogin = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        login();
+        const email = String(new FormData(e.currentTarget).get('email') ?? '').trim();
+        login(roleForTestEmail(email), email);
         history.replace(redirectTo);
     };
 
@@ -82,6 +83,7 @@ export default function LoginPage() {
                                 <form className="login__form" onSubmit={submitLogin}>
                                     <input
                                         type="email"
+                                        name="email"
                                         className="login__input"
                                         placeholder="tucorreo@ejemplo.com"
                                         aria-label="Correo electrónico"

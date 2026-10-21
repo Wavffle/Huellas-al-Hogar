@@ -13,49 +13,28 @@ Esta rama contiene la interfaz de usuario desarrollada en **Ionic + React + Type
 - Claudio Vergara
 - Benjamin Brito
 
-## Ejecución local
-
-### Requisitos
-
-- Node.js 20 o superior.
-- npm 10 o superior.
-
-### Instalación y ejecución
-
-```bash
-npm install
-npm run dev
-```
-
 ## Estructura del proyecto
 
 ```text
 frontend/
 ├── src/
-│   ├── components/    # Componentes reutilizables
-│   ├── contexts/      # Estado y contexto compartido
-│   ├── pages/         # Vistas principales
-│   ├── routes/        # Rutas públicas y protegidas
-│   ├── theme/         # Estilos y configuración visual
-│   ├── App.tsx
-│   └── main.tsx
-├── index.html
-├── package.json
-├── package-lock.json
-├── tsconfig.app.json
-├── tsconfig.json
-├── tsconfig.node.json
-├── vite.config.ts
+│   ├── pages/         # Vistas principales (AdoptionsPage, AdoptionDetailPage, AdoptionRequestPage, etc.)
+│   ├── components/    # Componentes reutilizables (AdoptionCard, Navbar, Footer, etc.)
+│   ├── contexts/      # Estado compartido (sesión)
+│   ├── routes/        # Definición de rutas públicas y protegidas
+│   ├── services/      # Llamadas a la API (axios)
+│   └── theme/         # Variables y estilos globales
+├── public/
 └── README.md
 ```
 
 ## Roles del sistema
 
-- **Adoptante:** usuario registrado que puede enviar solicitudes de adopción y consultar el estado de sus solicitudes.
-- **Rescatista:** usuario autorizado para publicar animales, gestionar sus publicaciones, revisar solicitudes y modificar el estado de los animales publicados.
+- **Adoptante:** rol por defecto al registrarse. Envía solicitudes de adopción y consulta su estado.
+- **Rescatista:** publica animales, gestiona sus publicaciones, revisa solicitudes y cambia el estado de sus animales. El rol lo asigna un administrador.
 - **Administrador:** gestiona usuarios, asigna el rol de rescatista, modera publicaciones y administra contenido educativo.
 
-> El usuario no registrado corresponde a un estado de acceso, no a un rol. Puede explorar animales y contenido educativo, pero debe autenticarse antes de enviar formalmente una solicitud de adopción.
+> El usuario no registrado es un estado de acceso, no un rol. Puede explorar animales y contenido educativo, pero debe iniciar sesión para solicitar una adopción.
 
 ## Requerimientos funcionales (RF)
 
@@ -94,10 +73,11 @@ frontend/
 | `/inicio` | Inicio | Pública | Landing principal |
 | `/adopciones` | Adopciones | Pública | Catálogo de animales |
 | `/adopciones/:animalId` | Perfil del animal | Pública | Detalle del animal seleccionado |
+| `/adopciones/:animalId/solicitar` | Solicitud de adopción | Privada (usuario autenticado) | Formulario de solicitud |
 | `/educacion` | Educación | Pública | Contenido educativo |
-| `/login` | Login | Pública | Inicio de sesión |
+| `/login`, `/registro` | Login y registro | Pública | Inicio de sesión y creación de cuenta |
 | `/perfil` | Perfil | Protegida | Perfil del usuario autenticado |
-| `/publicar` | Publicar animal | Rescatista / Administrador | Formulario de publicación de animales |
+| `/publicar` | Publicar animal | Rescatista / Administrador | Formulario de publicación. El resto de usuarios ve los requisitos para ser rescatista |
 
 ### Jerarquía de vistas
 
@@ -105,7 +85,7 @@ frontend/
 /inicio
 ├── /adopciones
 │   └── /adopciones/:animalId
-│       └── Solicitud de adopción
+│       └── /adopciones/:animalId/solicitar
 ├── /educacion
 ├── /login
 ├── /perfil
@@ -117,19 +97,19 @@ frontend/
 | **Segmento** | **Acceso** | **Comportamiento** |
 | --- | --- | --- |
 | `/inicio`, `/adopciones`, `/adopciones/:animalId`, `/educacion`, `/login` | Público | Puede acceder un usuario sin autenticación. |
-| `/perfil` | Usuario autenticado | La ruta protegida valida que exista una sesión activa. |
-| `/publicar` | Rescatista / Administrador | La ruta protegida valida autenticación y rol autorizado. |
+| `/adopciones/:animalId/solicitar`, `/perfil` | Usuario autenticado | Sin sesión, redirige a `/login` y, al iniciar sesión, devuelve a la ruta de origen. |
+| `/publicar` | Rescatista / Administrador | Estos roles ven el formulario; el resto ve los requisitos para ser rescatista. |
 
 ### Flujo de tareas principales (task flows)
 
-**Task flow 1 — Solicitar una adopción:** `/inicio` → `/adopciones` → seleccionar animal → `/adopciones/:animalId` → solicitar adopción → completar formulario → si no existe sesión activa, iniciar sesión → retomar solicitud → enviar.
+**Task flow 1 — Solicitar una adopción:** `/inicio` → `/adopciones` → seleccionar animal → `/adopciones/:animalId` → solicitar adopción → si no existe sesión activa, iniciar sesión → retomar solicitud → completar formulario → enviar.
 
 **Task flow 2 — Publicar un animal:** iniciar sesión → `/publicar` → completar información básica → características → salud y cuidados → fotos y descripción → revisión → publicar.
 
 ### Puntos críticos de interacción
 
 - **Solicitud de adopción:** los campos obligatorios deben estar identificados y mostrar errores de validación comprensibles.
-- **Inicio de sesión durante la adopción:** el usuario debe poder autenticarse sin perder el animal ni el formulario en curso.
+- **Inicio de sesión durante la adopción:** el usuario debe poder autenticarse sin perder el animal seleccionado.
 - **Publicación de animal:** el rescatista debe identificar claramente la información obligatoria y avanzar por las etapas del formulario.
 - **Estados del animal:** los estados **En adopción**, **En proceso** y **Adoptado** deben mostrarse de forma consistente.
 - **Filtros del catálogo:** el usuario debe poder identificar claramente qué filtros se encuentran activos.
@@ -137,11 +117,20 @@ frontend/
 ### Coherencia entre dispositivos
 
 - En **web**, la navegación principal utiliza una barra superior con acceso a Adopciones, Aprende, Publicar Animal e Inicio de sesión / Perfil.
-- En **móvil**, la navegación se adapta al espacio disponible mediante componentes de Ionic, conservando las mismas funciones principales.
+- En **móvil**, la navegación se adapta mediante un menú desplegable; la solicitud de adopción se divide en pasos y los filtros se abren en una ventana.
 - Las grillas, formularios, filtros y galerías ajustan su distribución al ancho disponible manteniendo la jerarquía visual.
 
 ### Justificación técnica de las decisiones
 
 - **React Router:** gestiona el enrutamiento declarativo entre las distintas vistas.
-- **Rutas protegidas:** permiten restringir las funcionalidades según autenticación y rol.
-- **Estructura modular:** separar `pages`, `components`, `contexts`, `routes` y `theme` facilita mantener y ampliar el frontend en las siguientes entregas.
+- **Rutas protegidas:** permiten restringir las funcionalidades según autenticación y rol, conservando la ruta de origen.
+- **Estructura modular:** separar `pages`, `components`, `services`, `contexts`, `routes` y `theme` facilita mantener y ampliar el frontend. La capa `services` conecta con la API del backend.
+
+## Ejecución local
+
+Requiere Node.js 20 o superior y, para ver animales reales, el backend corriendo en `http://localhost:3000`.
+
+```bash
+npm install
+npm run dev
+```
