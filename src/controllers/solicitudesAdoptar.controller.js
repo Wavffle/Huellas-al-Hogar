@@ -156,7 +156,19 @@ export const crearSolicitud = async (req, res, next) => {
     });
   }
 
-  const camposPermitidos = ["animal_id", "usuario_id", "notas"];
+  const camposPermitidos = [
+    "animal_id",
+    "usuario_id",
+    "notas",
+    "tipo_vivienda",
+    "tiene_patio",
+    "con_quien_convive",
+    "tuvo_mascotas",
+    "tiene_mascotas",
+    "experiencia",
+    "motivo",
+    "acepta_compromiso",
+  ];
   const camposDesconocidos = Object.keys(body).filter(
     (campo) => !camposPermitidos.includes(campo)
   );
@@ -194,6 +206,66 @@ export const crearSolicitud = async (req, res, next) => {
   }
 
   let notas = null;
+  
+  //esto es para validar
+
+  const camposInvalidos = [];
+  const textosRequeridos = [
+    "tipo_vivienda",
+    "con_quien_convive",
+    "motivo",
+  ];
+
+  const textos = {};
+
+  for (const campo of textosRequeridos) {
+    const valor = body[campo];
+
+    if (typeof valor !== "string" || valor.trim().length === 0) {
+      camposInvalidos.push(campo);
+      continue;
+    }
+
+    if (campo === "tipo_vivienda" && valor.trim().length > 50) {
+      camposInvalidos.push(campo);
+      continue;
+    }
+
+    textos[campo] = valor.trim();
+  }
+
+  const camposBooleanos = [
+    "tiene_patio",
+    "tuvo_mascotas",
+    "tiene_mascotas",
+    "acepta_compromiso",
+  ];
+
+  for (const campo of camposBooleanos) {
+    if (typeof body[campo] !== "boolean") {
+      camposInvalidos.push(campo);
+    }
+  }
+
+  let experiencia = null;
+
+  if (body.experiencia !== undefined && body.experiencia !== null) {
+    if (typeof body.experiencia !== "string") {
+      camposInvalidos.push("experiencia");
+    } else if (body.experiencia.trim().length > 0) {
+      experiencia = body.experiencia.trim();
+    }
+  }
+
+  if (camposInvalidos.length > 0) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        message: "Hay campos obligatorios o con un formato inválido",
+        fields: [...new Set(camposInvalidos)],
+      },
+    });
+  }
 
   if (body.notas !== undefined && body.notas !== null) {
     if (typeof body.notas !== "string" || body.notas.trim().length === 0) {
@@ -263,14 +335,20 @@ export const crearSolicitud = async (req, res, next) => {
         },
       });
     }
-
+    //esta de aqui ya insterta la nueva solicitud
+    
     const { rows } = await client.query(
-      `INSERT INTO solicitudes_adopcion (notas, usuario_id, animal_id)
-       VALUES ($1, $2, $3)
-       RETURNING *`,
-      [notas, usuarioId, animalId]
+      `INSERT INTO solicitudes_adopcion (
+        tipo_vivienda,tiene_patio,con_quien_convive,tuvo_mascotas,tiene_mascotas,
+        experiencia,motivo,acepta_compromiso,notas,usuario_id,animal_id
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      RETURNING *`,
+      [
+        textos.tipo_vivienda,body.tiene_patio,textos.con_quien_convive,body.tuvo_mascotas,body.tiene_mascotas,        
+        experiencia,textos.motivo,body.acepta_compromiso,notas,usuarioId,animalId,                   
+      ]
     );
-
     await client.query("COMMIT");
 
     return res.status(201).json({

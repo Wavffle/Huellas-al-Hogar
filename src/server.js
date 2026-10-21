@@ -3,6 +3,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { pool } from "./config/database.js";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 //estos son rutas
 import animalesroute from "./routes/animales.routes.js";
@@ -13,11 +15,13 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+const directorioSrc = path.dirname(fileURLToPath(import.meta.url));
+const directorioUploads = path.resolve(directorioSrc, "../uploads");
 
 // Middlewares
 app.use(cors()); // Configuración temporal para desarrollo
 app.use(express.json());
+app.use("/uploads", express.static(directorioUploads));
 
 // de ruta especificamente
 app.use("/api/animales", animalesroute);

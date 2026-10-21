@@ -2,7 +2,7 @@
 import { pool } from "../config/database.js";
 
 //---------------------------------------------------------------------------------------------------//
-// funciones auxiliares para testeos, reglas,etc //
+// funciones auxiliares para testeos, reglas,etc, tambien las constantes que permiten //
 
 const estadosPermitidos = [
   "EN_ADOPCION",
@@ -10,12 +10,28 @@ const estadosPermitidos = [
   "EN_TRATAMIENTO",
 ];
 
+const valoresPermitidosPorCampo = {
+  sexo: ["MACHO", "HEMBRA"],
+  tamanho: ["PEQUEÑO", "PEQUENO", "MEDIANO", "GRANDE"],
+  rescate: ["RESCATE", "ENTREGADO_FAMILIA", "REFUGIO", "CAMADA"],
+  vacunas_estado: ["AL_DIA", "FALTAN", "NO_TIENE"],
+  esterilizado: ["SI", "NO", "NO_SABE"],
+};
+
 const camposTexto = [
   "nombre",
   "especie",
   "sexo",
   "tamanho",
-  "estado_salud",
+  "ciudad",
+  "rescate",
+  "descripcion",
+  "personalidad",
+  "vacunas_estado",
+  "vacunas_detalles",
+  "esterilizado",
+  "cuidado_especial",
+  "razon_adopcion",
 ];
 
 const limitesTexto = {
@@ -23,20 +39,31 @@ const limitesTexto = {
   especie: 50,
   sexo: 20,
   tamanho: 20,
+  ciudad: 100,
+  vacunas_estado: 20,
+  esterilizado: 20,
 };
 
 const camposObligatoriosAlCrear = ["nombre", "especie"];
+const camposArreglo = ["ideal_para", "convive_con", "etiquetas"];
+const camposEnteros = ["edad", "edad_meses"];
+
+// el ... es como pa no poner todo de nuevo nomas
 
 const camposPermitidosAlCrear = [
   ...camposTexto,
-  "edad",
+  ...camposArreglo,
+  ...camposEnteros,
+  "fecha_esterilizacion",
   "estado",
   "usuario_id",
 ];
 
 const camposPermitidosAlActualizar = [
   ...camposTexto,
-  "edad",
+  ...camposArreglo,
+  ...camposEnteros,
+  "fecha_esterilizacion",
   "estado",
 ];
 
@@ -53,6 +80,23 @@ function obtenerIdValido(idParametro) {
 
   return id;
 }
+
+function esFechaIsoValida(valor) {
+  if (typeof valor !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(valor)) {
+    return false;
+  }
+
+  const fecha = new Date(`${valor}T00:00:00.000Z`);
+
+  return (
+    !Number.isNaN(fecha.getTime()) &&
+    fecha.toISOString().slice(0, 10) === valor
+  );
+}
+
+//validar datos como dice valida datos
+//o sea saca espacios, las mayus, que este bien escrito todo y que obvio este dentro de los campos permitidos
+//la idea tambien es ponerlo en mayus, porq en la base de datos salia que era en mayusculas, quizas no hace falta pero no se pierde nada
 
 function validarDatosAnimal(body, { alCrear = false } = {}) {
   const camposPermitidos = alCrear
@@ -82,18 +126,14 @@ function validarDatosAnimal(body, { alCrear = false } = {}) {
     if (body[campo] === undefined) {
       if (esObligatorio) {
         camposInvalidos.push(campo);
+      } else if (alCrear) {
+        datos[campo] = null;
       }
 
       continue;
     }
 
-    const puedeSerNull = [
-      "sexo",
-      "tamanho",
-      "estado_salud",
-    ].includes(campo);
-
-    if (body[campo] === null && puedeSerNull) {
+    if (body[campo] === null && !esObligatorio) {
       datos[campo] = null;
       continue;
     }
@@ -106,7 +146,16 @@ function validarDatosAnimal(body, { alCrear = false } = {}) {
       continue;
     }
 
-    const valor = body[campo].trim();
+    let valor = body[campo].trim();
+
+    if (valoresPermitidosPorCampo[campo]) {
+      valor = valor.toUpperCase();
+
+      if (!valoresPermitidosPorCampo[campo].includes(valor)) {
+        camposInvalidos.push(campo);
+        continue;
+      }
+    }
 
     if (limitesTexto[campo] && valor.length > limitesTexto[campo]) {
       camposInvalidos.push(campo);
@@ -116,32 +165,82 @@ function validarDatosAnimal(body, { alCrear = false } = {}) {
     datos[campo] = valor;
   }
 
-  if (body.edad !== undefined) {
-    if (
-      body.edad !== null &&
-      (!Number.isInteger(body.edad) || body.edad < 0)
-    ) {
-      camposInvalidos.push("edad");
-    } else {
-      datos.edad = body.edad;
+  for (const campo of camposEnteros) {
+    if (body[campo] === undefined) {
+      if (alCrear) {
+        datos[campo] = null;
+      }
+
+      continue;
     }
-  } else if (alCrear) {
-    datos.edad = null;
+
+    if (body[campo] === null) {
+      datos[campo] = null;
+      continue;
+    }
+
+    if (!Number.isInteger(body[campo]) || body[campo] < 0) {
+      camposInvalidos.push(campo);
+      continue;
+    }
+
+    datos[campo] = body[campo];
   }
 
-  if (body.estado !== undefined) {
-    if (!estadosPermitidos.includes(body.estado)) {
-      return {
-        error: {
-          message: "El estado del animal no es válido",
-          allowedValues: estadosPermitidos,
-        },
-      };
+  for (const campo of camposArreglo) {
+    if (body[campo] === undefined) {
+      if (alCrear) {
+        datos[campo] = null;
+      }
+
+      continue;
     }
 
+    if (body[campo] === null) {
+      datos[campo] = null;
+      continue;
+    }
+
+    if (
+      !Array.isArray(body[campo]) ||
+      !body[campo].every(
+        (valor) => typeof valor === "string" && valor.trim().length > 0
+      )
+    ) {
+      camposInvalidos.push(campo);
+      continue;
+    }
+
+    datos[campo] = body[campo].map((valor) => valor.trim());
+  }
+
+  if (body.fecha_esterilizacion === undefined) {
+    if (alCrear) {
+      datos.fecha_esterilizacion = null;
+    }
+  } else if (body.fecha_esterilizacion === null) {
+    datos.fecha_esterilizacion = null;
+  } else if (!esFechaIsoValida(body.fecha_esterilizacion)) {
+    camposInvalidos.push("fecha_esterilizacion");
+  } else {
+    datos.fecha_esterilizacion = body.fecha_esterilizacion;
+  }
+
+  if (body.estado === undefined) {
+    if (alCrear) {
+      datos.estado = "EN_ADOPCION";
+    }
+  } else if (body.estado === null) {
+    datos.estado = null;
+  } else if (!estadosPermitidos.includes(body.estado)) {
+    return {
+      error: {
+        message: "El estado del animal no es válido",
+        allowedValues: estadosPermitidos,
+      },
+    };
+  } else {
     datos.estado = body.estado;
-  } else if (alCrear) {
-    datos.estado = "EN_ADOPCION";
   }
 
   if (alCrear) {
@@ -149,12 +248,6 @@ function validarDatosAnimal(body, { alCrear = false } = {}) {
       camposInvalidos.push("usuario_id");
     } else {
       datos.usuario_id = body.usuario_id;
-    }
-
-    for (const campo of ["sexo", "tamanho", "estado_salud"]) {
-      if (datos[campo] === undefined) {
-        datos[campo] = null;
-      }
     }
   }
 
@@ -169,7 +262,6 @@ function validarDatosAnimal(body, { alCrear = false } = {}) {
 
   return { datos };
 }
-
 //---------------------------------------------------------------------------------------------------//
 // parte para POST en animales //
 
@@ -195,15 +287,27 @@ export const crearAnimal = async (req, res, next) => {
       error,
     });
   }
-  //de aqui se saca toda la info para el animal, por ahora hacemos todas obligatorias nomas
+  //de aqui se saca toda la info para el animal, por ahora hacemos todas obligatorias nomas <- (eso ya cambió, ahora hay opcionales y obligatorios)
+  //bien feo pero esto se encarga de recibir todo a la base de datos, igualmente la validacion ya esta hecha entonces aqui llega y recibe
   try {
     const { rows } = await pool.query(
-      `INSERT INTO animales(nombre, especie, edad, sexo, tamanho, estado_salud, estado, usuario_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      `INSERT INTO animales (
+        nombre, especie, edad, edad_meses, sexo, tamanho, ciudad, rescate,
+        descripcion, personalidad, ideal_para, convive_con, etiquetas,
+        cuidado_especial, razon_adopcion, vacunas_estado, vacunas_detalles,
+        esterilizado, fecha_esterilizacion, estado, usuario_id
+      )
+      VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,
+        $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
+      )
+      RETURNING *`,
       [
-        datos.nombre,datos.especie,datos.edad,datos.sexo,datos.tamanho,datos.estado_salud,datos.estado,datos.usuario_id,
+        datos.nombre,datos.especie,datos.edad,datos.edad_meses,datos.sexo,datos.tamanho,datos.ciudad,datos.rescate,datos.descripcion,
+        datos.personalidad,datos.ideal_para,datos.convive_con,datos.etiquetas,datos.cuidado_especial,datos.razon_adopcion,datos.vacunas_estado,
+        datos.vacunas_detalles,datos.esterilizado,datos.fecha_esterilizacion,datos.estado,datos.usuario_id,
       ]
-    );
+);
 
     return res.status(201).json({
       success: true,
