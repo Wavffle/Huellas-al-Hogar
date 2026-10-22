@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import type { FormEvent } from 'react';
 import { IonIcon } from '@ionic/react';
 import { arrowBack, arrowForward, paw } from 'ionicons/icons';
@@ -12,20 +13,15 @@ import StepHealth from '../components/publish/StepHealth';
 import StepPhotos from '../components/publish/StepPhotos';
 import StepReview from '../components/publish/StepReview';
 import { STEP_KEYS, validate, type Errors, type Key } from '../components/publish/publishForm';
-import { buildPayload } from '../components/publish/publishMappers';
 import { INITIAL_PUBLISH_VALUES, PUBLISH_STEPS, type PublishValues } from '../data/publish';
-import { createAnimal } from '../services/animalService';
 import { useMotionOff } from '../utils/useMotionOff';
 import './PublishAnimalPage.css';
 
-/** true = simula el envío. El backend aún no sube fotos y exige usuario_id (la sesión actual no tiene id). */
-const SIMULAR_ENVIO = true;
 /** Provisional: reemplazar por el id del usuario cuando el login real lo entregue. */
 const USUARIO_ID_PRUEBA = 1;
-const SIMULATED_MS = 1200;
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function PublishAnimalPage() {
+    const history = useHistory();
     const motionOff = useMotionOff();
     const [step, setStep] = useState(1);
     const [values, setValues] = useState<PublishValues>(INITIAL_PUBLISH_VALUES);
@@ -47,12 +43,14 @@ export default function PublishAnimalPage() {
     photosRef.current = values.fotos;
     useEffect(
         () => () => {
-            photosRef.current.forEach((photo) => URL.revokeObjectURL(photo.url));
+            photosRef.current.forEach((photo: any) => {
+                if (photo.url) URL.revokeObjectURL(photo.url);
+            });
         },
         [],
     );
 
-    // Al cambiar de paso: enfoca el título y, si el formulario quedó arriba, sube hasta él
+    // Al cambiar de paso: enfoca el título y sube la vista
     useEffect(() => {
         if (previousStep.current === step) return;
         previousStep.current = step;
@@ -75,7 +73,7 @@ export default function PublishAnimalPage() {
         };
     }, [step, motionOff]);
 
-    // Al terminar: sube al inicio (PublishSuccess enfoca su propio título)
+    // Al terminar: sube al inicio para mostrar la pantalla de éxito
     useEffect(() => {
         if (done) pageRef.current?.closest('ion-content')?.scrollToTop(0);
     }, [done]);
@@ -111,7 +109,6 @@ export default function PublishAnimalPage() {
             return;
         }
 
-        // Último paso: revisa el formulario antes de enviar
         const all = validate(values, STEP_KEYS.flat());
         const firstBad = STEP_KEYS.findIndex((keys) => keys.some((k) => all[k]));
         if (firstBad !== -1) {
@@ -123,27 +120,53 @@ export default function PublishAnimalPage() {
 
         setSending(true);
         setSendError('');
+
+        // FUSIÓN: Tu lógica de FormData conectada al diseño de validación de tu compa
         try {
-            const request = SIMULAR_ENVIO
-                ? Promise.resolve()
-                : createAnimal(buildPayload(values, USUARIO_ID_PRUEBA));
-            await Promise.all([request, wait(motionOff ? 0 : SIMULATED_MS)]);
-            setPublishedName(values.nombre.trim());
-            setDone(true);
-        } catch {
+            const data = new FormData();
+            
+            Object.entries(values).forEach(([key, value]) => {
+                if (key !== 'fotos' && value !== '' && value !== null && value !== undefined) {
+                    data.append(key, String(value));
+                }
+            });
+
+            data.append('usuario_id', String(USUARIO_ID_PRUEBA));
+
+            // Extraemos los archivos reales de las fotos para Multer
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            values.fotos.forEach((foto: any) => {
+                if (foto.file) {
+                    data.append('fotos', foto.file);
+                } else {
+                    data.append('fotos', foto);
+                }
+            });
+
+            const response = await fetch('http://localhost:3000/api/animales', {
+                method: 'POST',
+                body: data,
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                setPublishedName(values.nombre.trim());
+                setDone(true); // Esto activa el componente <PublishSuccess />
+            } else {
+                setSendError('Error: ' + result.error?.message);
+            }
+        } catch (error) {
+            console.error('Fallo al publicar:', error);
             setSendError('No se pudo publicar el animal. Intenta de nuevo.');
         } finally {
             setSending(false);
         }
     };
 
-    const publishAnother = () => {
-        values.fotos.forEach((photo) => URL.revokeObjectURL(photo.url));
-        setValues(INITIAL_PUBLISH_VALUES);
-        setErrors({});
-        setSendError('');
-        setStep(1);
-        setDone(false);
+    // Usamos history para llevarte al catálogo una vez que termines de ver la pantalla de éxito
+    const finishAndRedirect = () => {
+        history.push('/adopciones');
     };
 
     const stepProps = { values, errors, set };
@@ -153,7 +176,8 @@ export default function PublishAnimalPage() {
             <PublishHero />
 
             {done ? (
-                <PublishSuccess name={publishedName} onAnother={publishAnother} />
+                // Pantalla final del compa con tu redirección inyectada
+                <PublishSuccess name={publishedName} onAnother={finishAndRedirect} />
             ) : (
                 <section className="pub-wizard" ref={wizardRef} aria-label="Formulario para publicar un animal">
                     <PublishSteps current={step} onSelect={changeStep} />
