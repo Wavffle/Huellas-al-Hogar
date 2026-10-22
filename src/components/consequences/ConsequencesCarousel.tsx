@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { IonIcon } from '@ionic/react';
 import { arrowBackCircleOutline, arrowForwardCircleOutline } from 'ionicons/icons';
-import { consequences } from '../data/consequences';
+import { consequences } from '../../data/consequences';
 import './ConsequencesCarousel.css';
 
 export default function ConsequencesCarousel() {

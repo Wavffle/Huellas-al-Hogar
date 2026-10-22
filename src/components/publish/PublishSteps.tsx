@@ -1,6 +1,6 @@
 import { IonIcon } from '@ionic/react';
 import { checkmark } from 'ionicons/icons';
-import { PUBLISH_STEPS } from '../data/publish';
+import { PUBLISH_STEPS } from '../../data/publish';
 import art from '../../assets/images/publicar/publicar-perro-gato-lineas.svg';
 import './PublishSteps.css';
 

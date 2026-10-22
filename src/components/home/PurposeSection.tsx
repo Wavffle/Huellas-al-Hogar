@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { purposeSteps } from '../data/purposeSteps';
+import { purposeSteps } from '../../data/purposeSteps';
 import purposeImage from '../../assets/images/purpose/perro-gato.webp';
 import clouds from '../../assets/images/purpose/nubes-fondo.webp';
 import './PurposeSection.css';

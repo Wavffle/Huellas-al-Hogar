@@ -1,6 +1,6 @@
 import { IonIcon } from '@ionic/react';
 import { checkmark, chevronDown, searchOutline } from 'ionicons/icons';
-import type { Species } from '../data/adoptions';
+import type { Species } from '../../data/adoptions';
 import {
     AGE_OPTIONS,
     SEX_OPTIONS,

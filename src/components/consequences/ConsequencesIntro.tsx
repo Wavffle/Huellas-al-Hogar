@@ -1,4 +1,4 @@
-import { stats, statsSource } from '../data/consequences';
+import { stats, statsSource } from '../../data/consequences';
 import puppyImage from '../../assets/images/consequences/cachorro-abandono.webp';
 import './ConsequencesIntro.css';
 

@@ -1,4 +1,4 @@
-import type { AdoptionAnimal, Sex, Size, Species } from '../data/adoptions';
+import type { AdoptionAnimal, Sex, Size, Species } from '../../data/adoptions';
 
 /** Origen del backend: las rutas /uploads se sirven desde ahí. */
 const API_ORIGIN = 'http://localhost:3000';

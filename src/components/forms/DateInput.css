@@ -1,0 +1,39 @@
+.form-date {
+    position: relative;
+}
+
+.form-date input {
+    padding-right: 2.8rem;
+    cursor: pointer;
+}
+
+.form-date input.is-empty {
+    color: #8d8791;
+    font-weight: 300;
+}
+
+.form-date input::-webkit-calendar-picker-indicator {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.form-date ion-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    translate: 0 -50%;
+    font-size: 1.3rem;
+    pointer-events: none;
+}
+
+.form-date.is-disabled {
+    opacity: 0.5;
+}
+
+.form-date.is-disabled input {
+    cursor: default;
+}

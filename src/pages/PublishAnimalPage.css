@@ -123,7 +123,7 @@
 /* ===== Escritorio ===== */
 @media (min-width: 800px) {
     .pub-wizard {
-        grid-template-columns: minmax(16rem, 309fr) minmax(0, 963fr);
+        grid-template-columns: minmax(14rem, 270fr) minmax(0, 1002fr);   /* antes minmax(16rem, 309fr) minmax(0, 963fr) */
         grid-template-rows: minmax(60rem, auto);
         gap: 1.9rem;
         margin: 2.5rem 0 2.75rem;

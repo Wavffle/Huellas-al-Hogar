@@ -1,4 +1,4 @@
-import type { AdoptionAnimal } from '../data/adoptions';
+import type { AdoptionAnimal } from '../../data/adoptions';
 import { getPhotos, mapAnimal, normalize } from './adoptionMapper';
 
 export interface AnimalDetail extends AdoptionAnimal {
@@ -26,7 +26,7 @@ export function mapAnimalDetail(raw: any): AnimalDetail {
         ...mapAnimal(raw),
         photos: getPhotos(raw),
         status: raw.estado ?? 'EN_ADOPCION',
-        origin: String(raw.origen ?? ''),
+        origin: String(raw.rescate ?? raw.origen ?? ''),
         description: raw.descripcion ?? '',
         sterilized: sterilizedRaw === 'si' ? 'si' : sterilizedRaw === 'no' ? 'no' : 'no_sabe',
         vaccines:

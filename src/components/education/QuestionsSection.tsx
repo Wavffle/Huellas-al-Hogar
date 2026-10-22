@@ -1,6 +1,6 @@
 import { IonIcon } from '@ionic/react';
 import { checkmarkOutline } from 'ionicons/icons';
-import { adoptionQuestions, animalNeeds } from '../data/education';
+import { adoptionQuestions, animalNeeds } from '../../data/education';
 import needsImage from '../../assets/images/education/perro-gato-necesidades.webp';
 import './QuestionsSection.css';
 

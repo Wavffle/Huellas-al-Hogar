@@ -18,7 +18,7 @@ export const getAnimalPorId = async (id: string) => {
 };
 
 // crear un animal (ruta protegida por JWT en el backend)
-export const createAnimal = async (animalData: any) => {
+export const createAnimal = async (animalData: Record<string, unknown>) => {
     try {
         const response = await apiClient.post('/animales', animalData);
         return response.data;

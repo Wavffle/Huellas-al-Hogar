@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { IonContent, IonIcon, IonModal } from '@ionic/react';
 import { chevronDown, closeOutline, searchOutline } from 'ionicons/icons';
-import type { AdoptionAnimal } from '../components/data/adoptions';
+import type { AdoptionAnimal } from '../data/adoptions';
 import { getAnimales } from '../services/animalService';
 import PawLoader from '../components/common/PawLoader';
 import AdoptionsHero from '../components/adoptions/AdoptionsHero';

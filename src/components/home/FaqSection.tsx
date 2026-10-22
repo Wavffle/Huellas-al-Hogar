@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { IonIcon } from '@ionic/react';
 import { chevronDown } from 'ionicons/icons';
-import { faqs } from '../data/faqs';
+import { faqs } from '../../data/faqs';
 import './FaqSection.css';
 
 export default function FaqSection() {

@@ -77,13 +77,15 @@
     .pub-steps {
         display: flex;
         flex-direction: column;
-        padding: 4.4rem 1.6rem 1.4rem;
+        align-items: center;
+        padding: 4.4rem 1rem 1.4rem;
         border-radius: 1.5rem;
         background: var(--color-primary);
     }
 
     .pub-steps__list {
         flex-direction: column;
+        align-self: center;
         margin-bottom: 2rem;
     }
 
@@ -103,20 +105,26 @@
         left: calc(1.35rem - 1px);
         width: 2px;
         height: auto;
-        background: rgba(236, 226, 241, 0.85);
+        background: var(--color-bg);
+        opacity: 0.85;
     }
 
-    .pub-steps__btn {
+    .pub-steps__btn,
+    .pub-steps__btn:disabled {
         display: flex;
         align-items: center;
-        gap: 1.25rem;
-        height: 2.7rem;
-        color: #ece2f1;
+        gap: 1.1rem;
+        min-height: 2.7rem;
+        color: var(--color-bg);
         font-family: var(--font-heading);
-        font-size: 1.15rem;
-        font-weight: 700;
+        font-size: 1.1rem;
+        font-weight: 600;
         line-height: 1.2;
         text-align: left;
+    }
+
+    .pub-steps__label {
+        max-width: 8.5rem;
     }
 
     .pub-steps__dot {
@@ -124,7 +132,7 @@
         width: 2.7rem;
         height: 2.7rem;
         border: 3px solid transparent;
-        background: #ece2f1;
+        background: var(--color-bg);
         color: var(--color-text-muted);
         font-size: 1.3rem;
         font-weight: 700;
@@ -138,10 +146,20 @@
         color: var(--pub-lilac);
     }
 
+    .pub-steps__item.is-active .pub-steps__btn {
+        color: var(--color-white);
+        font-weight: 700;
+    }
+
     .pub-steps__item.is-active .pub-steps__dot {
-        border-color: #ece2f1;
+        border-color: var(--color-bg);
         background: var(--pub-lilac);
         color: var(--color-white);
+    }
+
+    .pub-steps__item.is-done .pub-steps__btn:hover .pub-steps__label {
+        text-decoration: underline;
+        text-underline-offset: 0.25em;
     }
 
     .pub-steps__art {

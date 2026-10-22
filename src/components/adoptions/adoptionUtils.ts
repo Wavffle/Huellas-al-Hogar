@@ -1,4 +1,4 @@
-import type { AdoptionAnimal, AgeGroup, Sex, Size, Species } from '../data/adoptions';
+import type { AdoptionAnimal, AgeGroup, Sex, Size, Species } from '../../data/adoptions';
 
 export const SPECIES_LABEL: Record<Species, string> = { perro: 'Perro', gato: 'Gato', otro: 'Otro' };
 

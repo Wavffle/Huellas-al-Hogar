@@ -1,7 +1,7 @@
 import { IonIcon } from '@ionic/react';
 import { arrowForwardCircleOutline, locationOutline } from 'ionicons/icons';
 import { Link } from 'react-router-dom';
-import type { AdoptionAnimal } from '../data/adoptions';
+import type { AdoptionAnimal } from '../../data/adoptions';
 import { SPECIES_LABEL, formatAge } from './adoptionUtils';
 import './AdoptionCard.css';
 

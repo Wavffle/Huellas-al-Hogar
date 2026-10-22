@@ -1,16 +1,16 @@
-import statAnimals from '../../assets/icons/stat-animales.svg';
-import statAdoption from '../../assets/icons/stat-adopcion.svg';
-import statSuffering from '../../assets/icons/stat-sufrimiento.svg';
+import statAnimals from '../assets/icons/stat-animales.svg';
+import statAdoption from '../assets/icons/stat-adopcion.svg';
+import statSuffering from '../assets/icons/stat-sufrimiento.svg';
 
-import healthImage from '../../assets/images/consequences/consecuencia-salud.webp';
-import risksImage from '../../assets/images/consequences/consecuencia-riesgos.webp';
-import emotionalImage from '../../assets/images/consequences/consecuencia-emocional.webp';
-import overpopulationImage from '../../assets/images/consequences/consecuencia-sobrepoblacion.webp';
-import communityImage from '../../assets/images/consequences/consecuencia-comunidad.webp';
+import healthImage from '../assets/images/consequences/consecuencia-salud.webp';
+import risksImage from '../assets/images/consequences/consecuencia-riesgos.webp';
+import emotionalImage from '../assets/images/consequences/consecuencia-emocional.webp';
+import overpopulationImage from '../assets/images/consequences/consecuencia-sobrepoblacion.webp';
+import communityImage from '../assets/images/consequences/consecuencia-comunidad.webp';
 
-import adoptImage from '../../assets/images/consequences/accion-adopta.webp';
-import sterilizeImage from '../../assets/images/consequences/accion-esteriliza.webp';
-import educateImage from '../../assets/images/consequences/accion-educa.webp';
+import adoptImage from '../assets/images/consequences/accion-adopta.webp';
+import sterilizeImage from '../assets/images/consequences/accion-esteriliza.webp';
+import educateImage from '../assets/images/consequences/accion-educa.webp';
 
 /* ===== Estadísticas ===== */
 export interface Stat {

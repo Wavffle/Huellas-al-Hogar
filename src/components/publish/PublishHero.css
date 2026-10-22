@@ -68,8 +68,8 @@
 /* ===== Escritorio (mockup de 1440 px) ===== */
 @media (min-width: 800px) {
     .pub-hero {
-        aspect-ratio: 1440 / 525;
-        /* Sube el hero para que quede detrás del navbar transparente */
+        --lift: 4cqw; /* cuánto sube */
+        aspect-ratio: 1440 / 450; /* antes 1440 / 525: el hero se acorta lo mismo que sube */
         margin-top: calc(var(--navbar-height) * -1);
     }
 
@@ -89,9 +89,9 @@
     }
 
     .pub-hero__pets {
-        left: 29.4cqw;
-        top: 0.2cqw;
-        width: 36.8cqw;
+        left: 32.8cqw;
+        top: calc(7cqw - var(--lift));
+        width: 30cqw;
         z-index: 2;
     }
 
@@ -108,21 +108,22 @@
     }
 
     .pub-hero__heart {
-        left: 54.7cqw;
-        top: 5.9cqw;
-        width: 3.5cqw;
+        left: 53.4cqw;
+        top: calc(10.6cqw - var(--lift));
+        width: 2.9cqw;
         z-index: 4;
     }
 
     .pub-hero__quote {
         display: block;
         position: absolute;
-        left: 77.4cqw;
-        top: 2cqw;
+        left: 77cqw;
+        top: 1.7cqw;
         z-index: 1;
-        width: 8cqw;
+        width: 10cqw;
         color: var(--color-bg);
-        font-size: clamp(0.8rem, 1.2cqw, 1.3rem);
+        font-family: var(--font-body);
+        font-size: clamp(0.6rem, 1.2cqw, 1.2rem);
         font-style: italic;
         font-weight: 300;
         line-height: 1.15;
@@ -141,38 +142,44 @@
 
     .pub-hero__title span {
         position: absolute;
-        top: 15.5cqw;
-        font-size: clamp(1.6rem, 2.75cqw, 3.4rem);
+        top: calc(17.2cqw - var(--lift));
+        font-family: var(--font-heading);
+        font-size: clamp(1.7rem, 2.9cqw, 3.6rem);
+        font-weight: 900;
         line-height: 1.1;
         white-space: nowrap;
     }
 
     .pub-hero__title-left {
-        left: 3.8cqw;
+        right: 63.4cqw;
+        text-align: right;
     }
 
     .pub-hero__title-right {
-        left: 62cqw;
+        left: 59cqw;
     }
 
     .pub-hero__text {
         position: absolute;
-        top: 20.8cqw;
+        top: calc(22cqw - var(--lift));
         z-index: 1;
         padding: 0;
-        font-size: clamp(0.85rem, 1.4cqw, 1.4rem);
+        font-family: var(--font-body);
+        font-size: clamp(0.4rem, 1.3cqw, 1.2rem);
+        font-weight: 300;
         line-height: 1.2;
     }
 
     .pub-hero__text--left {
-        left: 2.2cqw;
+        left: 5cqw;
         max-width: 29.5cqw;
     }
 
     .pub-hero__text--right {
         display: block;
-        right: 8.8cqw;
-        max-width: 26.5cqw;
+        left: 63cqw;
+        right: auto;
+        max-width: 22cqw;
         text-align: right;
     }
 }

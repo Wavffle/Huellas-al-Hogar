@@ -1,4 +1,4 @@
-import { formatAge } from '../adoptions/adoptionUtils';
+import { formatAge } from '../components/adoptions/adoptionUtils';
 
 /* ===== Pasos del asistente ===== */
 export interface PublishStepMeta {

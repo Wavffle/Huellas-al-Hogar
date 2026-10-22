@@ -1,4 +1,4 @@
-import { actions } from '../data/consequences';
+import { actions } from '../../data/consequences';
 import './ActionsSection.css';
 
 /* Manchas moradas de fondo de cada ilustración (2 por ilustración).

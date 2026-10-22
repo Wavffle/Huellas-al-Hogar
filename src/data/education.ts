@@ -1,13 +1,13 @@
-import foodImage from '../../assets/images/education/cuidado-alimentacion.webp';
-import healthImage from '../../assets/images/education/cuidado-salud.webp';
-import sterilizationImage from '../../assets/images/education/cuidado-esterilizacion.webp';
-import spaceImage from '../../assets/images/education/cuidado-espacio.webp';
-import coexistenceImage from '../../assets/images/education/cuidado-convivencia.webp';
+import foodImage from '../assets/images/education/cuidado-alimentacion.webp';
+import healthImage from '../assets/images/education/cuidado-salud.webp';
+import sterilizationImage from '../assets/images/education/cuidado-esterilizacion.webp';
+import spaceImage from '../assets/images/education/cuidado-espacio.webp';
+import coexistenceImage from '../assets/images/education/cuidado-convivencia.webp';
 
-import iconTime from '../../assets/icons/pregunta-tiempo.svg';
-import iconCosts from '../../assets/icons/pregunta-gastos.svg';
-import iconHome from '../../assets/icons/pregunta-vivienda.svg';
-import iconDifficulties from '../../assets/icons/pregunta-dificultades.svg';
+import iconTime from '../assets/icons/pregunta-tiempo.svg';
+import iconCosts from '../assets/icons/pregunta-gastos.svg';
+import iconHome from '../assets/icons/pregunta-vivienda.svg';
+import iconDifficulties from '../assets/icons/pregunta-dificultades.svg';
 
 export interface CareCard {
     title: string;

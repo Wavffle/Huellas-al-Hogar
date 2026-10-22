@@ -1,4 +1,4 @@
-import { howItWorksSteps } from '../data/howItWorks';
+import { howItWorksSteps } from '../../data/howItWorks';
 import './HowItWorksSection.css';
 
 export default function HowItWorksSection() {

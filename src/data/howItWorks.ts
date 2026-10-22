@@ -1,6 +1,6 @@
-import explora from '../../assets/images/steps/explora-animales.webp';
-import completa from '../../assets/images/steps/completa-solicitud.webp';
-import conoce from '../../assets/images/steps/conoce-bienvenida.webp';
+import explora from '../assets/images/steps/explora-animales.webp';
+import completa from '../assets/images/steps/completa-solicitud.webp';
+import conoce from '../assets/images/steps/conoce-bienvenida.webp';
 
 export interface HowItWorksStep {
     number: number;

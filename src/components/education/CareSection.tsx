@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { careCards } from '../data/education';
+import { careCards } from '../../data/education';
 import './CareSection.css';
 
 type Phase = 'hidden' | 'cards' | 'quote';

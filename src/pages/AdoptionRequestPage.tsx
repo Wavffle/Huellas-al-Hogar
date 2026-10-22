@@ -21,7 +21,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { getAnimalPorId } from '../services/animalService';
 import { createSolicitud } from '../services/solicitudService';
-import { CIUDADES } from '../components/data/ciudades';
+import { CIUDADES } from '../data/ciudades';
 import PawLoader from '../components/common/PawLoader';
 import Field from '../components/forms/Field';
 import Select from '../components/forms/Select';

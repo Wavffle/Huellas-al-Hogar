@@ -1,0 +1,268 @@
+.pub-prev {
+    padding: 1.3rem 1.1rem 1.5rem;
+    border: 1px solid var(--pub-line);
+    border-radius: 1.2rem;
+    background: var(--color-bg);
+}
+
+.pub-prev__title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.pub-prev__layout {
+    display: grid;
+    gap: 1.2rem;
+    margin-top: 1.1rem;
+}
+
+.pub-prev .det-gallery__main,
+.pub-prev .det-gallery__empty {
+    aspect-ratio: 346 / 282;
+    border-radius: 1.1rem;
+}
+
+.pub-prev .det-gallery__arrow {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.1rem;
+}
+
+.pub-prev .det-gallery__thumb {
+    aspect-ratio: 80 / 43;
+}
+
+.pub-prev__info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+    min-width: 0;
+}
+
+.pub-prev__badge {
+    padding: 0.2rem 0.8rem;
+    border: 1px solid var(--color-text);
+    border-radius: 0.35rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.pub-prev__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pub-prev__meta li {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.pub-prev__meta ion-icon,
+.pub-prev__meta img {
+    flex: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    font-size: 1.1rem;
+    color: var(--color-footer);
+}
+
+.pub-prev__name {
+    font-family: var(--font-body);
+    font-size: 2.1rem;
+    font-weight: 700;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+}
+
+.pub-prev__city {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    margin-top: -0.3rem;
+    font-size: 0.7rem;
+}
+
+.pub-prev__city ion-icon {
+    color: var(--color-footer);
+    font-size: 0.95rem;
+}
+
+.pub-prev__tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+    margin: 0.2rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pub-prev__tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.05rem;
+    padding: 0.6rem 0.2rem;
+    border-radius: 0.6rem;
+    background: #ebe2f3;
+    font-size: 0.62rem;
+    text-align: center;
+}
+
+.pub-prev__tile ion-icon,
+.pub-prev__tile img {
+    width: 1.3rem;
+    height: 1.3rem;
+    margin-bottom: 0.15rem;
+    font-size: 1.3rem;
+    color: var(--color-footer);
+}
+
+.pub-prev__tile-label {
+    color: var(--color-text-muted);
+    font-size: 0.58rem;
+}
+
+.pub-prev__tile strong {
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* Réplica del botón de la ficha: aquí no se puede pulsar */
+.pub-prev__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    width: 100%;
+    height: 2.6rem;
+    border-radius: 0.6rem;
+    background: var(--color-footer);
+    color: var(--color-white);
+    font-size: 0.8rem;
+}
+
+.pub-prev__button ion-icon {
+    font-size: 1.2rem;
+}
+
+.pub-prev__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pub-prev__tags li {
+    flex: 1 1 auto;
+    padding: 0.55rem 0.9rem;
+    border-radius: 0.3rem;
+    background: #ebe2f3;
+    font-size: 0.65rem;
+    text-align: center;
+}
+
+.pub-prev__heading {
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.pub-prev__text {
+    margin-top: 0.7rem;
+    font-size: 0.78rem;
+    font-weight: 300;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.pub-prev__list {
+    display: grid;
+    gap: 0.7rem;
+    margin: 0.8rem 0 0;
+}
+
+.pub-prev__row {
+    display: grid;
+    grid-template-columns: 6.6rem minmax(0, 1fr);
+    align-items: center;
+    column-gap: 0.5rem;
+}
+
+.pub-prev__row dt {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.74rem;
+    font-weight: 500;
+}
+
+.pub-prev__row dt ion-icon,
+.pub-prev__row dt img {
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    font-size: 1rem;
+    color: var(--color-footer);
+}
+
+.pub-prev__row dd {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.72rem;
+    font-weight: 300;
+}
+
+/* ===== Escritorio: dos columnas como la ficha real ===== */
+@media (min-width: 800px) {
+    .pub-prev {
+        padding: 2.2rem 2.4rem 2.4rem;
+        border: 0;
+        border-radius: 1.5rem;
+    }
+
+    .pub-prev__title {
+        font-size: 1.5rem;
+    }
+
+    .pub-prev__layout {
+        grid-template-columns: minmax(0, 346fr) minmax(0, 286fr);
+        grid-template-areas:
+            'gallery info'
+            'about   extra';
+        gap: 1.6rem 1.5rem;
+        align-items: start;
+        margin-top: 1.4rem;
+    }
+
+    .pub-prev__gallery {
+        grid-area: gallery;
+    }
+
+    .pub-prev__info {
+        grid-area: info;
+    }
+
+    .pub-prev__about {
+        grid-area: about;
+    }
+
+    .pub-prev__extra {
+        grid-area: extra;
+        padding-left: 1.2rem;
+        border-left: 1px solid rgba(48, 44, 53, 0.45);
+    }
+}

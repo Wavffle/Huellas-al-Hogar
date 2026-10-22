@@ -1,0 +1,94 @@
+/* Rejilla y piezas comunes de los pasos del formulario de publicar */
+
+.pub-fields {
+    display: grid;
+    gap: 1.8rem;
+}
+
+.pub-fields > * {
+    grid-column: 1 / -1;
+}
+
+/* Contador dentro del cuadro de texto, como en el mockup */
+.pub-fields .form-textarea {
+    position: relative;
+}
+
+.pub-fields .form-textarea textarea {
+    height: 6.3rem;
+    padding-bottom: 1.8rem;
+}
+
+.pub-fields .form-count {
+    position: absolute;
+    right: 1rem;
+    bottom: 0.55rem;
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+/* Cuadro de texto corto, sin contador (Vacunas → "Especifica cuáles tiene") */
+.pub-short .form-textarea textarea {
+    height: 3.9rem;
+    padding-bottom: 0.8rem;
+}
+
+.pub-short .form-count {
+    display: none;
+}
+
+/* Paso 3: los botones de salud son más altos */
+.pub-fields--health .pub-chip__body {
+    min-height: 3.7rem;
+}
+
+/* Aviso lila */
+.pub-note {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 1.1rem 1.3rem;
+    border-radius: var(--radius-md);
+    background: var(--color-primary);
+    color: var(--color-white);
+    font-size: 0.8rem;
+    font-weight: 300;
+    line-height: 1.3;
+}
+
+.pub-note ion-icon {
+    flex: none;
+    color: #ece2f1;
+    font-size: 2.4rem;
+}
+
+.pub-note strong {
+    font-weight: 600;
+}
+
+@media (min-width: 800px) {
+    .pub-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2rem 3.2rem;
+    }
+
+    .pub-fields > .pub-half {
+        grid-column: auto;
+    }
+
+    .pub-note {
+        padding: 1.2rem 1.8rem;
+        font-size: 0.85rem;
+    }
+
+    /* Paso 3: columna izquierda más ancha para los tres botones */
+    .pub-fields.pub-fields--health {
+        grid-template-columns: minmax(0, 435fr) minmax(0, 376fr);
+        column-gap: 1.5rem;
+        align-items: start;
+    }
+
+    .pub-fields--health .pub-date {
+        max-width: 20.4rem;
+    }
+}
