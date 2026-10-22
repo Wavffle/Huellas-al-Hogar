@@ -7,7 +7,6 @@ import logoColor from '../../assets/images/logo/logo-color.svg';
 import iconTenencia from '../../assets/icons/tenencia-responsable.svg';
 import iconAbandono from '../../assets/icons/consecuencias-abandono.svg';
 import './Navbar.css';
-import MotionToggle from './MotionToggle';
 
 const learnItems = [
     {
@@ -87,8 +86,6 @@ export default function Navbar({ scrolled = false, onLogoClick }: NavbarProps) {
                     <img src={logoColor} alt="Huellas al Hogar" className="navbar__logo" />
                 </Link>
 
-                <MotionToggle />
-
                 <button
                     type="button"
                     className="navbar__toggle"
@@ -167,10 +164,10 @@ export default function Navbar({ scrolled = false, onLogoClick }: NavbarProps) {
                         </li>
 
                         <li>
-                            <Link to="/publicar" className="navbar__link" onClick={closeMenu}>
-                                Publicar Animal <ArrowUpRight />
-                            </Link>
-                        </li>
+    <Link to="/publicar" className="navbar__link" onClick={closeMenu}>
+        Publicar Animal <ArrowUpRight />
+    </Link>
+</li>
                     </ul>
 
                     {user ? (
