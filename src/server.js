@@ -132,3 +132,5 @@ app.use((error, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
 });
+
+app.use('/uploads', express.static('uploads'));
