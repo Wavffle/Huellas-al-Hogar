@@ -229,12 +229,17 @@ export const getAnimales = async (req, res, next) => {
       SELECT
         a.id,
         a.nombre,
+        a.especie,
         a.edad,
         a.edad_meses,
+        a.sexo,
+        a.tamanho,
+        a.ciudad,
+        a.estado,
         a.descripcion,
         f.imagen_url as imagen_portada
       FROM animales a
-      LEFT JOIN foto_animales f ON a.id = f.animal_id AND f.orden = 1
+             LEFT JOIN foto_animales f ON a.id = f.animal_id AND f.orden = 1
       ORDER BY a.id DESC;
     `;
     const { rows } = await pool.query(query);
