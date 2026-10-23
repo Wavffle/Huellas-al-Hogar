@@ -45,9 +45,10 @@ export function valuesToDetail(v: PublishValues): AnimalDetail {
 }
 
 /**
- * Cuerpo de POST /api/animales. Los nombres coinciden con las columnas de la tabla `animales`
- * y el backend rechaza (400) cualquier campo que no conozca, por eso las fotos NO van aquí.
- * Los opcionales vacíos se omiten: al crear, el backend los guarda como null.
+ * Campos de POST /api/animales con los nombres de las columnas de la tabla `animales`.
+ * El backend rechaza (400) cualquier campo que no conozca y los textos vacíos,
+ * por eso los opcionales y las listas vacías se omiten (al crear, el backend los guarda como null).
+ * Las fotos NO van aquí: viajan aparte en buildFormData.
  */
 export function buildPayload(v: PublishValues, usuarioId?: number): Record<string, unknown> {
     const meses = Number(v.edadMeses);
@@ -62,14 +63,21 @@ export function buildPayload(v: PublishValues, usuarioId?: number): Record<strin
         rescate: v.origen,
         descripcion: v.descripcion.trim(),
         personalidad: v.personalidad.trim(),
-        ideal_para: v.idealPara,
-        convive_con: v.conviveCon,
-        etiquetas: etiquetaTexts(v),
         vacunas_estado: v.vacunas,
         esterilizado: v.esterilizado,
         estado: 'EN_ADOPCION',
     };
     if (usuarioId !== undefined) payload.usuario_id = usuarioId;
+
+    // Listas: solo se envían si tienen elementos
+    const lists: Record<string, string[]> = {
+        ideal_para: v.idealPara,
+        convive_con: v.conviveCon,
+        etiquetas: etiquetaTexts(v),
+    };
+    for (const [key, items] of Object.entries(lists)) {
+        if (items.length > 0) payload[key] = items;
+    }
 
     // Campos opcionales: solo se envían si tienen contenido
     const optional: Record<string, string> = {
@@ -85,13 +93,14 @@ export function buildPayload(v: PublishValues, usuarioId?: number): Record<strin
 }
 
 /**
- * Para cuando el backend acepte fotos (hoy el POST es JSON y no tiene subida de archivos).
- * Las listas van como texto JSON y las fotos como varios archivos "fotos" (el primero es la portada).
+ * Mismo contenido que buildPayload más las fotos, en multipart/form-data (lo que lee multer).
+ * Las listas van como texto separado por comas, que es lo que el backend espera, y las fotos
+ * como varios archivos "fotos" (la primera es la portada).
  */
 export function buildFormData(v: PublishValues, usuarioId?: number): FormData {
     const data = new FormData();
     for (const [key, value] of Object.entries(buildPayload(v, usuarioId))) {
-        data.append(key, Array.isArray(value) ? JSON.stringify(value) : String(value));
+        data.append(key, Array.isArray(value) ? value.join(',') : String(value));
     }
     v.fotos.forEach((foto) => data.append('fotos', foto.file, foto.file.name));
     return data;

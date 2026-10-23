@@ -18,9 +18,18 @@ export function resolveImage(path: string): string {
     return path;
 }
 
+/**
+ * Fotos del animal. El detalle trae `fotos` como lista de objetos { imagen_url, orden };
+ * el listado trae solo `imagen_portada`. También acepta una lista de textos o `foto_url`.
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getPhotos(raw: any): string[] {
-    const list: unknown[] = Array.isArray(raw.fotos) ? raw.fotos : raw.foto_url ? [raw.foto_url] : [];
+    const fromList: unknown[] = Array.isArray(raw.fotos)
+        ? [...raw.fotos]
+            .sort((a, b) => (a?.orden ?? 0) - (b?.orden ?? 0))
+            .map((f) => (typeof f === 'string' ? f : f?.imagen_url))
+        : [];
+    const list = fromList.length ? fromList : [raw.imagen_portada ?? raw.foto_url].filter(Boolean);
     return list.map((p) => resolveImage(String(p))).filter(Boolean);
 }
 

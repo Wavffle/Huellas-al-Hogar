@@ -12,18 +12,14 @@ import StepHealth from '../components/publish/StepHealth';
 import StepPhotos from '../components/publish/StepPhotos';
 import StepReview from '../components/publish/StepReview';
 import { STEP_KEYS, validate, type Errors, type Key } from '../components/publish/publishForm';
-import { buildPayload } from '../components/publish/publishMappers';
+import { buildFormData } from '../components/publish/publishMappers';
 import { INITIAL_PUBLISH_VALUES, PUBLISH_STEPS, type PublishValues } from '../data/publish';
 import { createAnimal } from '../services/animalService';
 import { useMotionOff } from '../utils/useMotionOff';
 import './PublishAnimalPage.css';
 
-/** true = simula el envío. El backend aún no sube fotos y exige usuario_id (la sesión actual no tiene id). */
-const SIMULAR_ENVIO = true;
 /** Provisional: reemplazar por el id del usuario cuando el login real lo entregue. */
 const USUARIO_ID_PRUEBA = 1;
-const SIMULATED_MS = 1200;
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function PublishAnimalPage() {
     const motionOff = useMotionOff();
@@ -111,7 +107,7 @@ export default function PublishAnimalPage() {
             return;
         }
 
-        // Último paso: revisa el formulario antes de enviar
+        // Último paso: revisa todo el formulario antes de enviar
         const all = validate(values, STEP_KEYS.flat());
         const firstBad = STEP_KEYS.findIndex((keys) => keys.some((k) => all[k]));
         if (firstBad !== -1) {
@@ -124,14 +120,19 @@ export default function PublishAnimalPage() {
         setSending(true);
         setSendError('');
         try {
-            const request = SIMULAR_ENVIO
-                ? Promise.resolve()
-                : createAnimal(buildPayload(values, USUARIO_ID_PRUEBA));
-            await Promise.all([request, wait(motionOff ? 0 : SIMULATED_MS)]);
+            await createAnimal(buildFormData(values, USUARIO_ID_PRUEBA));
             setPublishedName(values.nombre.trim());
             setDone(true);
-        } catch {
-            setSendError('No se pudo publicar el animal. Intenta de nuevo.');
+        } catch (err) {
+            console.error('Fallo al publicar:', err);
+            const detail = (
+                err as { response?: { data?: { error?: { message?: string; fields?: string[] } } } }
+            )?.response?.data?.error;
+            setSendError(
+                import.meta.env.DEV && detail?.message
+                    ? `No se pudo publicar: ${detail.message}${detail.fields ? ` (${detail.fields.join(', ')})` : ''}`
+                    : 'No se pudo publicar el animal. Intenta de nuevo.',
+            );
         } finally {
             setSending(false);
         }

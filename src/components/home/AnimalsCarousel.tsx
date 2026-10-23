@@ -1,23 +1,15 @@
 import { useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { IonIcon } from '@ionic/react';
+import { IonIcon, IonSpinner } from '@ionic/react';
 import { chevronBack, chevronForward } from 'ionicons/icons';
+import { Animal } from '../../types/animal';
 import { getAnimales } from '../../services/animalService';
-import { mapAnimal } from '../adoptions/adoptionMapper';
-import { formatAge } from '../adoptions/adoptionUtils';
-import AnimalCard, { type HomeAnimal } from './AnimalCard';
+import AnimalCard from './AnimalCard';
 import './AnimalsCarousel.css';
 
 const DESKTOP_QUERY = '(min-width: 700px)';
-const MAX_CLICKABLE = 3; // hasta qué distancia del centro se puede hacer click
-const MAX_ANIMALS = 9;
+const MAX_CLICKABLE = 3;
 
-/** Posición relativa al centro (…-2, -1, 0, 1, 2…) con vuelta circular. */
-function getOffset(index: number, position: number, total: number, half: number) {
-    return ((((index - position + half) % total) + total) % total) - half;
-}
-
-/** true cuando el carrusel se muestra en modo escritorio (tarjeta central). */
 function useIsDesktop() {
     const [isDesktop, setIsDesktop] = useState(() => window.matchMedia(DESKTOP_QUERY).matches);
 
@@ -31,62 +23,57 @@ function useIsDesktop() {
     return isDesktop;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function recency(raw: any): number {
-    const time = raw.creado_en ? new Date(raw.creado_en).getTime() : 0;
-    return time || Number(raw.id) || 0;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function toHomeAnimal(raw: any): HomeAnimal {
-    const animal = mapAnimal(raw);
-    const tags: string[] = Array.isArray(raw.etiquetas) ? raw.etiquetas.map(String) : [];
-    return {
-        id: animal.id,
-        name: animal.name,
-        age: formatAge(animal.ageMonths),
-        description: tags.slice(0, 2).join(' · '),
-        image: animal.image,
-    };
-}
-
 export default function AnimalsCarousel() {
-    const [animals, setAnimals] = useState<HomeAnimal[]>([]);
-    const [{ position, previous, moves }, setState] = useState({ position: 0, previous: 0, moves: 0 });
+    const [animalsList, setAnimalsList] = useState<Animal[]>([]);
+    const [cargando, setCargando] = useState(true);
+
+    // Inicializamos en 0 en lugar de 2 por si hay poquitos animales en la BD
+    const [{ position, previous, moves }, setState] = useState({
+        position: 0,
+        previous: 0,
+        moves: 0,
+    });
+
     const isDesktop = useIsDesktop();
 
+    // 1. Cargamos los animales desde tu backend
     useEffect(() => {
-        let cancelled = false;
         getAnimales()
-            .then((response) => {
-                if (cancelled) return;
-                const list = Array.isArray(response) ? response : response?.data ?? [];
-                setAnimals(
-                    list
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        .filter((a: any) => !a.estado || a.estado === 'EN_ADOPCION')
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        .sort((a: any, b: any) => recency(b) - recency(a))
-                        .slice(0, MAX_ANIMALS)
-                        .map(toHomeAnimal),
-                );
+            .then((data) => {
+                // Extraemos la lista real, sin importar si viene suelta o dentro de 'data'
+                const listaReal = Array.isArray(data) ? data : data?.data ?? [];
+                setAnimalsList(listaReal);
+                setCargando(false);
             })
-            .catch(() => {
-                if (!cancelled) setAnimals([]);
+            .catch((err) => {
+                console.error("Error al cargar carrusel:", err);
+                setCargando(false);
             });
-        return () => {
-            cancelled = true;
-        };
     }, []);
 
-    /** Mueve el carrusel `steps` posiciones (positivo = derecha, negativo = izquierda). */
+    // 2. Las fórmulas matemáticas ahora viven adentro y usan el listado real
+    const total = animalsList.length;
+    const half = Math.floor(total / 2);
+
+    function getOffset(index: number, pos: number) {
+        if (total === 0) return 0;
+        return ((((index - pos + half) % total) + total) % total) - half;
+    }
+
     const move = (steps: number) =>
         setState((s) => ({ previous: s.position, position: s.position + steps, moves: s.moves + 1 }));
 
-    const total = animals.length;
+    if (cargando) {
+        return (
+            <div style={{ textAlign: 'center', padding: '3rem' }}>
+                <IonSpinner name="crescent" />
+                <p>Cargando a los peludos...</p>
+            </div>
+        );
+    }
+
     if (total === 0) return null;
 
-    const half = Math.floor(total / 2);
     const delta = position - previous;
 
     return (
@@ -106,24 +93,21 @@ export default function AnimalsCarousel() {
                 </button>
 
                 <ul className="animals__track">
-                    {animals.map((animal, index) => {
-                        const offset = getOffset(index, position, total, half);
+                    {animalsList.map((animal, index) => {
+                        const offset = getOffset(index, position);
                         const distance = Math.abs(offset);
-                        // Una tarjeta "da la vuelta" si no se movió lo esperado (-delta)
-                        const jumped = offset - getOffset(index, previous, total, half) !== -delta;
+                        const jumped = offset - getOffset(index, previous) !== -delta;
                         const isActive = offset === 0;
                         const isClickable = isDesktop && !isActive && distance <= MAX_CLICKABLE;
                         const classes = [
                             'animals__slot',
                             isActive && 'is-active',
-                            // Alternamos 0/1 para que la animación de aparición se reinicie en cada movimiento
                             jumped && `is-jumping-${moves % 2}`,
                             distance > 4 && 'is-hidden',
                         ]
                             .filter(Boolean)
                             .join(' ');
 
-                        // En escritorio, solo la tarjeta central es interactiva
                         const lockCard = isDesktop && !isActive;
 
                         return (
@@ -133,7 +117,6 @@ export default function AnimalsCarousel() {
                                 style={
                                     {
                                         '--offset': offset,
-                                        // 0 para el centro y las vecinas, luego 1, 2, 3 (más lejos = más difuminada)
                                         '--blur': Math.max(0, distance - 2),
                                     } as CSSProperties
                                 }
@@ -150,7 +133,7 @@ export default function AnimalsCarousel() {
                                         type="button"
                                         className="animals__select"
                                         onClick={() => move(offset)}
-                                        aria-label={`Ver a ${animal.name}`}
+                                        aria-label={`Ver a ${animal.nombre}`}
                                     />
                                 )}
                             </li>

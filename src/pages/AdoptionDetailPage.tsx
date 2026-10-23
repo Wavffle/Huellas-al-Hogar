@@ -8,6 +8,7 @@ import AnimalProfile from '../components/adoptions/AnimalProfile';
 import AdoptionCard from '../components/adoptions/AdoptionCard';
 import { mapAnimal } from '../components/adoptions/adoptionMapper';
 import { mapAnimalDetail, type AnimalDetail } from '../components/adoptions/adoptionDetail';
+
 import type { AdoptionAnimal } from '../data/adoptions';
 import './AdoptionDetailPage.css';
 
@@ -29,6 +30,7 @@ export default function AdoptionDetailPage() {
         getAnimalPorId(animalId)
             .then((response) => {
                 if (cancelled) return;
+                //'response' directo
                 setAnimal(mapAnimalDetail(response?.data ?? response));
             })
             .catch((err) => {
@@ -47,8 +49,8 @@ export default function AdoptionDetailPage() {
                 const list = Array.isArray(response) ? response : response?.data ?? [];
                 setOthers(
                     list
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        .filter((a: any) => String(a.id) !== animalId && (!a.estado || a.estado === 'EN_ADOPCION'))
+                        // Corrección 3: Compatibilidad con id_animal de PostgreSQL
+                        .filter((a: any) => String(a.id || a.id_animal) !== animalId && (!a.estado || a.estado === 'EN_ADOPCION'))
                         .slice(0, MORE_COUNT)
                         .map(mapAnimal),
                 );
