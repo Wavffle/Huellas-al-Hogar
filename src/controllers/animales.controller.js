@@ -29,7 +29,7 @@ const camposArreglo = ["ideal_para", "convive_con", "etiquetas"];
 const camposEnteros = ["edad", "edad_meses"];
 
 const camposPermitidosAlCrear = [
-  ...camposTexto, ...camposArreglo, ...camposEnteros, "fecha_esterilizacion", "estado", "usuario_id",
+  ...camposTexto, ...camposArreglo, ...camposEnteros, "fecha_esterilizacion", "estado",
 ];
 
 const camposPermitidosAlActualizar = [
@@ -145,14 +145,6 @@ function validarDatosAnimal(body, { alCrear = false } = {}) {
     datos.estado = body.estado;
   }
 
-  if (alCrear) {
-    if (!Number.isInteger(body.usuario_id) || body.usuario_id <= 0) {
-      camposInvalidos.push("usuario_id");
-    } else {
-      datos.usuario_id = body.usuario_id;
-    }
-  }
-
   if (camposInvalidos.length > 0) {
     return { error: { message: "Hay campos obligatorios o con un formato inválido", fields: [...new Set(camposInvalidos)] } };
   }
@@ -169,7 +161,7 @@ export const crearAnimal = async (req, res, next) => {
 
   if (body.edad) body.edad = Number(body.edad);
   if (body.edad_meses) body.edad_meses = Number(body.edad_meses);
-  if (body.usuario_id) body.usuario_id = Number(body.usuario_id);
+  
 
   ["ideal_para", "convive_con", "etiquetas"].forEach(campo => {
     if (typeof body[campo] === 'string') {
@@ -184,6 +176,7 @@ export const crearAnimal = async (req, res, next) => {
   const { datos, error } = validarDatosAnimal(body, { alCrear: true });
 
   if (error) return res.status(400).json({ success: false, error });
+  datos.usuario_id = req.usuario.id;
 
   try {
     const { rows } = await pool.query(
@@ -274,8 +267,17 @@ export const actualizarAnimal = async (req, res, next) => {
   if (id === null) return res.status(400).json({ success: false, error: { message: "El id debe ser un número entero" } });
 
   try {
-    const existente = await pool.query("SELECT id FROM animales WHERE id = $1", [id]);
+    const existente = await pool.query("SELECT id, usuario_id FROM animales WHERE id = $1", [id]);
     if (existente.rows.length === 0) return res.status(404).json({ success: false, error: { message: "Animal no encontrado" } });
+    if (
+      req.usuario.rol !== "ADMIN" &&
+      Number(existente.rows[0].usuario_id) !== req.usuario.id
+    ) {
+      return res.status(403).json({
+        success: false,
+        error: { message: "No tienes permiso para modificar este animal" },
+      });
+    }
 
     const body = req.body;
     if (!esObjetoJson(body)) return res.status(400).json({ success: false, error: { message: "El cuerpo debe ser un objeto JSON" } });
@@ -303,6 +305,14 @@ export const eliminarAnimal = async (req, res, next) => {
   if (id === null) return res.status(400).json({ success: false, error: { message: "El id debe ser un número entero" } });
 
   try {
+    const existente = await pool.query("SELECT id, usuario_id FROM animales WHERE id = $1",[id]);
+    if (existente.rows.length === 0) {return res.status(404).json({success: false,error: { message: "Animal no encontrado" }});
+    }
+
+    if (req.usuario.rol !== "ADMIN" && Number(existente.rows[0].usuario_id) !== req.usuario.id) {
+      return res.status(403).json({success: false,error: { message: "No tienes permiso para eliminar este animal" }});
+    }
+
     const { rows } = await pool.query("DELETE FROM animales WHERE id = $1 RETURNING *", [id]);
     if (rows.length === 0) return res.status(404).json({ success: false, error: { message: "Animal no encontrado" } });
     return res.status(200).json({ success: true, message: "Animal eliminado correctamente", data: rows[0] });

@@ -27,7 +27,7 @@ function obtenerIdValido(idParametro) {
 }
 
 //---------------------------------------------------------------------------------------------------//
-// parte para GET de las solicitudes //
+// parte para GET de las solicitudes, actualizado con el tema de las tokens de cada tipo de user//
 
 export const getSolicitudes = async (req, res, next) => {
   try {
@@ -35,6 +35,16 @@ export const getSolicitudes = async (req, res, next) => {
     const condiciones = [];
     const valores = [];
 
+    if (req.usuario.rol === "ADOPTANTE") {
+      valores.push(req.usuario.id);
+      condiciones.push(`usuario_id = $${valores.length}`);
+    }
+
+    else if (req.usuario.rol === "RESCATISTA") {
+      valores.push(req.usuario.id);
+      condiciones.push(
+        `animal_id IN (SELECT id FROM animales WHERE usuario_id = $${valores.length})`);
+    }
     if (animal_id !== undefined) {
       const animalIdBuscado = obtenerIdValido(animal_id);
 
@@ -117,8 +127,16 @@ export const getSolicitudPorId = async (req, res, next) => {
     }
 
     const { rows } = await pool.query(
-      "SELECT * FROM solicitudes_adopcion WHERE id = $1",
-      [id]
+      `SELECT s.*
+      FROM solicitudes_adopcion s
+      JOIN animales a ON a.id = s.animal_id
+      WHERE s.id = $1
+        AND (
+          $2 = 'ADMIN'
+          OR ($2 = 'ADOPTANTE' AND s.usuario_id = $3)
+          OR ($2 = 'RESCATISTA' AND a.usuario_id = $3)
+        )`,
+      [id, req.usuario.rol, req.usuario.id]
     );
 
     if (rows.length === 0) {
@@ -157,17 +175,8 @@ export const crearSolicitud = async (req, res, next) => {
   }
 
   const camposPermitidos = [
-    "animal_id",
-    "usuario_id",
-    "notas",
-    "tipo_vivienda",
-    "tiene_patio",
-    "con_quien_convive",
-    "tuvo_mascotas",
-    "tiene_mascotas",
-    "experiencia",
-    "motivo",
-    "acepta_compromiso",
+    "animal_id","notas","tipo_vivienda","tiene_patio","con_quien_convive",
+    "tuvo_mascotas","tiene_mascotas","experiencia","motivo","acepta_compromiso",
   ];
   const camposDesconocidos = Object.keys(body).filter(
     (campo) => !camposPermitidos.includes(campo)
@@ -184,23 +193,13 @@ export const crearSolicitud = async (req, res, next) => {
   }
 
   const animalId = obtenerIdValido(body.animal_id);
-  const usuarioId = obtenerIdValido(body.usuario_id);
+  const usuarioId = req.usuario.id;
 
   if (animalId === null) {
     return res.status(400).json({
       success: false,
       error: {
         message: "animal_id es obligatorio y debe ser un entero positivo",
-      },
-    });
-  }
-
-  // Temporal para las pruebas: luego usuario_id vendrá del JWT.
-  if (usuarioId === null) {
-    return res.status(400).json({
-      success: false,
-      error: {
-        message: "usuario_id es obligatorio y debe ser un entero positivo",
       },
     });
   }
@@ -446,7 +445,7 @@ export const actualizarSolicitud = async (req, res, next) => {
     const animalId = solicitudInicial.rows[0].animal_id;
 
     const animalResultado = await client.query(
-      "SELECT id, estado FROM animales WHERE id = $1 FOR UPDATE",
+      "SELECT id, estado, usuario_id FROM animales WHERE id = $1 FOR UPDATE",
       [animalId]
     );
 
@@ -480,6 +479,10 @@ export const actualizarSolicitud = async (req, res, next) => {
       });
     }
 
+    if (req.usuario.rol === "RESCATISTA" && animalResultado.rows[0].usuario_id !== req.usuario.id) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({success: false,error: {message: "Solicitud no encontrada",}});
+    }
     const solicitud = solicitudResultado.rows[0];
     const transiciones = transicionesPermitidas[solicitud.estado];
 
