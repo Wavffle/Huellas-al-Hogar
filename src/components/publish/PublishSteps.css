@@ -87,6 +87,7 @@
         flex-direction: column;
         align-self: center;
         margin-bottom: 2rem;
+        translate: 0.7rem 0;
     }
 
     .pub-steps__item {
@@ -114,6 +115,7 @@
         display: flex;
         align-items: center;
         gap: 1.1rem;
+        width: fit-content;
         min-height: 2.7rem;
         color: var(--color-bg);
         font-family: var(--font-heading);
@@ -121,10 +123,24 @@
         font-weight: 600;
         line-height: 1.2;
         text-align: left;
+        pointer-events: none;
     }
 
     .pub-steps__label {
-        max-width: 8.5rem;
+        display: block;
+        max-width: 9rem;
+        text-wrap: balance;
+    }
+
+    .pub-steps__item.is-done .pub-steps__dot,
+    .pub-steps__item.is-done .pub-steps__text {
+        pointer-events: auto;
+        cursor: pointer;
+    }
+
+    .pub-steps__item.is-done .pub-steps__btn:hover .pub-steps__text {
+        text-decoration: underline;
+        text-underline-offset: 0.25em;
     }
 
     .pub-steps__dot {

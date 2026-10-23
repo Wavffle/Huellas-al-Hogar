@@ -123,17 +123,18 @@
 /* ===== Escritorio ===== */
 @media (min-width: 800px) {
     .pub-wizard {
-        grid-template-columns: minmax(14rem, 270fr) minmax(0, 1002fr);   /* antes minmax(16rem, 309fr) minmax(0, 963fr) */
+        grid-template-columns: 19rem minmax(0, 1fr);
         grid-template-rows: minmax(60rem, auto);
-        gap: 1.9rem;
-        margin: 2.5rem 0 2.75rem;
-        padding: 0 4.8vw;
+        gap: 2.4rem;
+        width: min(100% - 9.6vw, 90rem);
+        margin: 2.5rem auto 2.75rem;
+        padding: 0;
     }
 
     .pub-panel {
         border-radius: 1.5rem;
         background: var(--pub-panel);
-        padding: 3.4rem 4.1rem 3.2rem 3.9rem;
+        padding: 3rem 3rem 2.8rem;
     }
 
     .pub-panel__head {

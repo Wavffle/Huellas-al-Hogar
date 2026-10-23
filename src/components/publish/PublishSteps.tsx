@@ -30,7 +30,9 @@ export default function PublishSteps({ current, onSelect }: Props) {
                                 <span className="pub-steps__dot">
                                     {state === 'done' ? <IonIcon icon={checkmark} aria-hidden="true" /> : n}
                                 </span>
-                                <span className="pub-steps__label">{step.label}</span>
+                                <span className="pub-steps__label">
+                                    <span className="pub-steps__text">{step.label}</span>
+                                </span>
                             </button>
                         </li>
                     );
