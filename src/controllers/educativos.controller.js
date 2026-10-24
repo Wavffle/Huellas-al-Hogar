@@ -20,7 +20,7 @@ function obtenerIdValido(idParametro) {
 
 function validarContenido(body, { alCrear = false } = {}) {
   const camposPermitidos = alCrear
-    ? ["titulo", "categoria", "contenido", "usuario_id"]
+    ? ["titulo", "categoria", "contenido"]
     : ["titulo", "categoria", "contenido"];
 
   const camposDesconocidos = Object.keys(body).filter(
@@ -68,14 +68,6 @@ function validarContenido(body, { alCrear = false } = {}) {
     datos[campo] = valor;
   }
 
-  if (alCrear) {
-    if (!Number.isInteger(body.usuario_id) || body.usuario_id <= 0) {
-      camposInvalidos.push("usuario_id");
-    } else {
-      datos.usuario_id = body.usuario_id;
-    }
-  }
-
   if (camposInvalidos.length > 0) {
     return {
       error: {
@@ -114,12 +106,14 @@ export const crearContenidoEducativo = async (req, res, next) => {
     });
   }
 
+  const usuarioId = req.usuario.id;
+
   try {
     const { rows } = await pool.query(
       `INSERT INTO contenidos_educativos (titulo, categoria, contenido, usuario_id)
        VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [datos.titulo, datos.categoria, datos.contenido, datos.usuario_id]
+      [datos.titulo, datos.categoria, datos.contenido, usuarioId]
     );
 
     return res.status(201).json({
