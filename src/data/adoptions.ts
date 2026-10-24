@@ -14,4 +14,5 @@ export interface AdoptionAnimal {
     city: string;
     /** URL de la foto de portada (viene del backend). */
     image: string;
+    status?: string;
 }

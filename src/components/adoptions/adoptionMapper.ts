@@ -1,7 +1,5 @@
 import type { AdoptionAnimal, Sex, Size, Species } from '../../data/adoptions';
-
-/** Origen del backend: las rutas /uploads se sirven desde ahí. */
-const API_ORIGIN = 'http://localhost:3000';
+import { API_ORIGIN } from '../../services/apiClient';
 
 export function normalize(value: unknown): string {
     return String(value ?? '')
@@ -62,5 +60,6 @@ export function mapAnimal(raw: any): AdoptionAnimal {
         sex,
         city: raw.ciudad ?? 'Sin ciudad',
         image: getPhotos(raw)[0] ?? '',
+        status: raw.estado ?? undefined,
     };
 }

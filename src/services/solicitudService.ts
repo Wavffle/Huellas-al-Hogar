@@ -1,4 +1,4 @@
-import apiClient from './apiClient';
+import apiClient, { apiError } from './apiClient';
 
 export type EstadoSolicitud = 'PENDIENTE' | 'APROBADA' | 'RECHAZADA';
 
@@ -52,8 +52,15 @@ export const getMisSolicitudes = async (): Promise<Solicitud[]> => {
 };
 
 /** Estado HTTP y mensaje del servidor (o uno genérico si no hubo respuesta). */
-export function solicitudError(err: unknown): { status?: number; message: string } {
-    const res = (err as { response?: { status?: number; data?: { error?: { message?: string } } } })?.response;
-    if (!res) return { message: 'No se pudo conectar con el servidor. Intenta de nuevo.' };
-    return { status: res.status, message: res.data?.error?.message ?? 'Ocurrió un error. Intenta de nuevo.' };
-}
+export const solicitudError = apiError;
+
+/** Solicitudes recibidas: para un rescatista, las de sus animales; para un admin, todas. */
+export const getSolicitudesRecibidas = async (): Promise<Solicitud[]> => {
+    const response = await apiClient.get('/solicitudes');
+    return response.data.data;
+};
+
+export const updateSolicitudEstado = async (id: number, estado: 'APROBADA' | 'RECHAZADA') => {
+    const response = await apiClient.patch(`/solicitudes/${id}`, { estado });
+    return response.data;
+};

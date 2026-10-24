@@ -10,6 +10,7 @@ import {
     locationOutline,
     pawOutline,
     personOutline,
+    createOutline,
 } from 'ionicons/icons';
 import AdoptionGallery from './AdoptionGallery';
 import {
@@ -104,6 +105,13 @@ export default function AnimalProfile({ animal, preview = false }: Props) {
                     <Link to={`/adopciones/${animal.id}/solicitar`} className="det-button">
                         <IonIcon icon={heart} aria-hidden="true" />
                         Solicitar adopción
+                    </Link>
+                )}
+
+                {!preview && user && (user.role === 'administrador' || animal.ownerId === user.id) && (
+                    <Link to={`/publicar/${animal.id}/editar`} className="det-owner-link">
+                        <IonIcon icon={createOutline} aria-hidden="true" />
+                        Editar publicación
                     </Link>
                 )}
 

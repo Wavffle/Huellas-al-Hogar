@@ -6,11 +6,15 @@ type ProtectedRouteProps = RouteProps & { allowedRoles?: UserRole[] };
 export default function ProtectedRoute({ allowedRoles, ...routeProps }: ProtectedRouteProps) {
   const { user } = useAuth();
   const location = useLocation();
-  const allowed = !!user && (!allowedRoles || allowedRoles.includes(user.role));
 
-  if (!allowed) {
+  if (!user) {
     // Guarda de dónde venía, para volver ahí después de iniciar sesión
     return <Redirect to={{ pathname: '/login', state: { from: location } }} />;
+  }
+
+  // Con sesión pero sin el rol necesario: no tiene sentido mandarlo a iniciar sesión
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Redirect to="/inicio" />;
   }
 
   return <Route {...routeProps} />;

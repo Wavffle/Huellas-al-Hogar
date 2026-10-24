@@ -11,6 +11,10 @@ import PublishGate from './PublishGate';
 import AbandonmentConsequencesPage from '../pages/AbandonmentConsequencesPage';
 import AdoptionRequestPage from '../pages/AdoptionRequestPage';
 import MySolicitudesPage from '../pages/MySolicitudesPage';
+import RescuerPanelPage from '../pages/RescuerPanelPage';
+import PublishAnimalPage from '../pages/PublishAnimalPage';
+import AdminPanelPage from '../pages/AdminPanelPage';
+import NotFoundPage from '../pages/NotFoundPage';
 
 export default function AppRoutes() {
   return (
@@ -25,7 +29,11 @@ export default function AppRoutes() {
       <ProtectedRoute path="/perfil" render={() => <PublicLayout><ProfilePage /></PublicLayout>} exact />
       <ProtectedRoute path="/mis-solicitudes" render={() => <PublicLayout><MySolicitudesPage /></PublicLayout>} exact />
       <Route path="/publicar" render={() => <PublicLayout><PublishGate /></PublicLayout>} exact />
+      <ProtectedRoute path="/publicar/:id/editar" allowedRoles={['rescatista', 'administrador']} render={() => <PublicLayout><PublishAnimalPage /></PublicLayout>} exact />
+      <ProtectedRoute path="/panel" allowedRoles={['rescatista', 'administrador']} render={() => <PublicLayout><RescuerPanelPage /></PublicLayout>} exact />
+      <ProtectedRoute path="/admin" allowedRoles={['administrador']} render={() => <PublicLayout><AdminPanelPage /></PublicLayout>} exact />
       <Redirect exact from="/" to="/inicio" />
+      <Route render={() => <PublicLayout><NotFoundPage /></PublicLayout>} />
     </Switch>
   );
 }

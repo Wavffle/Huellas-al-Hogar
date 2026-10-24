@@ -39,10 +39,7 @@ export default function AdoptionsPage() {
             .then((response) => {
                 // El backend puede devolver [...] o { success, data: [...] }
                 const list = Array.isArray(response) ? response : response?.data ?? [];
-                setAnimals(
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    list.filter((a: any) => !a.estado || a.estado === 'EN_ADOPCION').map(mapAnimal),
-                );
+                setAnimals(list.map(mapAnimal));
             })
             .catch((err) => {
                 console.error('Error al cargar animales:', err);

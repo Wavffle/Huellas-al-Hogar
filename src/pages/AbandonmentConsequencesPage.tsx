@@ -5,6 +5,7 @@ import RealitySection from '../components/consequences/RealitySection';
 import ActionsSection from '../components/consequences/ActionsSection';
 import ChangeCta from '../components/consequences/ChangeCta';
 import './AbandonmentConsequencesPage.css';
+import ArticlesSection from '../components/education/ArticlesSection';
 
 export default function AbandonmentConsequencesPage() {
     return (
@@ -19,6 +20,7 @@ export default function AbandonmentConsequencesPage() {
             </div>
 
             <ChangeCta />
+            <ArticlesSection categoria="Consecuencias del abandono" title="Artículos sobre el abandono" />
         </div>
     );
 }

@@ -11,6 +11,7 @@ export default function AdoptionCard({ animal }: { animal: AdoptionAnimal }) {
             <div className="adop-card__media">
                 <img src={animal.image} alt={`Foto de ${animal.name}`} className="adop-card__image" />
                 <span className="adop-card__tag">{SPECIES_LABEL[animal.species]}</span>
+                {animal.status === 'EN_TRATAMIENTO' && <span className="adop-card__status">En proceso</span>}
             </div>
             <div className="adop-card__body">
                 <h3 className="adop-card__name">{animal.name}</h3>

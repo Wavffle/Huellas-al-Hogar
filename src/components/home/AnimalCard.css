@@ -34,10 +34,20 @@
     font-size: 0.9rem;
 }
 
-.animal-card__description {
-    margin-top: 0.7rem;
+.animal-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 0;
+    margin: 0.7rem 0 0;
+    padding: 0;
+    list-style: none;
     font-size: 0.8rem;
     color: var(--color-text-muted);
+}
+
+.animal-card__tags li::before {
+    content: '·';
+    margin: 0 0.4rem;
 }
 
 .animal-card__button {
@@ -58,6 +68,7 @@
     background: var(--color-primary-dark);
 }
 
-.animal-card__description + .animal-card__button {
+.animal-card__age + .animal-card__button,
+.animal-card__tags + .animal-card__button {
     margin-top: 1.2rem;
 }

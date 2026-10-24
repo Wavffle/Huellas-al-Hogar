@@ -120,7 +120,8 @@ export default function StepBasic({ values, errors, set }: StepProps) {
                 <IonIcon icon={informationCircleOutline} aria-hidden="true" />
                 <p className="selectable">
                     Publica <strong>solo si tienes autorización</strong> y si el animal se encuentra en una
-                    situación segura. La información será revisada <strong>antes de ser publicada</strong>.
+                    situación segura. Tu publicación será visible de inmediato y{' '}
+                    <strong>puede ser retirada</strong> si incumple las normas.
                 </p>
             </aside>
         </div>

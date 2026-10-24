@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import type { Animal } from '../../types/animal';
+import { resolveImage } from '../adoptions/adoptionMapper';
 import './AnimalCard.css';
 
+const MAX_TAGS = 6;
+
 export default function AnimalCard({ animal }: { animal: Animal }) {
-    // localhost:3000 para que el navegador vaya al backend a buscar la foto
-    const imagenUrl = animal.imagen_portada 
-        ? `http://localhost:3000${animal.imagen_portada}` 
-        : 'https://via.placeholder.com/243x89?text=Sin+foto';
+    const imagenUrl = resolveImage(animal.imagen_portada ?? '') || 'https://via.placeholder.com/243x89?text=Sin+foto';
+    const etiquetas = (animal.etiquetas ?? []).slice(0, MAX_TAGS);
 
     return (
         <article className="animal-card">
@@ -16,7 +17,13 @@ export default function AnimalCard({ animal }: { animal: Animal }) {
                 <p className="animal-card__age">
                     {animal.edad ? `${animal.edad} años` : animal.edad_meses ? `${animal.edad_meses} meses` : 'Edad desconocida'}
                 </p>
-                <p className="animal-card__description">{animal.descripcion}</p>
+                {etiquetas.length > 0 && (
+                    <ul className="animal-card__tags" aria-label="Características">
+                        {etiquetas.map((tag) => (
+                            <li key={tag}>{tag}</li>
+                        ))}
+                    </ul>
+                )}
                 <Link to={`/adopciones/${animal.id}`} className="animal-card__button">
                     Más información
                 </Link>

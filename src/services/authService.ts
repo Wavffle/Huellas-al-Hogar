@@ -1,4 +1,5 @@
 import apiClient from './apiClient';
+import { apiError } from './apiClient';
 
 export type ApiRole = 'ADMIN' | 'RESCATISTA' | 'ADOPTANTE';
 
@@ -32,8 +33,6 @@ export const renovarSesion = async () => {
     return response.data.data;
 };
 
+
 /** Mensaje del servidor ("Ya existe una cuenta con ese correo"…) o uno genérico si no hubo respuesta. */
-export function authErrorMessage(err: unknown): string {
-    const data = (err as { response?: { data?: { error?: { message?: string } } } })?.response?.data;
-    return data?.error?.message ?? 'No se pudo conectar con el servidor. Intenta de nuevo.';
-}
+export const authErrorMessage = (err: unknown): string => apiError(err).message;

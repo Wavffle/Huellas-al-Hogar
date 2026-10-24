@@ -174,3 +174,28 @@
         min-width: 11.5rem;             /* antes 13.5rem */
     }
 }
+
+.pub-back-wrap {
+    max-width: 75rem;
+    margin: 1rem auto 0;
+    padding: 0 var(--page-gutter);
+}
+.pub-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--color-primary-dark);
+    font-weight: 700;
+    text-decoration: none;
+}
+.pub-back:hover {
+    text-decoration: underline;
+}
+.pub-edit-msg {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    padding: calc(var(--navbar-height) + 3rem) var(--page-gutter) 4rem;
+    text-align: center;
+    color: var(--color-text-muted);
+}

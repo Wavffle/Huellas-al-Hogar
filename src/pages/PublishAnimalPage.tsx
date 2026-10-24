@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { IonIcon } from '@ionic/react';
-import { arrowBack, arrowForward, paw } from 'ionicons/icons';
+import { arrowBack, arrowForward, chevronBack, paw } from 'ionicons/icons';
+import PawLoader from '../components/common/PawLoader';
 import PublishHero from '../components/publish/PublishHero';
 import PublishSteps from '../components/publish/PublishSteps';
 import PublishTrust from '../components/publish/PublishTrust';
@@ -12,14 +14,37 @@ import StepHealth from '../components/publish/StepHealth';
 import StepPhotos from '../components/publish/StepPhotos';
 import StepReview from '../components/publish/StepReview';
 import { STEP_KEYS, validate, type Errors, type Key } from '../components/publish/publishForm';
-import { buildFormData } from '../components/publish/publishMappers';
-import { INITIAL_PUBLISH_VALUES, PUBLISH_STEPS, type PublishValues } from '../data/publish';
-import { createAnimal } from '../services/animalService';
+import { animalToValues, buildFormData } from '../components/publish/publishMappers';
+import { INITIAL_PUBLISH_VALUES, PUBLISH_STEPS, type FotoItem, type PublishValues } from '../data/publish';
+import { createAnimal, getAnimalPorId, updateAnimal } from '../services/animalService';
+import { useAuth } from '../contexts/AuthContext';
 import { useMotionOff } from '../utils/useMotionOff';
 import './PublishAnimalPage.css';
 
+const HOUR = 60 * 60 * 1000;
+
+type LoadState = 'loading' | 'ready' | 'notfound' | 'forbidden' | 'failed';
+
+/**
+ * Al editar, el servidor deja las fotos conservadas primero y las nuevas al final.
+ * Si en el formulario quedaron en otro orden (por ejemplo, una nueva como portada),
+ * se reordenan con una segunda llamada liviana.
+ */
+async function ordenarFotos(id: string, saved: { id: number }[] | undefined, wanted: FotoItem[]) {
+    if (!saved) return;
+    const existing = wanted.filter((f) => f.serverId !== undefined).length;
+    const nuevas = saved.slice(existing).map((f) => f.id);
+    let n = 0;
+    const desired = wanted.map((f) => f.serverId ?? nuevas[n++]);
+    if (desired.some((fotoId, i) => fotoId !== saved[i]?.id)) {
+        await updateAnimal(id, { fotos_conservar: desired.join(',') });
+    }
+}
 
 export default function PublishAnimalPage() {
+    const { id } = useParams<{ id?: string }>();
+    const editing = id !== undefined;
+    const { user, renew } = useAuth();
     const motionOff = useMotionOff();
     const [step, setStep] = useState(1);
     const [values, setValues] = useState<PublishValues>(INITIAL_PUBLISH_VALUES);
@@ -28,6 +53,7 @@ export default function PublishAnimalPage() {
     const [sendError, setSendError] = useState('');
     const [done, setDone] = useState(false);
     const [publishedName, setPublishedName] = useState('');
+    const [loadState, setLoadState] = useState<LoadState>(editing ? 'loading' : 'ready');
     const pageRef = useRef<HTMLDivElement>(null);
     const wizardRef = useRef<HTMLElement>(null);
     const titleRef = useRef<HTMLHeadingElement>(null);
@@ -35,6 +61,36 @@ export default function PublishAnimalPage() {
 
     const total = PUBLISH_STEPS.length;
     const meta = PUBLISH_STEPS[step - 1];
+
+    // Modo edición: carga el animal y rellena el formulario
+    useEffect(() => {
+        if (!editing || !id) return;
+        let cancelled = false;
+        setLoadState('loading');
+        getAnimalPorId(id)
+            .then((response) => {
+                if (cancelled) return;
+                const raw = response?.data ?? response;
+                if (user?.role !== 'administrador' && Number(raw.usuario_id) !== user?.id) {
+                    setLoadState('forbidden');
+                    return;
+                }
+                setValues(animalToValues(raw));
+                setLoadState('ready');
+            })
+            .catch((err) => {
+                if (!cancelled) setLoadState(err?.response?.status === 404 ? 'notfound' : 'failed');
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [id, editing, user?.id, user?.role]);
+
+    // Mientras el formulario está abierto, mantiene fresco el token para no perder lo escrito
+    useEffect(() => {
+        const timer = window.setInterval(() => void renew(HOUR), 10 * 60 * 1000);
+        return () => window.clearInterval(timer);
+    }, [renew]);
 
     // Libera las vistas previas de las fotos al salir de la página
     const photosRef = useRef(values.fotos);
@@ -118,19 +174,36 @@ export default function PublishAnimalPage() {
         setSending(true);
         setSendError('');
         try {
-            await createAnimal(buildFormData(values));
+            await renew(HOUR); // evita que el token venza justo al enviar
+            if (editing && id) {
+                const response = await updateAnimal(id, buildFormData(values, { edit: true }));
+                await ordenarFotos(id, response?.data?.fotos, values.fotos);
+            } else {
+                await createAnimal(buildFormData(values));
+            }
             setPublishedName(values.nombre.trim());
             setDone(true);
         } catch (err) {
-            console.error('Fallo al publicar:', err);
-            const detail = (
-                err as { response?: { data?: { error?: { message?: string; fields?: string[] } } } }
-            )?.response?.data?.error;
-            setSendError(
-                import.meta.env.DEV && detail?.message
-                    ? `No se pudo publicar: ${detail.message}${detail.fields ? ` (${detail.fields.join(', ')})` : ''}`
-                    : 'No se pudo publicar el animal. Intenta de nuevo.',
-            );
+            console.error('Fallo al guardar:', err);
+            const res = (
+                err as {
+                    response?: { status?: number; data?: { error?: { message?: string; fields?: string[] } } };
+                }
+            )?.response;
+            const detail = res?.data?.error;
+            if (res?.status === 401) {
+                setSendError(
+                    'Tu sesión venció. Inicia sesión de nuevo en otra pestaña y vuelve a pulsar el botón: lo que escribiste se conserva.',
+                );
+            } else if (res?.status === 413) {
+                setSendError('Una de las fotos pesa más de 5 MB.');
+            } else {
+                setSendError(
+                    import.meta.env.DEV && detail?.message
+                        ? `No se pudo guardar: ${detail.message}${detail.fields ? ` (${detail.fields.join(', ')})` : ''}`
+                        : 'No se pudo guardar el animal. Intenta de nuevo.',
+                );
+            }
         } finally {
             setSending(false);
         }
@@ -145,14 +218,51 @@ export default function PublishAnimalPage() {
         setDone(false);
     };
 
+    if (editing && loadState !== 'ready') {
+        return (
+            <div className="pub-page" ref={pageRef}>
+                <div className="pub-edit-msg">
+                    {loadState === 'loading' ? (
+                        <PawLoader label="Cargando publicación…" />
+                    ) : (
+                        <>
+                            <p>
+                                {loadState === 'notfound' && 'No encontramos esta publicación.'}
+                                {loadState === 'forbidden' && 'Solo puedes editar tus propias publicaciones.'}
+                                {loadState === 'failed' && 'No se pudo cargar la publicación.'}
+                            </p>
+                            <Link to="/panel" className="pub-btn">
+                                Volver a mi panel
+                            </Link>
+                        </>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
     const stepProps = { values, errors, set };
 
     return (
         <div className="pub-page" ref={pageRef}>
             <PublishHero />
 
+            {editing && !done && (
+                <div className="pub-back-wrap">
+                    <Link to="/panel" className="pub-back">
+                        <IonIcon icon={chevronBack} aria-hidden="true" />
+                        Volver a mi panel
+                    </Link>
+                </div>
+            )}
+
             {done ? (
-                <PublishSuccess name={publishedName} onAnother={publishAnother} />
+                <PublishSuccess
+                    name={publishedName}
+                    mode={editing ? 'edit' : 'create'}
+                    animalId={id}
+                    onAnother={publishAnother}
+                />
             ) : (
                 <section className="pub-wizard" ref={wizardRef} aria-label="Formulario para publicar un animal">
                     <PublishSteps current={step} onSelect={changeStep} />
@@ -200,7 +310,13 @@ export default function PublishAnimalPage() {
                                         </button>
                                     ) : (
                                         <button type="submit" className="pub-btn" disabled={sending}>
-                                            {sending ? 'Publicando…' : 'Publicar'}
+                                            {sending
+                                                ? editing
+                                                    ? 'Guardando…'
+                                                    : 'Publicando…'
+                                                : editing
+                                                    ? 'Guardar cambios'
+                                                    : 'Publicar'}
                                             <IonIcon icon={paw} aria-hidden="true" />
                                         </button>
                                     )}

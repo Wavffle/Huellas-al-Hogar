@@ -148,9 +148,12 @@ export const LIMITES = {
 /* ===== Valores del formulario ===== */
 export interface FotoItem {
     id: string;
-    file: File;
-    /** URL local (URL.createObjectURL) para la vista previa. */
+    /** Solo en fotos nuevas. Las que ya están guardadas no tienen archivo. */
+    file?: File;
+    /** URL local (URL.createObjectURL) o la del servidor, para la vista previa. */
     url: string;
+    /** id de la foto en el servidor (solo en modo edición). */
+    serverId?: number;
 }
 
 export interface PublishValues {

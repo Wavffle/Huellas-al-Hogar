@@ -15,12 +15,38 @@ export function clearStoredSession() {
     }
 }
 
+/** Origen del backend. En producción se define con VITE_API_URL en el .env del frontend. */
+export const API_ORIGIN: string = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+
 const apiClient = axios.create({
-    baseURL: 'http://localhost:3000/api', // URL base del backend express
+    baseURL: `${API_ORIGIN}/api`,
+    timeout: 15000,
     headers: {
         'Content-Type': 'application/json',
     },
 });
+
+/** Un solo lugar para convertir cualquier error de Axios en estado HTTP y mensaje para el usuario. */
+export function apiError(err: unknown): { status?: number; message: string; fields?: string[] } {
+    const e = err as {
+        code?: string;
+        response?: { status?: number; data?: { error?: { message?: string; fields?: string[] }; message?: string } };
+    };
+    if (!e?.response) {
+        return {
+            message:
+                e?.code === 'ECONNABORTED'
+                    ? 'El servidor tardó demasiado en responder. Intenta de nuevo.'
+                    : 'No se pudo conectar con el servidor. Intenta de nuevo.',
+        };
+    }
+    const { status, data } = e.response;
+    return {
+        status,
+        message: data?.error?.message ?? data?.message ?? 'Ocurrió un error. Intenta de nuevo.',
+        fields: data?.error?.fields,
+    };
+}
 
 // Inyecta automáticamente el token JWT si existe
 apiClient.interceptors.request.use(

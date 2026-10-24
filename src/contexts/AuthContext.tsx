@@ -10,6 +10,7 @@ type AuthSession = { token: string; usuario: ApiUser };
 
 type AuthContextValue = {
   user: User | null;
+  expired: boolean;
   login: (session: AuthSession) => void;
   logout: () => void;
   renew: (minRemainingMs?: number) => Promise<void>;
@@ -64,6 +65,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(readStoredSession);
+  const [expired, setExpired] = useState(false);
 
   const login = useCallback((session: AuthSession) => {
     const next: User = {
@@ -78,11 +80,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       /* sin almacenamiento: la sesión dura solo hasta recargar */
     }
+    setExpired(false);
     setUser(next);
   }, []);
 
   const logout = useCallback(() => {
     clearStoredSession();
+    setExpired(false);
     setUser(null);
   }, []);
 
@@ -109,12 +113,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // apiClient avisa cuando el servidor rechaza el token (venció o no es válido)
   useEffect(() => {
-    const onExpired = () => setUser(null);
+    const onExpired = () => {
+      setUser(null);
+      setExpired(true);
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== null && e.key !== TOKEN_KEY && e.key !== USER_KEY) return;
+      const stored = readStoredSession();
+      setUser(stored);
+      if (stored) setExpired(false);
+    };
     window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
-    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
+      window.removeEventListener('storage', onStorage);
+    };
   }, []);
 
-  const value = useMemo(() => ({ user, login, logout, renew }), [user, login, logout, renew]);
+  const value = useMemo(() => ({ user, expired, login, logout, renew }), [user, expired, login, logout, renew]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

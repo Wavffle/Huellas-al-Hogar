@@ -456,3 +456,16 @@
         aspect-ratio: 3 / 2;
     }
 }
+
+.det-owner-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+    color: var(--color-primary-dark);
+    font-weight: 700;
+    text-decoration: none;
+}
+.det-owner-link:hover {
+    text-decoration: underline;
+}
