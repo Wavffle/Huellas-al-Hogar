@@ -194,8 +194,8 @@ export default function AdoptionRequestPage() {
     const [sendError, setSendError] = useState('');
     const [done, setDone] = useState(false);
     const [values, setValues] = useState<Values>({
-        nombre: '',
-       correo: (user as any)?.correo ?? (user as any)?.email ?? '',
+        nombre: user?.name ?? '',
+        correo: user?.email ?? '',
         pais: DEFAULT_COUNTRY,
         telefono: '',
         ciudad: '',

@@ -290,3 +290,127 @@
         margin-right: 0;
     }
 }
+
+/* ===== Menú de cuenta ===== */
+
+/* Móvil: no hay desplegable, los datos se ven directo dentro del panel del menú */
+.navbar__account-trigger {
+    display: none;
+}
+
+.navbar__account-panel {
+    display: grid;
+    gap: 0.2rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(48, 44, 53, 0.15);
+}
+
+.navbar__account-fullname {
+    font-size: 1rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.navbar__account-email {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    overflow-wrap: anywhere;
+}
+
+.navbar__role {
+    justify-self: start;
+    margin-top: 0.5rem;
+    padding: 0.2rem 0.8rem;
+    border-radius: var(--radius-pill);
+    background: #ebe2f3;
+    color: var(--color-primary-dark);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.navbar__account-logout {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 0.9rem;
+    padding: 0.8rem 0 0;
+    border: 0;
+    border-top: 1px solid rgba(48, 44, 53, 0.15);
+    background: none;
+    color: var(--color-text);
+    font: 500 0.9rem var(--font-body);
+    cursor: pointer;
+}
+
+.navbar__account-logout:hover {
+    color: var(--color-primary-dark);
+}
+
+.navbar__account-logout ion-icon {
+    font-size: 1.2rem;
+}
+
+/* Escritorio: botón con la inicial y panel desplegable */
+@media (min-width: 800px) {
+    .navbar__account {
+        position: relative;
+    }
+
+    .navbar__account-trigger {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.9rem 1.9rem 0.9rem 1.9rem;
+        border: 1.5px solid var(--color-accent-border);
+        border-radius: var(--radius-md);
+        background: var(--color-accent);
+        color: var(--color-text);
+        font: 600 0.9rem var(--font-body);
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .navbar__account-trigger:hover {
+        background: var(--color-accent-light);
+    }
+
+    .navbar__account-name {
+        max-width: 8rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .navbar__account.is-open .navbar__chevron {
+        transform: rotate(180deg);
+    }
+
+    .navbar__account-panel {
+        position: absolute;
+        top: calc(100% + 0.7rem);
+        right: 0;
+        z-index: 30;
+        width: 16.5rem;
+        padding: 1.2rem 1.3rem 1rem;
+        border-top: 0;
+        border-radius: var(--radius-lg);
+        background: rgba(242, 234, 224, 0.96);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: var(--shadow-card);
+        opacity: 0;
+        visibility: hidden;   /* cerrado: fuera del tab y de lectores de pantalla */
+        translate: 0 -0.5rem;
+        transition:
+                opacity 0.25s ease,
+                translate 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                visibility 0.25s;
+    }
+
+    .navbar__account.is-open .navbar__account-panel {
+        opacity: 1;
+        visibility: visible;
+        translate: 0 0;
+    }
+}

@@ -18,8 +18,6 @@ import { createAnimal } from '../services/animalService';
 import { useMotionOff } from '../utils/useMotionOff';
 import './PublishAnimalPage.css';
 
-/** Provisional: reemplazar por el id del usuario cuando el login real lo entregue. */
-const USUARIO_ID_PRUEBA = 1;
 
 export default function PublishAnimalPage() {
     const motionOff = useMotionOff();
@@ -120,7 +118,7 @@ export default function PublishAnimalPage() {
         setSending(true);
         setSendError('');
         try {
-            await createAnimal(buildFormData(values, USUARIO_ID_PRUEBA));
+            await createAnimal(buildFormData(values));
             setPublishedName(values.nombre.trim());
             setDone(true);
         } catch (err) {

@@ -50,7 +50,7 @@ export function valuesToDetail(v: PublishValues): AnimalDetail {
  * por eso los opcionales y las listas vacías se omiten (al crear, el backend los guarda como null).
  * Las fotos NO van aquí: viajan aparte en buildFormData.
  */
-export function buildPayload(v: PublishValues, usuarioId?: number): Record<string, unknown> {
+export function buildPayload(v: PublishValues): Record<string, unknown> {
     const meses = Number(v.edadMeses);
     const payload: Record<string, unknown> = {
         nombre: v.nombre.trim(),
@@ -67,7 +67,6 @@ export function buildPayload(v: PublishValues, usuarioId?: number): Record<strin
         esterilizado: v.esterilizado,
         estado: 'EN_ADOPCION',
     };
-    if (usuarioId !== undefined) payload.usuario_id = usuarioId;
 
     // Listas: solo se envían si tienen elementos
     const lists: Record<string, string[]> = {
@@ -97,9 +96,9 @@ export function buildPayload(v: PublishValues, usuarioId?: number): Record<strin
  * Las listas van como texto separado por comas, que es lo que el backend espera, y las fotos
  * como varios archivos "fotos" (la primera es la portada).
  */
-export function buildFormData(v: PublishValues, usuarioId?: number): FormData {
+export function buildFormData(v: PublishValues): FormData {
     const data = new FormData();
-    for (const [key, value] of Object.entries(buildPayload(v, usuarioId))) {
+    for (const [key, value] of Object.entries(buildPayload(v))) {
         data.append(key, Array.isArray(value) ? value.join(',') : String(value));
     }
     v.fotos.forEach((foto) => data.append('fotos', foto.file, foto.file.name));

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { IonIcon } from '@ionic/react';
-import { chevronDown, close, menu } from 'ionicons/icons';
-import { useAuth } from '../../contexts/AuthContext';
+import { chevronDown, close, logOutOutline, menu } from 'ionicons/icons';
+import { useAuth, type UserRole } from '../../contexts/AuthContext';
 import logoColor from '../../assets/images/logo/logo-color.svg';
 import iconTenencia from '../../assets/icons/tenencia-responsable.svg';
 import iconAbandono from '../../assets/icons/consecuencias-abandono.svg';
@@ -23,6 +23,12 @@ const learnItems = [
         text: 'Impacto y cómo prevenirlo',
     },
 ];
+
+const ROLE_LABEL: Record<UserRole, string> = {
+    adoptante: 'Adoptante',
+    rescatista: 'Rescatista',
+    administrador: 'Administrador',
+};
 
 function ArrowUpRight() {
     return (
@@ -49,8 +55,14 @@ export default function Navbar({ scrolled = false, onLogoClick }: NavbarProps) {
     const { pathname } = useLocation();
     const [open, setOpen] = useState(false);
     const [learnOpen, setLearnOpen] = useState(false);
+    const [accountOpen, setAccountOpen] = useState(false);
     const learnRef = useRef<HTMLLIElement>(null);
+    const accountRef = useRef<HTMLDivElement>(null);
+    const accountTriggerRef = useRef<HTMLButtonElement>(null);
     const closeMenu = () => setOpen(false);
+
+    const firstName = user?.name.trim().split(' ')[0] ?? '';
+    const initial = firstName.charAt(0).toUpperCase() || '?';
 
     // Cierra el dropdown al hacer click fuera o con Escape
     useEffect(() => {
@@ -68,6 +80,26 @@ export default function Navbar({ scrolled = false, onLogoClick }: NavbarProps) {
             document.removeEventListener('keydown', onKeyDown);
         };
     }, [learnOpen]);
+
+    // Menú de cuenta: se cierra al hacer click fuera o con Escape (y devuelve el foco al botón)
+    useEffect(() => {
+        if (!accountOpen) return;
+        const onPointerDown = (e: PointerEvent) => {
+            if (!accountRef.current?.contains(e.target as Node)) setAccountOpen(false);
+        };
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                setAccountOpen(false);
+                accountTriggerRef.current?.focus();
+            }
+        };
+        document.addEventListener('pointerdown', onPointerDown);
+        document.addEventListener('keydown', onKeyDown);
+        return () => {
+            document.removeEventListener('pointerdown', onPointerDown);
+            document.removeEventListener('keydown', onKeyDown);
+        };
+    }, [accountOpen]);
 
     return (
         <header className={`navbar${scrolled ? ' is-scrolled' : ''}`}>
@@ -174,16 +206,38 @@ export default function Navbar({ scrolled = false, onLogoClick }: NavbarProps) {
                     </ul>
 
                     {user ? (
-                        <button
-                            type="button"
-                            className="navbar__button"
-                            onClick={() => {
-                                logout();
-                                closeMenu();
-                            }}
-                        >
-                            Cerrar sesión
-                        </button>
+                        <div className={`navbar__account${accountOpen ? ' is-open' : ''}`} ref={accountRef}>
+                            <button
+                                ref={accountTriggerRef}
+                                type="button"
+                                className="navbar__account-trigger"
+                                aria-expanded={accountOpen}
+                                aria-haspopup="true"
+                                aria-controls="account-menu"
+                                onClick={() => setAccountOpen((v) => !v)}
+                            >
+                                <span className="navbar__account-name">{firstName}</span>
+                                <IonIcon icon={chevronDown} className="navbar__chevron" aria-hidden="true" />
+                            </button>
+
+                            <div id="account-menu" className="navbar__account-panel">
+                                <p className="navbar__account-fullname">{user.name}</p>
+                                {user.email && <p className="navbar__account-email">{user.email}</p>}
+                                <span className="navbar__role">{ROLE_LABEL[user.role]}</span>
+                                <button
+                                    type="button"
+                                    className="navbar__account-logout"
+                                    onClick={() => {
+                                        logout();
+                                        setAccountOpen(false);
+                                        closeMenu();
+                                    }}
+                                >
+                                    <IonIcon icon={logOutOutline} aria-hidden="true" />
+                                    Cerrar sesión
+                                </button>
+                            </div>
+                        </div>
                     ) : (
                         <Link to="/login" className="navbar__button" onClick={closeMenu}>
                             Iniciar sesión

@@ -3,7 +3,8 @@ import type { FormEvent } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { IonContent, IonIcon, IonPage } from '@ionic/react';
 import { arrowBack, eyeOffOutline, eyeOutline, paw } from 'ionicons/icons';
-import { useAuth, roleForTestEmail } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
+import { authErrorMessage, iniciarSesion, registrarUsuario } from '../services/authService';
 import logoColor from '../assets/images/logo/logo-color.svg';
 import logoClaro from '../assets/images/logo/logo-claro.svg';
 import patternLogin from '../assets/images/login/patron-fondo.webp';
@@ -28,18 +29,65 @@ export default function LoginPage() {
     const [showConfirm, setShowConfirm] = useState(false);
     const [accepted, setAccepted] = useState(false);
 
-    const submitLogin = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const email = String(new FormData(e.currentTarget).get('email') ?? '').trim();
-        login(roleForTestEmail(email), email);
-        history.replace(redirectTo);
+    const [loginEmail, setLoginEmail] = useState('');
+    const [loginPassword, setLoginPassword] = useState('');
+    const [regName, setRegName] = useState('');
+    const [regEmail, setRegEmail] = useState('');
+    const [regPassword, setRegPassword] = useState('');
+    const [regConfirm, setRegConfirm] = useState('');
+    const [busy, setBusy] = useState(false);
+    const [loginError, setLoginError] = useState('');
+    const [registerError, setRegisterError] = useState('');
+
+    const switchView = (path: '/login' | '/registro') => {
+        setLoginError('');
+        setRegisterError('');
+        history.replace(path, state);
     };
 
-    // Provisional: aún no hay backend, así que "crear cuenta" inicia sesión directamente
-    const submitRegister = (e: FormEvent) => {
+    const submitLogin = async (e: FormEvent) => {
         e.preventDefault();
-        login();
-        history.replace(redirectTo);
+        if (busy) return;
+        setLoginError('');
+        setBusy(true);
+        try {
+            const session = await iniciarSesion(loginEmail.trim(), loginPassword);
+            login(session);
+            history.replace(redirectTo);
+        } catch (err) {
+            setLoginError(authErrorMessage(err));
+            setBusy(false);
+        }
+    };
+
+    const submitRegister = async (e: FormEvent) => {
+        e.preventDefault();
+        if (busy) return;
+        setRegisterError('');
+
+        // Mismas reglas que el backend (mínimo 8 caracteres, máximo 72 bytes)
+        if (regPassword.length < 8) {
+            setRegisterError('La contraseña debe tener al menos 8 caracteres.');
+            return;
+        }
+        if (new TextEncoder().encode(regPassword).length > 72) {
+            setRegisterError('La contraseña es demasiado larga.');
+            return;
+        }
+        if (regPassword !== regConfirm) {
+            setRegisterError('Las contraseñas no coinciden.');
+            return;
+        }
+
+        setBusy(true);
+        try {
+            const session = await registrarUsuario(regName.trim(), regEmail.trim(), regPassword);
+            login(session);
+            history.replace(redirectTo);
+        } catch (err) {
+            setRegisterError(authErrorMessage(err));
+            setBusy(false);
+        }
     };
 
     useEffect(() => {
@@ -89,6 +137,8 @@ export default function LoginPage() {
                                         aria-label="Correo electrónico"
                                         autoComplete="email"
                                         tabIndex={isRegister ? -1 : 0}
+                                        value={loginEmail}
+                                        onChange={(e) => setLoginEmail(e.target.value)}
                                         required
                                     />
 
@@ -100,6 +150,8 @@ export default function LoginPage() {
                                             aria-label="Contraseña"
                                             autoComplete="current-password"
                                             tabIndex={isRegister ? -1 : 0}
+                                            value={loginPassword}
+                                            onChange={(e) => setLoginPassword(e.target.value)}
                                             required
                                         />
                                         <button
@@ -128,12 +180,19 @@ export default function LoginPage() {
                                         <span>Recordar mi contraseña</span>
                                     </div>
 
+                                    {loginError && (
+                                        <p className="login__error" role="alert">
+                                            {loginError}
+                                        </p>
+                                    )}
+
                                     <button
                                         type="submit"
                                         className="login__submit"
                                         tabIndex={isRegister ? -1 : 0}
+                                        disabled={busy}
                                     >
-                                        Iniciar Sesión
+                                        {busy && !isRegister ? 'Ingresando…' : 'Iniciar Sesión'}
                                     </button>
                                 </form>
 
@@ -144,7 +203,7 @@ export default function LoginPage() {
                                             type="button"
                                             className="login__register-link"
                                             tabIndex={isRegister ? -1 : 0}
-                                            onClick={() => history.replace('/registro', state)}
+                                            onClick={() => switchView('/registro')}
                                         >
                                             Regístrate
                                         </button>
@@ -179,7 +238,10 @@ export default function LoginPage() {
                                             className="login__input"
                                             placeholder="Tu nombre completo"
                                             autoComplete="name"
+                                            maxLength={100}
                                             tabIndex={isRegister ? 0 : -1}
+                                            value={regName}
+                                            onChange={(e) => setRegName(e.target.value)}
                                             required
                                         />
                                     </label>
@@ -191,7 +253,10 @@ export default function LoginPage() {
                                             className="login__input"
                                             placeholder="tucorreo@ejemplo.com"
                                             autoComplete="email"
+                                            maxLength={150}
                                             tabIndex={isRegister ? 0 : -1}
+                                            value={regEmail}
+                                            onChange={(e) => setRegEmail(e.target.value)}
                                             required
                                         />
                                     </label>
@@ -208,6 +273,8 @@ export default function LoginPage() {
                                                 placeholder="Crea tu contraseña"
                                                 autoComplete="new-password"
                                                 tabIndex={isRegister ? 0 : -1}
+                                                value={regPassword}
+                                                onChange={(e) => setRegPassword(e.target.value)}
                                                 required
                                             />
                                             <button
@@ -238,6 +305,8 @@ export default function LoginPage() {
                                                 placeholder="Repite tu contraseña"
                                                 autoComplete="new-password"
                                                 tabIndex={isRegister ? 0 : -1}
+                                                value={regConfirm}
+                                                onChange={(e) => setRegConfirm(e.target.value)}
                                                 required
                                             />
                                             <button
@@ -271,12 +340,19 @@ export default function LoginPage() {
                                         </span>
                                     </div>
 
+                                    {registerError && (
+                                        <p className="login__error" role="alert">
+                                            {registerError}
+                                        </p>
+                                    )}
+
                                     <button
                                         type="submit"
                                         className="login__submit login__submit--light"
                                         tabIndex={isRegister ? 0 : -1}
+                                        disabled={busy}
                                     >
-                                        Crear cuenta
+                                        {busy && isRegister ? 'Creando cuenta…' : 'Crear cuenta'}
                                         <IonIcon icon={paw} aria-hidden="true" />
                                     </button>
                                 </form>
@@ -288,7 +364,7 @@ export default function LoginPage() {
                                             type="button"
                                             className="login__register-link"
                                             tabIndex={isRegister ? 0 : -1}
-                                            onClick={() => history.replace('/login', state)}
+                                            onClick={() => switchView('/login')}
                                         >
                                             Inicia sesión
                                         </button>

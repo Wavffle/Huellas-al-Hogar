@@ -29,6 +29,7 @@
 }
 
 .pub-panel__title {
+    font-family: var(--font-heading);
     font-size: 1.5rem;
     font-weight: 700;
     line-height: 1.2;
@@ -41,7 +42,9 @@
 .pub-panel__subtitle {
     margin-top: 0.7rem;
     color: var(--color-text-muted);
+    font-family: var(--font-body);
     font-size: 1rem;
+    font-weight: 300;
     line-height: 1.25;
 }
 
@@ -66,7 +69,7 @@
 }
 
 .pub-nav--single {
-    grid-template-columns: minmax(0, 13.5rem);
+    grid-template-columns: minmax(0, 11.5rem);
     justify-content: center;
 }
 
@@ -74,20 +77,24 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.6rem;
+    gap: 0.5rem;
     min-width: 0;
-    height: 3.7rem;
-    padding: 0 1.4rem;
-    border: 3px solid var(--pub-lilac);
-    border-radius: 1rem;
+    height: 3.1rem;
+    padding: 0 1.2rem;
+    border: 2px solid var(--pub-lilac);
+    border-radius: 0.9rem;
     background: var(--pub-lilac);
     color: var(--color-white);
     font: inherit;
-    font-size: 1.3rem;
-    font-weight: 400;
+    font-size: 1rem;
+    font-weight: 300;
     text-decoration: none;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.pub-btn ion-icon {
+    font-size: 1.2rem;
 }
 
 .pub-btn:hover {
@@ -134,7 +141,7 @@
     .pub-panel {
         border-radius: 1.5rem;
         background: var(--pub-panel);
-        padding: 3rem 3rem 2.8rem;
+        padding: 2.2rem 3rem 1.8rem;
     }
 
     .pub-panel__head {
@@ -150,13 +157,13 @@
     }
 
     .pub-step {
-        margin-top: 2.2rem;
+        margin-top: 1.6rem;
     }
 
     .pub-nav {
         display: flex;
         justify-content: space-between;
-        margin-top: 2.2rem;
+        margin-top: 1.6rem;
     }
 
     .pub-nav--single {
@@ -164,6 +171,6 @@
     }
 
     .pub-btn {
-        min-width: 13.5rem;
+        min-width: 11.5rem;             /* antes 13.5rem */
     }
 }
