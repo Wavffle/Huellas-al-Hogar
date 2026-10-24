@@ -1,5 +1,6 @@
 import type { ElementType } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import { IonIcon } from '@ionic/react';
 import {
     calendarOutline,
@@ -38,6 +39,8 @@ interface Props {
 export default function AnimalProfile({ animal, preview = false }: Props) {
     const Name: ElementType = preview ? 'h4' : 'h1';
     const Heading: ElementType = preview ? 'h4' : 'h2';
+    const { user } = useAuth();
+    const available = animal.status === 'EN_ADOPCION';
 
     return (
         <div className="det-layout">
@@ -93,7 +96,11 @@ export default function AnimalProfile({ animal, preview = false }: Props) {
                         <IonIcon icon={heart} aria-hidden="true" />
                         Solicitar adopción
                     </span>
-                ) : (
+                ) : !available ? (
+                    <span className="det-button" aria-disabled="true">
+                        No disponible
+                    </span>
+                ) : user?.role === 'administrador' ? null : (
                     <Link to={`/adopciones/${animal.id}/solicitar`} className="det-button">
                         <IonIcon icon={heart} aria-hidden="true" />
                         Solicitar adopción

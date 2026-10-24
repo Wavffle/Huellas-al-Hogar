@@ -40,6 +40,7 @@ export function valuesToDetail(v: PublishValues): AnimalDetail {
                         : '',
         conviveCon: v.conviveCon,
         idealPara: v.idealPara,
+        ownerId: null,
         tags: etiquetaTexts(v),
     };
 }

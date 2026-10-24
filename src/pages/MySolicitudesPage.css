@@ -1,0 +1,136 @@
+.mys-page {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: calc(var(--navbar-height) + 1.5rem) var(--page-gutter) 4rem;
+}
+
+.mys-title {
+    font-size: clamp(1.75rem, 4vw, 2.4rem);
+    font-weight: 800;
+    color: var(--color-primary-dark);
+}
+
+.mys-subtitle {
+    margin: 0.4rem 0 1.75rem;
+    color: var(--color-text-muted);
+}
+
+.mys-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.9rem;
+}
+
+.mys-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem;
+    border-radius: var(--radius-lg);
+    background: var(--color-card);
+    color: var(--color-text);
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mys-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+}
+
+.mys-item__image {
+    flex: none;
+    width: 4.75rem;
+    height: 4.75rem;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+}
+
+.mys-item__image--empty {
+    background: var(--color-secondary-light);
+}
+
+.mys-item__body {
+    display: grid;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.mys-item__name {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mys-item__date {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+}
+
+.mys-status {
+    flex: none;
+    padding: 0.3rem 0.85rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.mys-status--pendiente {
+    background: var(--color-secondary-light);
+    color: var(--color-secondary-dark);
+}
+
+.mys-status--aprobada {
+    background: var(--color-accent-light);
+    color: #2f6670;
+}
+
+.mys-status--rechazada {
+    background: #f3d6d6;
+    color: #8c2f2f;
+}
+
+.mys-empty {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    padding: 3rem 0;
+    text-align: center;
+    color: var(--color-text-muted);
+}
+
+.mys-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-primary-dark);
+    color: var(--color-white);
+    font: inherit;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.mys-button:hover {
+    background: var(--color-secondary-dark);
+}
+
+@media (max-width: 480px) {
+    .mys-item {
+        flex-wrap: wrap;
+    }
+    .mys-status {
+        margin-left: 5.75rem;
+    }
+}

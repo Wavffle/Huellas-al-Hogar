@@ -21,8 +21,14 @@ export const registrarUsuario = async (nombre: string, correo: string, password:
     return response.data.data;
 };
 
-export const iniciarSesion = async (correo: string, password: string) => {
-    const response = await apiClient.post<AuthResponse>('/auth/login', { correo, password });
+export const iniciarSesion = async (correo: string, password: string, recordar = false) => {
+    const response = await apiClient.post<AuthResponse>('/auth/login', { correo, password, recordar });
+    return response.data.data;
+};
+
+/** Pide un token nuevo y el rol vigente. */
+export const renovarSesion = async () => {
+    const response = await apiClient.post<AuthResponse>('/auth/renovar');
     return response.data.data;
 };
 

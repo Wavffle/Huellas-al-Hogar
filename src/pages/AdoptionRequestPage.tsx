@@ -17,10 +17,11 @@ import {
     personOutline,
     shieldOutline,
     starOutline,
+    alertCircleOutline,
 } from 'ionicons/icons';
+import { createSolicitud, solicitudError } from '../services/solicitudService';
 import { useAuth } from '../contexts/AuthContext';
 import { getAnimalPorId } from '../services/animalService';
-import { createSolicitud } from '../services/solicitudService';
 import { CIUDADES } from '../data/ciudades';
 import PawLoader from '../components/common/PawLoader';
 import Field from '../components/forms/Field';
@@ -38,8 +39,6 @@ import doodle from '../assets/images/solicitud/solicitud-garabato.svg';
 import clouds from '../assets/images/solicitud/solicitud-nubes.svg';
 import './AdoptionRequestPage.css';
 
-/** true = simula el envío (el backend aún no tiene POST /api/solicitudes). */
-const SIMULAR_ENVIO = true;
 
 const VIVIENDAS = ['Casa', 'Departamento', 'Otro'];
 const SI_NO = ['Sí', 'No'];
@@ -52,6 +51,7 @@ const SPARKS = 14;
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 type Phase = 'idle' | 'loading' | 'burst';
+type Notice = { title: string; text: string; requests?: boolean };
 
 type Country = { code: string; name: string; dial: string; min: number; max: number };
 
@@ -193,6 +193,7 @@ export default function AdoptionRequestPage() {
     const sending = phase !== 'idle';
     const [sendError, setSendError] = useState('');
     const [done, setDone] = useState(false);
+    const [blocked, setBlocked] = useState<Notice | null>(null);
     const [values, setValues] = useState<Values>({
         nombre: user?.name ?? '',
         correo: user?.email ?? '',
@@ -286,20 +287,20 @@ export default function AdoptionRequestPage() {
         setPhase('loading');
         setSendError('');
         try {
-            // Nombre, correo, teléfono y ciudad salen de la cuenta (tabla usuarios)
-            const request = SIMULAR_ENVIO
-                ? Promise.resolve()
-                : createSolicitud({
-                    animal_id: Number(animalId),
-                    tipo_vivienda: values.vivienda === 'Otro' ? values.viviendaOtro.trim() : values.vivienda,
-                    tiene_patio: values.patio,
-                    con_quien_convive: values.convive.trim(),
-                    tuvo_mascotas: values.tuvoMascotas === 'Sí',
-                    tiene_mascotas: values.tieneMascotas === 'Sí',
-                    experiencia: values.experiencia.trim(),
-                    motivo: values.motivo.trim(),
-                    acepta_compromiso: true,
-                });
+            // Nombre y correo salen de la cuenta; teléfono y ciudad se guardan con la solicitud
+            const request = createSolicitud({
+                animal_id: Number(animalId),
+                tipo_vivienda: values.vivienda === 'Otro' ? values.viviendaOtro.trim() : values.vivienda,
+                tiene_patio: values.patio === 'Sí',
+                con_quien_convive: values.convive.trim(),
+                tuvo_mascotas: values.tuvoMascotas === 'Sí',
+                tiene_mascotas: values.tieneMascotas === 'Sí',
+                experiencia: values.experiencia.trim(),
+                motivo: values.motivo.trim(),
+                acepta_compromiso: true,
+                telefono: `${getCountry(values.pais).dial}${values.telefono}`,
+                ciudad: values.ciudad,
+            });
 
             // La barra dura al menos LOAD_MS; si el servidor tarda más, espera al 100%
             await Promise.all([request, wait(motionOff ? 0 : LOAD_MS)]);
@@ -308,8 +309,15 @@ export default function AdoptionRequestPage() {
                 await wait(BURST_MS);
             }
             setDone(true);
-        } catch {
-            setSendError('No se pudo enviar la solicitud. Intenta de nuevo.');
+        } catch (err) {
+            const { status, message } = solicitudError(err);
+            if (status === 409) {
+                setBlocked({ title: 'No se pudo enviar la solicitud', text: message, requests: true });
+            } else if (status === 403) {
+                setBlocked({ title: 'No tienes permiso para solicitar', text: message });
+            } else {
+                setSendError(message);
+            }
             setPhase('idle');
         }
     };
@@ -346,6 +354,42 @@ export default function AdoptionRequestPage() {
                     Revisaremos tu solicitud para adoptar a {animal.name} y nos pondremos en contacto contigo para
                     coordinar los siguientes pasos.
                 </p>
+                <Link to="/mis-solicitudes" className="req-btn req-btn--auto">
+                    Ver mis solicitudes
+                </Link>
+                <Link to={`/adopciones/${animal.id}`} className="req-btn req-btn--auto">
+                    Volver al animal
+                </Link>
+            </div>
+        );
+    }
+
+    let notice: Notice | null = blocked;
+    if (!notice && user && animal.ownerId === user.id) {
+        notice = { title: 'No puedes solicitar este animal', text: 'No puedes solicitar un animal que es tuyo.' };
+    } else if (!notice && user?.role === 'administrador') {
+        notice = {
+            title: 'Cuenta de administrador',
+            text: 'Las cuentas de administrador no pueden solicitar adopciones.',
+        };
+    } else if (!notice && animal.status !== 'EN_ADOPCION') {
+        notice = {
+            title: 'Animal no disponible',
+            text: `${animal.name} ya no está disponible para nuevas solicitudes.`,
+        };
+    }
+
+    if (notice) {
+        return (
+            <div className="req-page req-page--center req-done">
+                <IonIcon icon={alertCircleOutline} aria-hidden="true" />
+                <h1>{notice.title}</h1>
+                <p className="selectable">{notice.text}</p>
+                {notice.requests && (
+                    <Link to="/mis-solicitudes" className="req-btn req-btn--auto">
+                        Ver mis solicitudes
+                    </Link>
+                )}
                 <Link to={`/adopciones/${animal.id}`} className="req-btn req-btn--auto">
                     Volver al animal
                 </Link>
@@ -455,6 +499,7 @@ export default function AdoptionRequestPage() {
                             <Field id={fid('nombre')} label="Nombre completo" error={errors.nombre}>
                                 <input
                                     {...aria('nombre')}
+                                    readOnly
                                     className="form-input"
                                     type="text"
                                     placeholder="Tu nombre completo"
@@ -463,9 +508,10 @@ export default function AdoptionRequestPage() {
                                     onChange={(e) => set('nombre', e.target.value)}
                                 />
                             </Field>
-                            <Field id={fid('correo')} label="Correo electrónico" error={errors.correo}>
+                            <Field id={fid('correo')} label="Correo electrónico" error={errors.correo} hint="Viene de tu cuenta.">
                                 <input
                                     {...aria('correo')}
+                                    readOnly
                                     className="form-input"
                                     type="email"
                                     placeholder="tucorreo@ejemplo.com"
@@ -555,7 +601,7 @@ export default function AdoptionRequestPage() {
                                             {...aria('viviendaOtro')}
                                             className="form-input"
                                             type="text"
-                                            maxLength={60}
+                                            maxLength={50}
                                             placeholder="Ej. parcela, pieza arrendada, etc."
                                             value={values.viviendaOtro}
                                             onChange={(e) => set('viviendaOtro', e.target.value)}

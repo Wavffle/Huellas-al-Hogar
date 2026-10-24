@@ -10,6 +10,7 @@ import ProfilePage from '../pages/ProfilePage';
 import PublishGate from './PublishGate';
 import AbandonmentConsequencesPage from '../pages/AbandonmentConsequencesPage';
 import AdoptionRequestPage from '../pages/AdoptionRequestPage';
+import MySolicitudesPage from '../pages/MySolicitudesPage';
 
 export default function AppRoutes() {
   return (
@@ -22,6 +23,7 @@ export default function AppRoutes() {
       <Route path="/educacion" render={() => <PublicLayout><EducationPage /></PublicLayout>} exact />
       <Route path="/educacion/consecuencias-abandono" render={() => <PublicLayout><AbandonmentConsequencesPage /></PublicLayout>} exact/>
       <ProtectedRoute path="/perfil" render={() => <PublicLayout><ProfilePage /></PublicLayout>} exact />
+      <ProtectedRoute path="/mis-solicitudes" render={() => <PublicLayout><MySolicitudesPage /></PublicLayout>} exact />
       <Route path="/publicar" render={() => <PublicLayout><PublishGate /></PublicLayout>} exact />
       <Redirect exact from="/" to="/inicio" />
     </Switch>

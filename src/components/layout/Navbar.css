@@ -414,3 +414,8 @@
         translate: 0 0;
     }
 }
+
+.navbar__account-link {
+    display: block; padding: .6rem 0; color: inherit; font-weight: 600; text-decoration: none;
+}
+.navbar__account-link:hover { text-decoration: underline; }

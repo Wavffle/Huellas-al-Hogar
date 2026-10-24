@@ -224,6 +224,18 @@ export default function Navbar({ scrolled = false, onLogoClick }: NavbarProps) {
                                 <p className="navbar__account-fullname">{user.name}</p>
                                 {user.email && <p className="navbar__account-email">{user.email}</p>}
                                 <span className="navbar__role">{ROLE_LABEL[user.role]}</span>
+                                {user.role !== 'administrador' && (
+                                    <Link
+                                        to="/mis-solicitudes"
+                                        className="navbar__account-link"
+                                        onClick={() => {
+                                            setAccountOpen(false);
+                                            closeMenu();
+                                        }}
+                                    >
+                                        Mis solicitudes
+                                    </Link>
+                                )}
                                 <button
                                     type="button"
                                     className="navbar__account-logout"

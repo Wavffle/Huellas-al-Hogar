@@ -51,7 +51,7 @@ export default function LoginPage() {
         setLoginError('');
         setBusy(true);
         try {
-            const session = await iniciarSesion(loginEmail.trim(), loginPassword);
+            const session = await iniciarSesion(loginEmail.trim(), loginPassword, remember);
             login(session);
             history.replace(redirectTo);
         } catch (err) {
@@ -173,11 +173,11 @@ export default function LoginPage() {
                                         <input
                                             type="checkbox"
                                             checked={remember}
-                                            aria-label="Recordar mi contraseña"
+                                            aria-label="Mantener sesión iniciada"
                                             tabIndex={isRegister ? -1 : 0}
                                             onChange={(e) => setRemember(e.target.checked)}
                                         />
-                                        <span>Recordar mi contraseña</span>
+                                        <span>Mantener sesión iniciada</span>
                                     </div>
 
                                     {loginError && (

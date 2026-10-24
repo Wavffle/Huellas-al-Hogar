@@ -11,6 +11,7 @@ export interface AnimalDetail extends AdoptionAnimal {
     conviveCon: string[];
     idealPara: string[];
     tags: string[];
+    ownerId: number | null;
 }
 
 function toList(value: unknown): string[] {
@@ -36,6 +37,7 @@ export function mapAnimalDetail(raw: any): AnimalDetail {
         conviveCon: toList(raw.convive_con),
         idealPara: toList(raw.ideal_para),
         tags: toList(raw.etiquetas),
+        ownerId: raw.usuario_id != null ? Number(raw.usuario_id) : null,
     };
 }
 
@@ -43,7 +45,7 @@ export function mapAnimalDetail(raw: any): AnimalDetail {
 const STATUS_LABEL: Record<string, string> = {
     EN_ADOPCION: 'En adopción',
     ADOPTADO: 'Adoptado',
-    EN_TRATAMIENTO: 'En tratamiento',
+    EN_TRATAMIENTO: 'En proceso',
 };
 export const statusLabel = (status: string) => STATUS_LABEL[status] ?? 'En adopción';
 

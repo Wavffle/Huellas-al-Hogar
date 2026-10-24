@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { ApiRole, ApiUser } from '../services/authService';
+import { renovarSesion, type ApiRole, type ApiUser } from '../services/authService';
 import { SESSION_EXPIRED_EVENT, TOKEN_KEY, USER_KEY, clearStoredSession } from '../services/apiClient';
 
 export type UserRole = 'adoptante' | 'rescatista' | 'administrador';
@@ -12,6 +12,7 @@ type AuthContextValue = {
   user: User | null;
   login: (session: AuthSession) => void;
   logout: () => void;
+  renew: (minRemainingMs?: number) => Promise<void>;
 };
 
 const ROLE_FROM_API: Record<ApiRole, UserRole> = {
@@ -27,6 +28,15 @@ function tokenExpired(token: string): boolean {
     return typeof payload.exp === 'number' && payload.exp * 1000 <= Date.now();
   } catch {
     return true;
+  }
+}
+
+function tokenRemainingMs(token: string): number {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return typeof payload.exp === 'number' ? payload.exp * 1000 - Date.now() : 0;
+  } catch {
+    return 0;
   }
 }
 
@@ -76,6 +86,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const renew = useCallback(
+      async (minRemainingMs = 0) => {
+        try {
+          const token = localStorage.getItem(TOKEN_KEY);
+          if (!token) return;
+          if (minRemainingMs > 0 && tokenRemainingMs(token) > minRemainingMs) return;
+          login(await renovarSesion());
+        } catch (err) {
+          // 401: la cuenta ya no existe o el token no sirve. Cualquier otro error (sin red) no cierra la sesión.
+          if ((err as { response?: { status?: number } })?.response?.status === 401) logout();
+        }
+      },
+      [login, logout],
+  );
+
+  // Al abrir la app: refresca el token y el rol vigente
+  useEffect(() => {
+    if (user) void renew();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // apiClient avisa cuando el servidor rechaza el token (venció o no es válido)
   useEffect(() => {
     const onExpired = () => setUser(null);
@@ -83,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
   }, []);
 
-  const value = useMemo(() => ({ user, login, logout }), [user, login, logout]);
+  const value = useMemo(() => ({ user, login, logout, renew }), [user, login, logout, renew]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
