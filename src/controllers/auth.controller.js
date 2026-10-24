@@ -28,14 +28,15 @@ function obtenerUsuarioPublico(usuario) {
   };
 }
 
-function crearToken(usuario, secreto) {
+function crearToken(usuario, secreto, recordar = false) {
   return jwt.sign(
-    {
-      sub: String(usuario.id),
-      rol: usuario.rol,
-    },
-    secreto,
-    { expiresIn: process.env.JWT_EXPIRES_IN || "1h" }
+      {
+        sub: String(usuario.id),
+        rol: usuario.rol,
+        rec: recordar,
+      },
+      secreto,
+      { expiresIn: recordar ? "30d" : process.env.JWT_EXPIRES_IN || "8h" }
   );
 }
 
@@ -187,7 +188,8 @@ export const iniciarSesion = async (req, res, next) => {
     }
 
     const secreto = obtenerSecretoJwt();
-    const token = crearToken(usuario, secreto);
+    const recordar = req.body.recordar === true;
+    const token = crearToken(usuario, secreto, recordar);
 
     return res.status(200).json({
       success: true,
@@ -203,3 +205,35 @@ export const iniciarSesion = async (req, res, next) => {
 };
 
 //---------------------------------------------------------------------------------------------------//
+// POST /api/auth/renovar: entrega un token nuevo y el rol vigente según la base de datos.
+// Así, si un admin cambia el rol de alguien, el cambio se ve sin volver a iniciar sesión.
+
+export const renovarSesion = async (req, res, next) => {
+  try {
+    const secreto = obtenerSecretoJwt();
+
+    const { rows } = await pool.query(
+        "SELECT id, correo, nombre, rol FROM usuarios WHERE id = $1",
+        [req.usuario.id]
+    );
+    const usuario = rows[0];
+
+    if (!usuario) {
+      return res.status(401).json({
+        success: false,
+        error: { message: "La cuenta ya no existe" },
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Sesión renovada",
+      data: {
+        token: crearToken(usuario, secreto, req.usuario.recordar),
+        usuario: obtenerUsuarioPublico(usuario),
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};

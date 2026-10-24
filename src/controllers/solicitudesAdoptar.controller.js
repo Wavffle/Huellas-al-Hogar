@@ -12,6 +12,20 @@ const transicionesPermitidas = {
   PENDIENTE: ["APROBADA", "RECHAZADA"],
 };
 
+// Solicitud + datos del postulante + datos del animal (se usa en los GET)
+const SELECT_SOLICITUD = `
+  SELECT s.*,
+         u.nombre AS postulante_nombre,
+         u.correo AS postulante_correo,
+         a.nombre AS animal_nombre,
+         a.especie AS animal_especie,
+         a.estado AS animal_estado,
+         (SELECT f.imagen_url FROM foto_animales f
+           WHERE f.animal_id = a.id AND f.orden = 1) AS animal_imagen
+  FROM solicitudes_adopcion s
+  JOIN usuarios u ON u.id = s.usuario_id
+  JOIN animales a ON a.id = s.animal_id`;
+
 function esObjetoJson(body) {
   return body !== null && typeof body === "object" && !Array.isArray(body);
 }
@@ -31,50 +45,42 @@ function obtenerIdValido(idParametro) {
 
 export const getSolicitudes = async (req, res, next) => {
   try {
-    const { animal_id, usuario_id, estado } = req.query;
+    const { animal_id, usuario_id, estado, mias } = req.query;
     const condiciones = [];
     const valores = [];
 
-    if (req.usuario.rol === "ADOPTANTE") {
+    // ?mias=true devuelve las solicitudes que yo envié, sea cual sea mi rol.
+    if (mias === "true" || req.usuario.rol === "ADOPTANTE") {
       valores.push(req.usuario.id);
-      condiciones.push(`usuario_id = $${valores.length}`);
+      condiciones.push(`s.usuario_id = $${valores.length}`);
+    } else if (req.usuario.rol === "RESCATISTA") {
+      // Solicitudes recibidas: las de sus animales
+      valores.push(req.usuario.id);
+      condiciones.push(`a.usuario_id = $${valores.length}`);
     }
 
-    else if (req.usuario.rol === "RESCATISTA") {
-      valores.push(req.usuario.id);
-      condiciones.push(
-        `animal_id IN (SELECT id FROM animales WHERE usuario_id = $${valores.length})`);
-    }
     if (animal_id !== undefined) {
       const animalIdBuscado = obtenerIdValido(animal_id);
-
       if (animalIdBuscado === null) {
         return res.status(400).json({
           success: false,
-          error: {
-            message: "animal_id debe ser un número entero positivo",
-          },
+          error: { message: "animal_id debe ser un número entero positivo" },
         });
       }
-
       valores.push(animalIdBuscado);
-      condiciones.push(`animal_id = $${valores.length}`);
+      condiciones.push(`s.animal_id = $${valores.length}`);
     }
 
     if (usuario_id !== undefined) {
       const usuarioIdBuscado = obtenerIdValido(usuario_id);
-
       if (usuarioIdBuscado === null) {
         return res.status(400).json({
           success: false,
-          error: {
-            message: "usuario_id debe ser un número entero positivo",
-          },
+          error: { message: "usuario_id debe ser un número entero positivo" },
         });
       }
-
       valores.push(usuarioIdBuscado);
-      condiciones.push(`usuario_id = $${valores.length}`);
+      condiciones.push(`s.usuario_id = $${valores.length}`);
     }
 
     if (estado !== undefined) {
@@ -87,18 +93,15 @@ export const getSolicitudes = async (req, res, next) => {
           },
         });
       }
-
       valores.push(estado);
-      condiciones.push(`estado = $${valores.length}`);
+      condiciones.push(`s.estado = $${valores.length}`);
     }
 
-    let consulta = "SELECT * FROM solicitudes_adopcion";
-
+    let consulta = SELECT_SOLICITUD;
     if (condiciones.length > 0) {
       consulta += ` WHERE ${condiciones.join(" AND ")}`;
     }
-
-    consulta += " ORDER BY id";
+    consulta += " ORDER BY s.id DESC";
 
     const { rows } = await pool.query(consulta, valores);
 
@@ -112,7 +115,9 @@ export const getSolicitudes = async (req, res, next) => {
   }
 };
 
-//este por id, el otro era general
+//---------------------------------------------------------------------------------------------------//
+// GET por id: la ve su autor, el dueño del animal y el admin
+
 export const getSolicitudPorId = async (req, res, next) => {
   try {
     const id = obtenerIdValido(req.params.id);
@@ -127,16 +132,10 @@ export const getSolicitudPorId = async (req, res, next) => {
     }
 
     const { rows } = await pool.query(
-      `SELECT s.*
-      FROM solicitudes_adopcion s
-      JOIN animales a ON a.id = s.animal_id
-      WHERE s.id = $1
-        AND (
-          $2 = 'ADMIN'
-          OR ($2 = 'ADOPTANTE' AND s.usuario_id = $3)
-          OR ($2 = 'RESCATISTA' AND a.usuario_id = $3)
-        )`,
-      [id, req.usuario.rol, req.usuario.id]
+        `${SELECT_SOLICITUD}
+       WHERE s.id = $1
+         AND ($2::text = 'ADMIN' OR s.usuario_id = $3 OR a.usuario_id = $3)`,
+        [id, req.usuario.rol, req.usuario.id]
     );
 
     if (rows.length === 0) {
@@ -177,6 +176,7 @@ export const crearSolicitud = async (req, res, next) => {
   const camposPermitidos = [
     "animal_id","notas","tipo_vivienda","tiene_patio","con_quien_convive",
     "tuvo_mascotas","tiene_mascotas","experiencia","motivo","acepta_compromiso",
+    "telefono","ciudad",
   ];
   const camposDesconocidos = Object.keys(body).filter(
     (campo) => !camposPermitidos.includes(campo)
@@ -246,6 +246,13 @@ export const crearSolicitud = async (req, res, next) => {
     }
   }
 
+  const telefono =
+      typeof body.telefono === "string" ? body.telefono.replace(/[\s-]/g, "") : "";
+  if (!/^\+\d{8,18}$/.test(telefono)) camposInvalidos.push("telefono");
+
+  const ciudad = typeof body.ciudad === "string" ? body.ciudad.trim() : "";
+  if (!ciudad || ciudad.length > 100) camposInvalidos.push("ciudad");
+
   let experiencia = null;
 
   if (body.experiencia !== undefined && body.experiencia !== null) {
@@ -288,7 +295,7 @@ export const crearSolicitud = async (req, res, next) => {
     // esto hace pausa para ver que no este duplicandose una peticion
     
     const animalResultado = await client.query(
-      "SELECT id, estado FROM animales WHERE id = $1 FOR UPDATE",
+        "SELECT id, estado, usuario_id FROM animales WHERE id = $1 FOR UPDATE",
       [animalId]
     );
 
@@ -300,6 +307,15 @@ export const crearSolicitud = async (req, res, next) => {
         error: {
           message: "Animal no encontrado",
         },
+      });
+    }
+
+    if (Number(animalResultado.rows[0].usuario_id) === usuarioId) {
+      await client.query("ROLLBACK");
+
+      return res.status(403).json({
+        success: false,
+        error: { message: "No puedes solicitar un animal que es tuyo" },
       });
     }
 
@@ -335,18 +351,18 @@ export const crearSolicitud = async (req, res, next) => {
       });
     }
     //esta de aqui ya insterta la nueva solicitud
-    
+
     const { rows } = await client.query(
-      `INSERT INTO solicitudes_adopcion (
-        tipo_vivienda,tiene_patio,con_quien_convive,tuvo_mascotas,tiene_mascotas,
-        experiencia,motivo,acepta_compromiso,notas,usuario_id,animal_id
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-      RETURNING *`,
-      [
-        textos.tipo_vivienda,body.tiene_patio,textos.con_quien_convive,body.tuvo_mascotas,body.tiene_mascotas,        
-        experiencia,textos.motivo,body.acepta_compromiso,notas,usuarioId,animalId,                   
-      ]
+        `INSERT INTO solicitudes_adopcion (
+          tipo_vivienda,tiene_patio,con_quien_convive,tuvo_mascotas,tiene_mascotas,
+          experiencia,motivo,acepta_compromiso,notas,usuario_id,animal_id,telefono,ciudad
+        )
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+           RETURNING *`,
+        [
+          textos.tipo_vivienda,body.tiene_patio,textos.con_quien_convive,body.tuvo_mascotas,body.tiene_mascotas,
+          experiencia,textos.motivo,body.acepta_compromiso,notas,usuarioId,animalId,telefono,ciudad,
+        ]
     );
     await client.query("COMMIT");
 
@@ -513,7 +529,7 @@ export const actualizarSolicitud = async (req, res, next) => {
 
       await client.query(
         "UPDATE animales SET estado = $1 WHERE id = $2",
-        ["ADOPTADO", animalId]
+        ["EN_TRATAMIENTO", animalId]
       );
 
       await client.query(

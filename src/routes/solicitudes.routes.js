@@ -4,7 +4,7 @@ import {verificarToken,permitirRoles,} from "../middleware/auth.middleware.js";
 const router = Router();
 
 router.get("/", verificarToken, getSolicitudes);
-router.post("/", verificarToken, permitirRoles("ADOPTANTE"), crearSolicitud);
+router.post("/", verificarToken, permitirRoles("ADOPTANTE", "RESCATISTA"), crearSolicitud);
 router.get("/:id", verificarToken, getSolicitudPorId);
 router.patch("/:id", verificarToken, permitirRoles("RESCATISTA", "ADMIN"), actualizarSolicitud);
 router.delete("/:id", verificarToken, permitirRoles("ADMIN"), eliminarSolicitud);

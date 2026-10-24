@@ -40,6 +40,7 @@ export function verificarToken(req, res, next) {
     req.usuario = {
       id: Number(payload.sub),
       rol: payload.rol,
+      recordar: payload.rec === true,
     };
 
     if (!Number.isInteger(req.usuario.id) || req.usuario.id <= 0) {

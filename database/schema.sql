@@ -66,6 +66,8 @@ CREATE TABLE solicitudes_adopcion (
     acepta_compromiso BOOLEAN NOT NULL,
     estado estado_solicitud DEFAULT 'PENDIENTE',
     notas TEXT,
+    telefono VARCHAR(20),
+    ciudad VARCHAR(100),
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     usuario_id INT NOT NULL,
     animal_id INT NOT NULL,
