@@ -148,7 +148,7 @@ export const getContenidosEducativos = async (req, res, next) => {
       if (typeof categoria !== "string") {
         return res.status(400).json({
           success: false,
-          message: "La categoría no es válida",
+          error: { message: "La categoría no es válida" },
         });
       }
 
@@ -162,7 +162,7 @@ export const getContenidosEducativos = async (req, res, next) => {
       if (usuarioIdBuscado === null) {
         return res.status(400).json({
           success: false,
-          message: "El usuario_id debe ser un número entero positivo",
+          error: { message: "El usuario_id debe ser un número entero positivo" },
         });
       }
 
@@ -176,7 +176,7 @@ export const getContenidosEducativos = async (req, res, next) => {
       consulta += ` WHERE ${condiciones.join(" AND ")}`;
     }
 
-    consulta += " ORDER BY id";
+    consulta += " ORDER BY id DESC";
 
     const { rows } = await pool.query(consulta, valores);
 
@@ -197,7 +197,7 @@ export const getContenidoEducativoPorId = async (req, res, next) => {
     if (id === null) {
       return res.status(400).json({
         success: false,
-        message: "El id del contenido debe ser un número entero positivo",
+        error: { message: "El id del contenido debe ser un número entero positivo" },
       });
     }
 
@@ -209,7 +209,7 @@ export const getContenidoEducativoPorId = async (req, res, next) => {
     if (rows.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Contenido educativo no encontrado",
+        error: { message: "Contenido educativo no encontrado" },
       });
     }
 

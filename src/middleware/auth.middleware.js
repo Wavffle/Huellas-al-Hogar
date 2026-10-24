@@ -83,3 +83,27 @@ export function permitirRoles(...rolesPermitidos) {
     return next();
   };
 }
+
+//---------------------------------------------------------------------------------------------------//
+// Igual que verificarToken, pero sin exigir sesión: si hay un token válido carga req.usuario;
+// si no hay token o no sirve, la petición sigue como anónima.
+
+export function verificarTokenOpcional(req, res, next) {
+  const coincidencia = req.headers.authorization?.match(/^Bearer\s+(.+)$/i);
+  const secreto = process.env.JWT_SECRET;
+
+  if (!coincidencia || !secreto) return next();
+
+  try {
+    const payload = jwt.verify(coincidencia[1], secreto);
+    const id = Number(payload?.sub);
+
+    if (Number.isInteger(id) && id > 0 && ["ADMIN", "RESCATISTA", "ADOPTANTE"].includes(payload.rol)) {
+      req.usuario = { id, rol: payload.rol, recordar: payload.rec === true };
+    }
+  } catch {
+    // Token vencido o inválido: se trata como visitante
+  }
+
+  return next();
+}

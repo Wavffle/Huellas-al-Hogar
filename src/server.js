@@ -1,4 +1,4 @@
-
+import usuariosRoutes from "./routes/usuarios.routes.js";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -19,7 +19,11 @@ const directorioSrc = path.dirname(fileURLToPath(import.meta.url));
 const directorioUploads = path.resolve(directorioSrc, "../uploads");
 
 // Middlewares
-app.use(cors()); // Configuración temporal para desarrollo
+// CORS_ORIGIN="http://localhost:5173,https://mi-dominio.cl". Si no existe, queda abierto (desarrollo).
+const origenesPermitidos = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+    : true;
+app.use(cors({ origin: origenesPermitidos }));
 app.use(express.json());
 app.use("/uploads", express.static(directorioUploads));
 
@@ -28,6 +32,7 @@ app.use("/api/animales", animalesroute);
 app.use("/api/solicitudes", solicitudesRoutes);
 app.use("/api/contenidos-educativos", contenidosEducativosRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/usuarios", usuariosRoutes);
 
 // Ruta principal
 app.get("/", (req, res) => {
@@ -132,5 +137,3 @@ app.use((error, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
 });
-
-app.use('/uploads', express.static('uploads'));
