@@ -196,3 +196,23 @@ En esta fase se integró la interfaz gráfica interactiva con los servicios del 
 - **Gestión de Sesiones (JWT)**: Se implementó la administración del Json Web Token (JWT) en el cliente, asegurando su almacenamiento y envío en las peticiones para autorizar el acceso a recursos protegidos.
 - **Envío de Datos Complejos (Multipart/FormData)**: Se implementó el empaquetado de datos a través de FormData desde el formulario tipo wizard en React, permitiendo enviar texto y archivos multimedia (imágenes) de forma simultánea hacia el endpoint de publicación.
 - **Gestión de Flujos Basada en Roles**: El consumo de la API se vinculó a la protección de rutas del frontend. La interfaz ahora restringe o habilita el acceso a los formularios de creación evaluando el rol del usuario (ej. RESCATISTA) contenido en el payload del JWT
+
+## ¿Cómo ejecutar este proyecto?
+Sigue los siguientes pasos:
+1) Abre la carpeta del Backend en tu editor de codigo (como Visual Studio Code o el que uses) y en la terminal ejecuta:
+   ```
+   npm install
+   npm install multer
+   npm start
+   ```
+2) Sin cerrar la carpeta del backend, ahora abre la carpeta del frontend en tu editor de codigo y en la terminal ejecuta:
+   ```
+   npm install
+   npm run dev
+   ```
+_En resumen, debes abrir dos veces el editor de codigo (una para el backend y otra para el frontend) para que la página pueda funcionar y para que el backend interactúe con el frontend y viceversa._
+
+3) Configurar el archivo .env; este paso ya está documentado.
+4) Crear la base de datos en postgres ejecutando el script schema.sql.
+
+Si seguiste los pasos correctamente, ya podrás navegar por la página.
