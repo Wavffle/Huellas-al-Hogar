@@ -1,0 +1,3119 @@
+{
+  "info": {
+    "name": "Huellas al Hogar - Pruebas de la API (EP 2.7)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Ejecutar con Collection Runner en orden. Antes: npm run seed (o ejecutar database/seed.sql) y, en la carpeta 2, seleccionar una foto en la petición \"Crear animal como rescatista\"."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Autenticación (EP 2.5 y 2.6)",
+      "item": [
+        {
+          "name": "Registro correcto",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('correoNuevo', 'prueba' + Date.now() + '@huellas.test');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Entrega token y usuario con rol ADOPTANTE', () => { pm.expect(j.data.token).to.be.a('string'); pm.expect(j.data.usuario.rol).to.eql('ADOPTANTE'); pm.expect(j.data.usuario).to.not.have.property('password_hash'); });",
+                  "pm.collectionVariables.set('usuarioNuevoId', j.data.usuario.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Usuario Postman\",\n  \"correo\": \"{{correoNuevo}}\",\n  \"password\": \"Clave12345\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Registro con correo repetido (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Usuario Postman\",\n  \"correo\": \"{{correoNuevo}}\",\n  \"password\": \"Clave12345\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Registro con contraseña corta (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Otro\",\n  \"correo\": \"otro@huellas.test\",\n  \"password\": \"123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Registro con correo inválido (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Otro\",\n  \"correo\": \"no-es-correo\",\n  \"password\": \"Clave12345\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/registro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "registro"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login administrador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Rol ADMIN', () => pm.expect(j.data.usuario.rol).to.eql('ADMIN'));",
+                  "pm.collectionVariables.set('tokenAdmin', j.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"admin@huellas.test\",\n  \"password\": \"Admin1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login rescatista",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Rol RESCATISTA', () => pm.expect(j.data.usuario.rol).to.eql('RESCATISTA'));",
+                  "pm.collectionVariables.set('tokenRescatista', j.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"rescatista@huellas.test\",\n  \"password\": \"Rescata1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login adoptante",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Rol ADOPTANTE', () => pm.expect(j.data.usuario.rol).to.eql('ADOPTANTE'));",
+                  "pm.collectionVariables.set('tokenAdoptante', j.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"adoptante@huellas.test\",\n  \"password\": \"Adopta1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login con contraseña incorrecta (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"admin@huellas.test\",\n  \"password\": \"incorrecta\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login sin datos (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Renovar sesión",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Entrega un token nuevo', () => pm.expect(j.data.token).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdoptante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/renovar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "renovar"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Renovar sin token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/renovar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "renovar"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Animales",
+      "item": [
+        {
+          "name": "Listar animales (público)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('data es una lista', () => pm.expect(j.data).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear animal sin token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear animal como adoptante (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdoptante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear animal como rescatista (selecciona una foto en \"fotos\")",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Queda EN_ADOPCION y con fotos', () => { pm.expect(j.data.estado).to.eql('EN_ADOPCION'); pm.expect(j.data.fotos.length).to.be.above(0); });",
+                  "pm.collectionVariables.set('animalId', j.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Postman Firulais",
+                  "type": "text"
+                },
+                {
+                  "key": "especie",
+                  "value": "perro",
+                  "type": "text"
+                },
+                {
+                  "key": "sexo",
+                  "value": "Macho",
+                  "type": "text"
+                },
+                {
+                  "key": "tamanho",
+                  "value": "Mediano",
+                  "type": "text"
+                },
+                {
+                  "key": "edad",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "edad_meses",
+                  "value": "24",
+                  "type": "text"
+                },
+                {
+                  "key": "ciudad",
+                  "value": "Valparaíso",
+                  "type": "text"
+                },
+                {
+                  "key": "rescate",
+                  "value": "RESCATE",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Animal de prueba creado desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "vacunas_estado",
+                  "value": "AL_DIA",
+                  "type": "text"
+                },
+                {
+                  "key": "esterilizado",
+                  "value": "SI",
+                  "type": "text"
+                },
+                {
+                  "key": "etiquetas",
+                  "value": "Juguetón,Cariñoso",
+                  "type": "text"
+                },
+                {
+                  "key": "fotos",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear animal sin fotos (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Sin fotos",
+                  "type": "text"
+                },
+                {
+                  "key": "especie",
+                  "value": "gato",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detalle de animal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Trae fotos', () => pm.expect(j.data.fotos).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/{{animalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "{{animalId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detalle con id inválido (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "abc"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detalle de animal inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "999999"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mis publicaciones (rescatista)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Incluye solicitudes_pendientes', () => pm.expect(j.data[0]).to.have.property('solicitudes_pendientes'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/mios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "mios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mis publicaciones como adoptante (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdoptante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/mios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "mios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Editar animal (dueño)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Cambio aplicado', () => pm.expect(j.data.descripcion).to.eql('Descripción editada desde Postman'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descripcion\": \"Descripción editada desde Postman\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/{{animalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "{{animalId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Editar animal como adoptante (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdoptante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descripcion\": \"x\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/{{animalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "{{animalId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Editar con campo no permitido (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/{{animalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "{{animalId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Solicitudes de adopción",
+      "item": [
+        {
+          "name": "Solicitar animal propio como rescatista (403)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.request.body.raw = JSON.stringify({animal_id: Number(pm.collectionVariables.get('animalId')), tipo_vivienda:'Casa', tiene_patio:true, con_quien_convive:'Solo', tuvo_mascotas:true, tiene_mascotas:false, motivo:'Prueba', acepta_compromiso:true, telefono:'+56912345678', ciudad:'Valparaíso'});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Solicitar sin token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Solicitar con datos incompletos (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });",
+                  "pm.test('Indica los campos inválidos', () => pm.expect(j.error.fields).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdoptante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"animal_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear solicitud como adoptante",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('cuerpoSolicitud', JSON.stringify({animal_id: Number(pm.collectionVariables.get('animalId')), tipo_vivienda:'Casa', tiene_patio:true, con_quien_convive:'Familia', tuvo_mascotas:true, tiene_mascotas:false, experiencia:'He tenido perros', motivo:'Quiero un compañero', acepta_compromiso:true, telefono:'+56912345678', ciudad:'Valparaíso'}));",
+                  "pm.request.body.raw = pm.collectionVariables.get('cuerpoSolicitud');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Estado PENDIENTE', () => pm.expect(j.data.estado).to.eql('PENDIENTE'));",
+                  "pm.test('Guarda teléfono y ciudad', () => { pm.expect(j.data.telefono).to.eql('+56912345678'); pm.expect(j.data.ciudad).to.eql('Valparaíso'); });",
+                  "pm.collectionVariables.set('solicitudId', j.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdoptante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Solicitud duplicada (409)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.request.body.raw = pm.collectionVariables.get('cuerpoSolicitud');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdoptante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mis solicitudes (adoptante)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Incluye nombre del animal', () => pm.expect(j.data[0]).to.have.property('animal_nombre'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdoptante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes?mias=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes"
+              ],
+              "query": [
+                {
+                  "key": "mias",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Solicitudes recibidas (rescatista)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Incluye datos del postulante', () => { pm.expect(j.data[0]).to.have.property('postulante_nombre'); pm.expect(j.data[0]).to.have.property('postulante_correo'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detalle de solicitud (rescatista dueño)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes/{{solicitudId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes",
+                "{{solicitudId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar solicitudes sin token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Aprobar como adoptante (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdoptante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"APROBADA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes/{{solicitudId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes",
+                "{{solicitudId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Estado inválido (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"PENDIENTE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes/{{solicitudId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes",
+                "{{solicitudId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Aprobar solicitud (rescatista dueño)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Queda APROBADA', () => pm.expect(j.data.estado).to.eql('APROBADA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"APROBADA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes/{{solicitudId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes",
+                "{{solicitudId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Aprobar de nuevo (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"APROBADA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes/{{solicitudId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes",
+                "{{solicitudId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "El animal quedó \"En proceso\"",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Estado EN_TRATAMIENTO', () => pm.expect(j.data.estado).to.eql('EN_TRATAMIENTO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/{{animalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "{{animalId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Solicitar animal en proceso (409)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.request.body.raw = pm.collectionVariables.get('cuerpoSolicitud');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdoptante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Marcar animal como adoptado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Estado ADOPTADO', () => pm.expect(j.data.estado).to.eql('ADOPTADO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"ADOPTADO\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/{{animalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "{{animalId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Animal adoptado oculto para visitantes (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/{{animalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "{{animalId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Animal adoptado visible para su dueño",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/{{animalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "{{animalId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar solicitud como rescatista (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes/{{solicitudId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes",
+                "{{solicitudId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar solicitud como admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/solicitudes/{{solicitudId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "solicitudes",
+                "{{solicitudId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Contenidos educativos",
+      "item": [
+        {
+          "name": "Listar contenidos (público)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('data es una lista', () => pm.expect(j.data).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contenidos-educativos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos-educativos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear contenido sin token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"x\",\n  \"categoria\": \"x\",\n  \"contenido\": \"x\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contenidos-educativos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos-educativos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear contenido como rescatista (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"x\",\n  \"categoria\": \"x\",\n  \"contenido\": \"x\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contenidos-educativos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos-educativos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear contenido con datos inválidos (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contenidos-educativos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos-educativos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear contenido como admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.collectionVariables.set('contenidoId', j.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Cuidados básicos (Postman)\",\n  \"categoria\": \"Tenencia responsable\",\n  \"contenido\": \"Agua limpia, alimentación adecuada y controles veterinarios.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contenidos-educativos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos-educativos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detalle de contenido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contenidos-educativos/{{contenidoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos-educativos",
+                "{{contenidoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filtrar por categoría",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contenidos-educativos?categoria=Tenencia responsable",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos-educativos"
+              ],
+              "query": [
+                {
+                  "key": "categoria",
+                  "value": "Tenencia responsable"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Editar contenido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Título actualizado', () => pm.expect(j.data.titulo).to.eql('Cuidados básicos editado'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Cuidados básicos editado\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contenidos-educativos/{{contenidoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos-educativos",
+                "{{contenidoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar contenido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contenidos-educativos/{{contenidoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos-educativos",
+                "{{contenidoId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Contenido eliminado (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contenidos-educativos/{{contenidoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contenidos-educativos",
+                "{{contenidoId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Usuarios (administración)",
+      "item": [
+        {
+          "name": "Listar usuarios como admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('No expone password_hash', () => pm.expect(j.data[0]).to.not.have.property('password_hash'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar usuarios (?q=)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios?q=huellas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "huellas"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar usuarios como rescatista (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar usuarios sin token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Asignar rol RESCATISTA al usuario nuevo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('Rol actualizado', () => pm.expect(j.data.rol).to.eql('RESCATISTA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rol\": \"RESCATISTA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{usuarioNuevoId}}/rol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{usuarioNuevoId}}",
+                "rol"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Rol inválido (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rol\": \"SUPERUSUARIO\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{usuarioNuevoId}}/rol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{usuarioNuevoId}}",
+                "rol"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Usuario inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rol\": \"ADOPTANTE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/999999/rol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "999999",
+                "rol"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cambiar rol como adoptante (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdoptante}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rol\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{usuarioNuevoId}}/rol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{usuarioNuevoId}}",
+                "rol"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Seguridad",
+      "item": [
+        {
+          "name": "Token inválido (401)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('tokenFalso', 'esto.no.es.un.jwt');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenFalso}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/mios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "mios"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Intento de inyección SQL en el login (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });",
+                  "pm.test('No entrega token', () => pm.expect(j.data).to.be.undefined);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correo\": \"' OR '1'='1\",\n  \"password\": \"' OR '1'='1\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Intento de inyección SQL en el buscador (200 sin error)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
+                  "pm.test('La tabla sigue existiendo y responde una lista', () => pm.expect(j.data).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios?q=';DROP TABLE usuarios;--",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "';DROP TABLE usuarios;--"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ruta inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ruta-que-no-existe",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ruta-que-no-existe"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Limpieza",
+      "item": [
+        {
+          "name": "Eliminar animal de prueba (dueño)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/{{animalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "{{animalId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Animal eliminado (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Código 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
+                  "const j = pm.response.json();",
+                  "pm.test('Estructura de error: success=false y error.message', () => { pm.expect(j.success).to.eql(false); pm.expect(j.error.message).to.be.a('string'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales/{{animalId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "{{animalId}}"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

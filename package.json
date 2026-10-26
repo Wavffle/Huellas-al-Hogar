@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "seed": "node database/seed.js",
     "start": "node src/server.js"
   },
   "keywords": [],

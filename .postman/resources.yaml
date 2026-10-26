@@ -1,0 +1,7 @@
+# Use this workspace to collaborate
+workspace:
+  id: 4beaaa95-095a-4ea8-8429-06d877675b97
+
+localResources:
+  collections:
+    - ../docs/api/Huellas al Hogar - Pruebas de la API (EP 2.7)
