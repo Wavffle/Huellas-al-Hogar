@@ -25,6 +25,7 @@ Esta entrega (EP2) integra la aplicación con un backend propio: una API REST en
 - Ricardo Vergara
 - Claudio Vergara
 - Benjamin Brito
+---
 ## Índice
 
 1. [Descripción y alcance](#1-descripción-y-alcance)
@@ -51,7 +52,9 @@ Esta entrega (EP2) integra la aplicación con un backend propio: una API REST en
 Proyecto Full Stack: Ionic + React + Node.js/Express. Este proyecto incluye un frontend en Ionic con React y un backend en Node.js con Express. Ambos se comunican vía API REST.
 
 **Asignatura:** Ingeniería Web y Móvil
+
 **Entrega:** EP2 — Integración frontend, backend y autenticación
+
 **Ramas del repositorio:** `frontend` (interfaz), `backend` (servidor y base de datos) y `EP2-Documentación` (este documento).
 
 > Los estados indicados en este documento corresponden a lo implementado y probado en el proyecto. Las pruebas se ejecutaron con Postman sobre un entorno local; ver las evidencias en el apartado 9.
@@ -89,19 +92,19 @@ Huellas al Hogar es una plataforma web y móvil orientada a fomentar la adopció
 
 ## 2. Equipo, repositorio y trazabilidad
 
-- **Nombre del equipo:** [Huellas al Hogar]
-- **Repositorio público:** [https://github.com/Wavffle/Huellas-al-Hogar]
-- **Rama frontend:** [https://github.com/Wavffle/Huellas-al-Hogar/tree/frontend]
-- **Rama backend:** [https://github.com/Wavffle/Huellas-al-Hogar/tree/backend]
-- **Rama de documentación:** [https://github.com/Wavffle/Huellas-al-Hogar/tree/EP2-Documentaci%C3%B3n]
-- **Figma:** [https://www.figma.com/design/9Jc4zhePHD6VnFI5WZZ94f/Huellas-al-Hogar?node-id=0-1&t=rUfy3ieeejAYiUIo-1]
+- **Nombre del equipo:** Huellas al Hogar
+- **Repositorio público:** [github.com/Wavffle/Huellas-al-Hogar](https://github.com/Wavffle/Huellas-al-Hogar)
+- **Rama frontend:** [`frontend`](https://github.com/Wavffle/Huellas-al-Hogar/tree/frontend)
+- **Rama backend:** [`backend`](https://github.com/Wavffle/Huellas-al-Hogar/tree/backend)
+- **Rama de documentación:** [`EP2-Documentación`](https://github.com/Wavffle/Huellas-al-Hogar/tree/EP2-Documentaci%C3%B3n)
+- **Figma:** [Huellas al Hogar en Figma](https://www.figma.com/design/9Jc4zhePHD6VnFI5WZZ94f/Huellas-al-Hogar?node-id=0-1&t=rUfy3ieeejAYiUIo-1)
 
 | Integrante | Responsabilidad | Evidencia de colaboración |
 |---|---|---|
-| Alonso Troncoso | [Registro, inicio de sesión y renovación de sesión con JWT; hash de contraseñas con bcrypt (costo 12); middleware de verificación de token y de roles; límite de intentos en login y registro.] | [[Commits en `frontend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/frontend?author=AlonsoTroncoso) · [Commits en `backend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/backend?author=AlonsoTroncoso) · [`a861a94`](https://github.com/Wavffle/Huellas-al-Hogar/commit/a861a94), [`55b038d`](https://github.com/Wavffle/Huellas-al-Hogar/commit/55b038d)] |
-| Ricardo Vergara | [Modelo relacional (MER, esquema SQL, datos de prueba y migraciones); API de contenido educativo; colección de Postman de 68 peticiones, API.md y evidencias.] | [[Commits en `frontend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/frontend?author=sorintarin) · [Commits en `backend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/backend?author=sorintarin) · [`a861a94`](https://github.com/Wavffle/Huellas-al-Hogar/commit/a861a94), [`55b038d`](https://github.com/Wavffle/Huellas-al-Hogar/commit/55b038d)] |
-| Claudio Vergara | [Documentación fuera del proyecto y organziación de la estructura y rutas, recopilación de evidencia y pruebas.] | [[Commits en `frontend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/frontend?author=0Yayo0) · [Commits en `backend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/backend?author=0Yayo0) · [`a861a94`](https://github.com/Wavffle/Huellas-al-Hogar/commit/a861a94), [`55b038d`](https://github.com/Wavffle/Huellas-al-Hogar/commit/55b038d)] |
-| Benjamin Brito | [Diseño UI/UX en Figma e implementación del frontend: navegación y rutas protegidas por rol, formularios con validación (solicitud de adopción y publicación en 5 pasos con fotos), catálogo con filtros, paneles de rescatista y administración. Aportes puntuales al backend: subida de fotos y datos del listado de animales.] | [[Commits en `frontend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/frontend?author=Wavffle) · [Commits en `backend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/backend?author=Wavffle) · [`a861a94`](https://github.com/Wavffle/Huellas-al-Hogar/commit/a861a94), [`55b038d`](https://github.com/Wavffle/Huellas-al-Hogar/commit/55b038d)] |
+| Alonso Troncoso | API del backend: autenticación (registro e inicio de sesión), verificación de token y roles con JWT, controladores de animales, solicitudes de adopción y contenido educativo, acceso a la base de datos y manejo de errores. Documentación de la EP1 y de los criterios 2.1 y 2.3 de la EP2. | [Commits en `backend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/backend?author=AlonsoTroncoso) · [Commits en `frontend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/frontend?author=AlonsoTroncoso) · [`dd1a7ec`](https://github.com/Wavffle/Huellas-al-Hogar/commit/dd1a7ec) autenticación · [`903e071`](https://github.com/Wavffle/Huellas-al-Hogar/commit/903e071) animales · [`2575dcb`](https://github.com/Wavffle/Huellas-al-Hogar/commit/2575dcb) solicitudes · [`162a102`](https://github.com/Wavffle/Huellas-al-Hogar/commit/162a102) verificación JWT |
+| Ricardo Vergara | Base de datos: modelo relacional (`schema.sql` y diagramas), su documentación (criterio 2.2) y conexión a PostgreSQL. Rutas y controlador de animales con subida de fotos, e instrucciones de ejecución. En el frontend: estructura inicial del proyecto, servicios para la API y adaptación del catálogo a datos reales. | [Commits en `backend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/backend?author=sorintarin) · [Commits en `frontend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/frontend?author=sorintarin) · [`3a5e7c2`](https://github.com/Wavffle/Huellas-al-Hogar/commit/3a5e7c2) tablas · [`c33e818`](https://github.com/Wavffle/Huellas-al-Hogar/commit/c33e818) animales y fotos · [`ac4c0a6`](https://github.com/Wavffle/Huellas-al-Hogar/commit/ac4c0a6) ejecución del proyecto · [`894d59f`](https://github.com/Wavffle/Huellas-al-Hogar/commit/894d59f) cliente de la API |
+| Claudio Vergara | Documentación del proyecto y de las entregas, organización de la estructura y de las rutas, recopilación de evidencias y pruebas. | [Commits en `backend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/backend?author=0Yayo0) · [Commits en `frontend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/frontend?author=0Yayo0) |
+| Benjamin Brito | Diseño UI/UX en Figma e implementación del frontend: navegación y rutas protegidas por rol, formularios con validación (solicitud de adopción y publicación en 5 pasos con fotos), catálogo con filtros, paneles de rescatista y administración. Aportes puntuales al backend: subida de fotos y datos del listado de animales. | [Commits en `frontend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/frontend?author=Wavffle) · [Commits en `backend`](https://github.com/Wavffle/Huellas-al-Hogar/commits/backend?author=Wavffle) · [`a861a94`](https://github.com/Wavffle/Huellas-al-Hogar/commit/a861a94) publicar animal · [`55b038d`](https://github.com/Wavffle/Huellas-al-Hogar/commit/55b038d) integración con el backend · [`701be04`](https://github.com/Wavffle/Huellas-al-Hogar/commit/701be04) subida de fotos |
 
 ### Relación con EP1
 
@@ -181,6 +184,10 @@ Express :3000 → /api → routes → middleware (verificarToken, permitirRoles)
 - Node.js v18 o superior y npm.
 - PostgreSQL v14 o superior en ejecución.
 - Copia local de las ramas `backend` y `frontend` (cada una en su propia carpeta).
+```bash
+git clone -b backend https://github.com/Wavffle/Huellas-al-Hogar.git backend
+git clone -b frontend https://github.com/Wavffle/Huellas-al-Hogar.git frontend
+```
 
 ### 5.1 Base de datos
 
@@ -244,7 +251,7 @@ La aplicación se abre en `http://localhost:5173` y se conecta a `http://localho
 
 ## 6. Documentación de la API
 
-URL base: `http://localhost:3000/api`. Tipo de contenido: `application/json` (`multipart/form-data` para animales con fotos). La documentación completa de cada endpoint (cuerpo, roles y respuestas) está en [`docs/api/API.md`]([URL rama backend]/docs/api/API.md).
+URL base: `http://localhost:3000/api`. Tipo de contenido: `application/json` (`multipart/form-data` para animales con fotos). La documentación completa de cada endpoint (cuerpo, roles y respuestas) está en [docs/api/API.md](https://github.com/Wavffle/Huellas-al-Hogar/blob/backend/docs/api/API.md).
 
 | Método | Ruta | Acceso |
 |---|---|---|
@@ -341,7 +348,7 @@ Respuesta 201 con la solicitud en estado `PENDIENTE`. Errores: 400, 401, 403 (an
 
 ## 9. Pruebas funcionales y evidencia EP2
 
-La colección de Postman está en [`docs/api/`]([URL rama backend]/docs/api) y contiene 68 peticiones en 7 carpetas. Cada petición verifica el código HTTP, que la respuesta sea JSON y la estructura de éxito o error. Instrucciones y capturas: [`docs/evidencias/`]([URL rama backend]/docs/evidencias).
+La colección de Postman está en [docs/api/](https://github.com/Wavffle/Huellas-al-Hogar/tree/backend/docs/api) y contiene 68 peticiones en 7 carpetas. Cada petición verifica el código HTTP, que la respuesta sea JSON y la estructura de éxito o error. Instrucciones y capturas: [docs/evidencias/](https://github.com/Wavffle/Huellas-al-Hogar/tree/backend/docs/evidencias).
 
 | ID | Petición / escenario | HTTP | Evidencia |
 |---|---|---|---|
@@ -360,11 +367,11 @@ La colección de Postman está en [`docs/api/`]([URL rama backend]/docs/api) y c
 | P13 | Aprobar solicitud; el animal pasa a "en proceso" | 200 | `07-aprobar-solicitud.png` |
 | P14 | Rescatista solicita su propio animal | 403 | Colección, carpeta 3 |
 
-Resultado de la ejecución completa de la colección: [Completar con el total de pruebas aprobadas, por ejemplo "68 peticiones, 0 fallidas"].
+Resultado de la ejecución completa de la colección: 68 peticiones ejecutadas y 228 pruebas automáticas aprobadas, 0 fallidas.
 
-![Resultado del Runner](./evidencias/01-runner-resultado.png)
+![Resultado del Runner](./img/01-runner-resultado.png)
 
-**Video del flujo completo de la plataforma:** [URL de Google Drive]
+**Video del flujo completo de la plataforma:** [Ver video en Google Drive](https://drive.google.com/file/d/1iTrnilpy7mvVo4KkJhElS0W45Rq_eQJG/view?usp=sharing)
 
 ## 10. Modelo relacional
 
@@ -389,7 +396,7 @@ Relaciones: un usuario publica muchos animales; un animal tiene hasta cinco foto
 | Criterio | Evidencia | Estado |
 |---|---|---|
 | EP 2.1 Servidor (10 pts) | Servidor Express modular, comprobación de salud (`/api/health`), instrucciones de instalación | Implementado |
-| EP 2.2 Base relacional (15 pts) | `schema.sql` reproducible, claves foráneas, restricciones, MER y esquema relacional | Implementado; diagramas por actualizar con `telefono` y `ciudad` [revisar] |
+| EP 2.2 Base relacional (15 pts) | `schema.sql` reproducible, claves foráneas, restricciones, MER y esquema relacional | Implementado |
 | EP 2.3 API REST (20 pts) | GET, POST, PATCH y DELETE con JSON estructurado y códigos HTTP | Implementado (se usa PATCH en lugar de PUT) |
 | EP 2.4 JWT y roles (15 pts) | Registro, login, expiración, renovación, rutas protegidas y tres roles | Implementado |
 | EP 2.5 Seguridad (15 pts) | bcrypt, validación, secretos en `.env`, consultas parametrizadas, límite de intentos | Implementado |
