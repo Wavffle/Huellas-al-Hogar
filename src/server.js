@@ -19,8 +19,12 @@ const PORT = process.env.PORT || 3000;
 const directorioSrc = path.dirname(fileURLToPath(import.meta.url));
 const directorioUploads = path.resolve(directorioSrc, "../uploads");
 
-// Middlewares de Seguridad (EF 3)
-app.use(helmet());
+//Permite que el frontend (puerto 5173) cargue imágenes estáticas del backend (puerto 3000)
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 
 const origenesPermitidos = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
