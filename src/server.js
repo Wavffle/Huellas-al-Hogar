@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { pool } from "./config/database.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ErrorHttp } from "./utils/errores.js";
 
 //estos son rutas
 import animalesroute from "./routes/animales.routes.js";
@@ -98,6 +99,13 @@ app.use((error, req, res, next) => {
   // Si ya comenzó la respuesta, Express debe continuar con su manejo interno.
   if (res.headersSent) {
     return next(error);
+  }
+  // Errores esperados (validación, permisos, no encontrado, conflicto): se responden tal cual
+  if (error instanceof ErrorHttp) {
+    return res.status(error.status).json({
+      success: false,
+      error: { message: error.message, ...error.extra },
+    });
   }
 
   console.error("Error inesperado en la API:", error);
