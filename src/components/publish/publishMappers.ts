@@ -64,7 +64,7 @@ export function buildPayload(v: PublishValues, edit = false): Record<string, unk
         nombre: v.nombre.trim(),
         especie: v.especie,
         sexo: capitalize(v.sexo),
-        tamanho: capitalize(v.tamano),
+        tamanho: v.tamano === 'pequeño' ? 'PEQUENO' : v.tamano.toUpperCase(),
         edad: Math.floor(meses / 12),
         edad_meses: meses,
         ciudad: v.ciudad,

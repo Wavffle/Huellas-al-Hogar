@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { renovarSesion, type ApiRole, type ApiUser } from '../services/authService';
-import { SESSION_EXPIRED_EVENT, TOKEN_KEY, USER_KEY, clearStoredSession } from '../services/apiClient';
+import { SESSION_EXPIRED_EVENT, TOKEN_KEY, USER_KEY, FORBIDDEN_EVENT, clearStoredSession } from '../services/apiClient';
 
 export type UserRole = 'adoptante' | 'rescatista' | 'administrador';
 export type User = { id: number; name: string; email: string; role: UserRole };
@@ -130,6 +130,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       window.removeEventListener('storage', onStorage);
     };
   }, []);
+
+  useEffect(() => {
+    let ultimo = 0;
+    const onForbidden = () => {
+      if (Date.now() - ultimo < 10_000) return; // como máximo una renovación cada 10 s
+      ultimo = Date.now();
+      void renew();
+    };
+    window.addEventListener(FORBIDDEN_EVENT, onForbidden);
+    return () => window.removeEventListener(FORBIDDEN_EVENT, onForbidden);
+  }, [renew]);
 
   const value = useMemo(() => ({ user, expired, login, logout, renew }), [user, expired, login, logout, renew]);
 

@@ -6,6 +6,8 @@ export const USER_KEY = 'huellas-user';
 /** Evento que avisa a AuthContext que el servidor rechazó el token. */
 export const SESSION_EXPIRED_EVENT = 'huellas:session-expired';
 
+export const FORBIDDEN_EVENT = 'huellas:forbidden';
+
 export function clearStoredSession() {
     try {
         localStorage.removeItem(TOKEN_KEY);
@@ -70,6 +72,7 @@ apiClient.interceptors.response.use(
             clearStoredSession();
             window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
         }
+        if (error?.response?.status === 403) window.dispatchEvent(new Event(FORBIDDEN_EVENT));
         return Promise.reject(error);
     },
 );

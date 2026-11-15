@@ -5,7 +5,7 @@ export interface Animal {
     edad?: number | null;
     edad_meses?: number | null;
     sexo?: 'MACHO' | 'HEMBRA';
-    tamanho?: 'PEQUEÑO' | 'MEDIANO' | 'GRANDE' | 'PEQUENO';
+    tamanho?: 'PEQUENO' | 'MEDIANO' | 'GRANDE';
     ciudad?: string;
     rescate?: 'RESCATE' | 'ENTREGADO_FAMILIA' | 'REFUGIO' | 'CAMADA';
     descripcion?: string;
