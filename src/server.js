@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import { pool } from "./config/database.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ErrorHttp } from "./utils/errores.js";
 
 import animalesroute from "./routes/animales.routes.js";
 import solicitudesRoutes from "./routes/solicitudes.routes.js";
@@ -19,22 +20,23 @@ const PORT = process.env.PORT || 3000;
 const directorioSrc = path.dirname(fileURLToPath(import.meta.url));
 const directorioUploads = path.resolve(directorioSrc, "../uploads");
 
-//Permite que el frontend (puerto 5173) cargue imágenes estáticas del backend (puerto 3000)
+// Permite que el frontend (puerto 5173) cargue imágenes estáticas del backend (puerto 3000)
 app.use(
-  helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-  })
+    helmet({
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+    })
 );
 
+// CORS_ORIGIN="http://localhost:5173,https://mi-dominio.cl". Si no existe, solo se permite el frontend local.
 const origenesPermitidos = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
-  : ["http://localhost:5173"];
+    ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+    : ["http://localhost:5173"];
 
 app.use(
-  cors({
-    origin: origenesPermitidos,
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
+    cors({
+      origin: origenesPermitidos,
+      allowedHeaders: ["Content-Type", "Authorization"],
+    })
 );
 
 app.use(express.json());
@@ -72,6 +74,10 @@ app.get("/api/health/database", async (req, res) => {
       data: { status: "OK", database: "conectada" },
     });
   } catch (error) {
+    console.error(
+        "No se pudo comprobar la conexión con PostgreSQL:",
+        error.code || error.message
+    );
     return res.status(503).json({
       success: false,
       error: { message: "La base de datos no está disponible" },
@@ -89,17 +95,41 @@ app.use((req, res) => {
 
 // Manejador global de errores
 app.use((error, req, res, next) => {
+  // Si ya comenzó la respuesta, Express debe continuar con su manejo interno.
   if (res.headersSent) return next(error);
+
+  // Errores esperados lanzados por los servicios (validación, permisos, no encontrado, conflicto):
+  // se responden tal cual, con su mensaje y campos extra, y no se registran como fallos.
+  if (error instanceof ErrorHttp) {
+    return res.status(error.status).json({
+      success: false,
+      error: { message: error.message, ...error.extra },
+    });
+  }
+
   console.error("Error inesperado en la API:", error);
 
   let estado = Number(error?.status || error?.statusCode);
   if (!Number.isInteger(estado) || estado < 400 || estado > 599) estado = 500;
 
+  let mensaje =
+      estado >= 500
+          ? "Error interno del servidor"
+          : "No se pudo procesar la solicitud";
+
+  if (error?.type === "entity.parse.failed") {
+    estado = 400;
+    mensaje = "El JSON enviado no tiene un formato válido";
+  }
+
+  if (error?.type === "entity.too.large") {
+    estado = 413;
+    mensaje = "El cuerpo de la solicitud es demasiado grande";
+  }
+
   return res.status(estado).json({
     success: false,
-    error: {
-      message: estado >= 500 ? "Error interno del servidor" : "No se pudo procesar la solicitud",
-    },
+    error: { message: mensaje },
   });
 });
 

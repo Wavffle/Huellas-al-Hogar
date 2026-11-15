@@ -2,7 +2,6 @@ import { pool } from "../config/database.js";
 import { ErrorHttp } from "../utils/errores.js";
 import { conTransaccion } from "../utils/transaccion.js";
 import { esObjetoJson, exigirId, obtenerIdValido } from "../utils/validaciones.js";
-import { enviarCorreoSolicitud } from "./email.service.js"; // <-- EF 5: Notificación por correo vía API externa
 
 //---------------------------------------------------------------------------------------------------//
 // CONSTANTES
@@ -42,6 +41,7 @@ const SELECT_SOLICITUD = `
 // VALIDACIÓN (privada del servicio)
 //---------------------------------------------------------------------------------------------------//
 
+/** Valida el cuerpo de POST /solicitudes y devuelve los datos limpios. Lanza ErrorHttp 400 si algo falla. */
 function validarDatosSolicitud(body) {
   if (!esObjetoJson(body)) throw new ErrorHttp(400, "El cuerpo debe ser un objeto JSON");
 
@@ -114,6 +114,13 @@ function validarDatosSolicitud(body) {
 // CASOS DE USO
 //---------------------------------------------------------------------------------------------------//
 
+/**
+ * Lista solicitudes según el rol:
+ *  - ADOPTANTE (o ?mias=true): las que envió.
+ *  - RESCATISTA: las recibidas en sus animales.
+ *  - ADMIN: todas.
+ * Filtros opcionales: animal_id, usuario_id, estado.
+ */
 export async function listarSolicitudes(usuario, query = {}) {
   const { animal_id, usuario_id, estado, mias } = query;
   const condiciones = [];
@@ -161,6 +168,7 @@ export async function listarSolicitudes(usuario, query = {}) {
   return rows;
 }
 
+/** La ve su autor, el dueño del animal y el admin. */
 export async function obtenerSolicitud(idParametro, usuario) {
   const id = exigirId(idParametro, MSG_ID);
 
@@ -175,14 +183,15 @@ export async function obtenerSolicitud(idParametro, usuario) {
   return rows[0];
 }
 
-/** Crea una solicitud de adopción en estado PENDIENTE y notifica al rescatista vía email. */
+/** Crea una solicitud de adopción en estado PENDIENTE. */
 export async function crearSolicitud(usuario, body) {
   const datos = validarDatosSolicitud(body);
 
   try {
-    const resultado = await conTransaccion(async (client) => {
+    return await conTransaccion(async (client) => {
+      // Bloquea el animal para que dos peticiones simultáneas no se pisen
       const animalResultado = await client.query(
-        "SELECT id, estado, usuario_id, nombre FROM animales WHERE id = $1 FOR UPDATE",
+        "SELECT id, estado, usuario_id FROM animales WHERE id = $1 FOR UPDATE",
         [datos.animal_id]
       );
       const animal = animalResultado.rows[0];
@@ -197,15 +206,14 @@ export async function crearSolicitud(usuario, body) {
         throw new ErrorHttp(409, "El animal no está disponible para postular");
       }
 
-      const solicitudPendiente = await client.query(
-        `SELECT id
-         FROM solicitudes_adopcion
-         WHERE animal_id = $1 AND usuario_id = $2 AND estado = $3
-         LIMIT 1`,
-        [datos.animal_id, usuario.id, "PENDIENTE"]
+      // Una persona solo puede postular una vez a cada animal, sea cual sea el estado
+      // de su solicitud anterior (la base lo garantiza con UNIQUE (usuario_id, animal_id))
+      const solicitudPrevia = await client.query(
+        "SELECT id FROM solicitudes_adopcion WHERE animal_id = $1 AND usuario_id = $2 LIMIT 1",
+        [datos.animal_id, usuario.id]
       );
-      if (solicitudPendiente.rows.length > 0) {
-        throw new ErrorHttp(409, "Ya existe una solicitud pendiente para este animal");
+      if (solicitudPrevia.rows.length > 0) {
+        throw new ErrorHttp(409, "Ya enviaste una solicitud para este animal");
       }
 
       const { rows } = await client.query(
@@ -221,36 +229,20 @@ export async function crearSolicitud(usuario, body) {
           datos.telefono, datos.ciudad,
         ]
       );
-      return { solicitud: rows[0], animalNombre: animal.nombre, rescatistaId: animal.usuario_id };
+      return rows[0];
     });
-
-    // ------------------------------------------------------------------
-    // INTEGRACIÓN CON API EXTERNA (EF 5): Envío de correo con Resend
-    // ------------------------------------------------------------------
-    try {
-      const { rows: rescatistaRows } = await pool.query(
-        "SELECT correo FROM usuarios WHERE id = $1",
-        [resultado.rescatistaId]
-      );
-      if (rescatistaRows.length > 0) {
-        enviarCorreoSolicitud({
-          emailDestino: rescatistaRows[0].correo,
-          nombreAnimal: resultado.animalNombre,
-          nombrePostulante: usuario.nombre || "Un adoptante",
-        });
-      }
-    } catch (errEmail) {
-      console.error("No se pudo enviar el correo de notificación:", errEmail);
-    }
-    // ------------------------------------------------------------------
-
-    return resultado.solicitud;
   } catch (error) {
     if (error.code === "23503") throw new ErrorHttp(400, "El usuario indicado no existe");
+    // Respaldo: si dos peticiones llegaran a la vez, la restricción UNIQUE de la base lo detiene
+    if (error.code === "23505") throw new ErrorHttp(409, "Ya enviaste una solicitud para este animal");
     throw error;
   }
 }
 
+/**
+ * Aprueba o rechaza una solicitud pendiente.
+ * Al aprobar: el animal pasa a EN_TRATAMIENTO y las demás solicitudes pendientes se rechazan.
+ */
 export async function cambiarEstadoSolicitud(idParametro, usuario, body) {
   const id = exigirId(idParametro, MSG_ID);
 
@@ -263,6 +255,7 @@ export async function cambiarEstadoSolicitud(idParametro, usuario, body) {
   const nuevoEstado = body.estado;
 
   return conTransaccion(async (client) => {
+    // Se obtiene el animal primero para bloquearlo antes de tocar cualquier solicitud suya
     const solicitudInicial = await client.query(
       "SELECT animal_id FROM solicitudes_adopcion WHERE id = $1",
       [id]
@@ -286,6 +279,7 @@ export async function cambiarEstadoSolicitud(idParametro, usuario, body) {
     const animal = animalResultado.rows[0];
     const solicitud = solicitudResultado.rows[0];
 
+    // Un rescatista solo gestiona solicitudes de sus animales (para él, las demás "no existen")
     if (usuario.rol === "RESCATISTA" && Number(animal.usuario_id) !== usuario.id) {
       throw new ErrorHttp(404, "Solicitud no encontrada");
     }
@@ -319,6 +313,7 @@ export async function cambiarEstadoSolicitud(idParametro, usuario, body) {
   });
 }
 
+/** Solo ADMIN (lo controla la ruta). */
 export async function eliminarSolicitud(idParametro) {
   const id = exigirId(idParametro, MSG_ID);
 

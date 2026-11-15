@@ -13,10 +13,10 @@ export const crearAnimal = async (req, res, next) => {
   }
 };
 
-// GET /api/animales
+// GET /api/animales  (filtros opcionales: ?especie=, ?ciudad=, ?tamanho=)
 export const getAnimales = async (req, res, next) => {
   try {
-    const animales = await animalesService.listarAnimales();
+    const animales = await animalesService.listarAnimales(req.query);
     return res.status(200).json({ success: true, message: "Lista de animales obtenida", data: animales });
   } catch (error) {
     return next(error);

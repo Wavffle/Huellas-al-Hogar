@@ -15,7 +15,7 @@ const MSG_ID = "El id debe ser un número entero";
 
 const valoresPermitidosPorCampo = {
   sexo: ["MACHO", "HEMBRA"],
-  tamanho: ["PEQUEÑO", "PEQUENO", "MEDIANO", "GRANDE"],
+  tamanho: ["PEQUENO", "MEDIANO", "GRANDE"], // un solo valor por tamaño (igual que el CHECK de la base)
   rescate: ["RESCATE", "ENTREGADO_FAMILIA", "REFUGIO", "CAMADA"],
   vacunas_estado: ["AL_DIA", "FALTAN", "NO_TIENE"],
   esterilizado: ["SI", "NO", "NO_SABE"],
@@ -48,6 +48,44 @@ function esFechaIsoValida(valor) {
   if (typeof valor !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(valor)) return false;
   const fecha = new Date(`${valor}T00:00:00.000Z`);
   return !Number.isNaN(fecha.getTime()) && fecha.toISOString().slice(0, 10) === valor;
+}
+
+/** "PEQUEÑO", "pequeño" o "pequeno" se guardan y se buscan siempre como "PEQUENO". */
+function normalizarTamanho(valor) {
+  return valor.toUpperCase().normalize("NFC").replace(/Ñ/g, "N");
+}
+
+/**
+ * Filtros opcionales de GET /animales: ?especie=, ?ciudad=, ?tamanho= (se combinan con AND).
+ * Un filtro vacío se ignora. Devuelve solo los filtros recibidos, ya limpios, o lanza un ErrorHttp 400.
+ */
+function leerFiltrosCatalogo(query = {}) {
+  const filtros = {};
+  const noTexto = [];
+
+  for (const campo of ["especie", "ciudad", "tamanho"]) {
+    const valor = query[campo];
+    if (valor === undefined) continue;
+    if (typeof valor !== "string") {
+      noTexto.push(campo); // por ejemplo ?especie=Perro&especie=Gato
+      continue;
+    }
+    const limpio = valor.trim();
+    if (limpio !== "") filtros[campo] = limpio;
+  }
+
+  if (noTexto.length > 0) {
+    throw new ErrorHttp(400, "Cada filtro debe enviarse una sola vez y como texto", { fields: noTexto });
+  }
+
+  if (filtros.tamanho !== undefined) {
+    filtros.tamanho = normalizarTamanho(filtros.tamanho);
+    if (!valoresPermitidosPorCampo.tamanho.includes(filtros.tamanho)) {
+      throw new ErrorHttp(400, "El tamaño no es válido", { allowedValues: valoresPermitidosPorCampo.tamanho });
+    }
+  }
+
+  return filtros;
 }
 
 /** El dueño del animal o un admin pueden gestionarlo. */
@@ -125,6 +163,8 @@ function validarDatosAnimal(body, { alCrear = false } = {}) {
     let valor = body[campo].trim();
     if (valoresPermitidosPorCampo[campo]) {
       valor = valor.toUpperCase();
+      // "PEQUEÑO" se acepta como entrada, pero siempre se guarda como "PEQUENO"
+      if (campo === "tamanho") valor = normalizarTamanho(valor);
       if (!valoresPermitidosPorCampo[campo].includes(valor)) {
         camposInvalidos.push(campo);
         continue;
@@ -321,18 +361,39 @@ export async function crearAnimal(usuario, cuerpo, archivos = []) {
   }
 }
 
-/** Catálogo público (en adopción y en tratamiento; los adoptados no se muestran). */
-export async function listarAnimales() {
-  const { rows } = await pool.query(`
-    SELECT
-      a.id, a.nombre, a.especie, a.edad, a.edad_meses, a.sexo, a.tamanho,
-      a.ciudad, a.estado, a.descripcion, a.etiquetas, a.usuario_id, a.creado_en,
-      f.imagen_url AS imagen_portada
-    FROM animales a
-           LEFT JOIN foto_animales f ON a.id = f.animal_id AND f.orden = 1
-    WHERE a.estado IN ('EN_ADOPCION', 'EN_TRATAMIENTO')
-    ORDER BY a.id DESC;
-  `);
+/**
+ * Catálogo público (en adopción y en tratamiento; los adoptados no se muestran).
+ * Filtros opcionales: especie y ciudad (sin distinguir mayúsculas) y tamanho.
+ */
+export async function listarAnimales(query = {}) {
+  const filtros = leerFiltrosCatalogo(query);
+  const condiciones = ["a.estado IN ('EN_ADOPCION', 'EN_TRATAMIENTO')"];
+  const valores = [];
+
+  if (filtros.especie) {
+    valores.push(filtros.especie);
+    condiciones.push(`LOWER(a.especie) = LOWER($${valores.length})`);
+  }
+  if (filtros.ciudad) {
+    valores.push(filtros.ciudad);
+    condiciones.push(`LOWER(a.ciudad) = LOWER($${valores.length})`);
+  }
+  if (filtros.tamanho) {
+    valores.push(filtros.tamanho);
+    condiciones.push(`a.tamanho = $${valores.length}`);
+  }
+
+  const { rows } = await pool.query(
+    `SELECT
+       a.id, a.nombre, a.especie, a.edad, a.edad_meses, a.sexo, a.tamanho,
+       a.ciudad, a.estado, a.descripcion, a.etiquetas, a.usuario_id, a.creado_en,
+       f.imagen_url AS imagen_portada
+     FROM animales a
+            LEFT JOIN foto_animales f ON a.id = f.animal_id AND f.orden = 1
+     WHERE ${condiciones.join(" AND ")}
+     ORDER BY a.id DESC`,
+    valores
+  );
   return rows;
 }
 
