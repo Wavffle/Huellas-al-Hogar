@@ -32,6 +32,15 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
+-- Secciones de las páginas educativas cuyo contenido viene de la base de datos
+DO $$ BEGIN
+    CREATE TYPE seccion_contenido AS ENUM (
+        'CUIDADOS', 'PREGUNTAS', 'NECESIDADES',
+        'ESTADISTICAS', 'FUENTE', 'CONSECUENCIAS', 'ACCIONES'
+    );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
 -- ---------------------------------------------------------------------
 -- 2. Tablas
 -- ---------------------------------------------------------------------
@@ -119,6 +128,24 @@ CREATE TABLE IF NOT EXISTS contenidos_educativos (
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     usuario_id INT NOT NULL,
     CONSTRAINT fk_usuario_contenido FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- Tabla BloqueContenido: textos de las páginas "Educación" y "Consecuencias del abandono"
+-- (tarjetas, preguntas, estadísticas...). Es contenido de solo lectura para el sitio; se carga
+-- con database/seed-contenido.sql. Las imágenes viven en el frontend: `imagen` guarda solo
+-- su clave (por ejemplo 'cuidado-salud') y el frontend la traduce al archivo.
+CREATE TABLE IF NOT EXISTS bloques_contenido (
+    id SERIAL PRIMARY KEY,
+    seccion seccion_contenido NOT NULL,
+    orden INT NOT NULL CHECK (orden >= 1),
+    titulo VARCHAR(150),
+    texto TEXT NOT NULL,
+    destacado VARCHAR(150),
+    imagen VARCHAR(60),
+    alt VARCHAR(200),
+    CONSTRAINT uq_bloque_seccion_orden UNIQUE (seccion, orden),
+    -- destacado es el fragmento del texto que se muestra en negrita
+    CONSTRAINT ck_bloque_destacado CHECK (destacado IS NULL OR position(destacado IN texto) > 0)
 );
 
 -- ---------------------------------------------------------------------

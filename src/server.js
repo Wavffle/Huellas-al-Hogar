@@ -7,6 +7,7 @@ import { pool } from "./config/database.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ErrorHttp } from "./utils/errores.js";
+import bloquesRoutes from "./routes/bloques.routes.js";
 
 import animalesroute from "./routes/animales.routes.js";
 import solicitudesRoutes from "./routes/solicitudes.routes.js";
@@ -48,6 +49,7 @@ app.use("/api/solicitudes", solicitudesRoutes);
 app.use("/api/contenidos-educativos", contenidosEducativosRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/usuarios", usuariosRoutes);
+app.use("/api/bloques-contenido", bloquesRoutes);
 
 // Ruta principal
 app.get("/", (req, res) => {
