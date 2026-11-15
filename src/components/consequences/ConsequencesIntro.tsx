@@ -1,8 +1,20 @@
-import { stats, statsSource } from '../../data/consequences';
+import ContentState from '../common/ContentState';
+import { imagenContenido } from '../../utils/contenido';
+import { useBloques } from '../../utils/useBloques';
 import puppyImage from '../../assets/images/consequences/cachorro-abandono.webp';
 import './ConsequencesIntro.css';
 
 export default function ConsequencesIntro() {
+    const estadisticas = useBloques('ESTADISTICAS');
+    const fuente = useBloques('FUENTE');
+
+    const loading = estadisticas.loading || fuente.loading;
+    const error = estadisticas.error || fuente.error;
+    const reload = () => {
+        estadisticas.reload();
+        fuente.reload();
+    };
+
     return (
         <section className="aban-intro" aria-labelledby="aban-intro-title">
             <div className="aban-intro__grid">
@@ -22,19 +34,21 @@ export default function ConsequencesIntro() {
                 </div>
             </div>
 
-            <ul className="aban-intro__stats">
-                {stats.map((stat) => (
-                    <li key={stat.value} className="aban-stat">
-                        <img src={stat.icon} alt="" className="aban-stat__icon" />
-                        <div className="aban-stat__copy">
-                            <p className="aban-stat__value">{stat.value}</p>
-                            <p className="aban-stat__text selectable">{stat.text}</p>
-                        </div>
-                    </li>
-                ))}
-            </ul>
+            <ContentState loading={loading} error={error} onRetry={reload} label="Cargando datos…">
+                <ul className="aban-intro__stats">
+                    {estadisticas.items.map((stat) => (
+                        <li key={stat.id} className="aban-stat">
+                            <img src={imagenContenido(stat.imagen)} alt="" className="aban-stat__icon" />
+                            <div className="aban-stat__copy">
+                                <p className="aban-stat__value">{stat.titulo}</p>
+                                <p className="aban-stat__text selectable">{stat.texto}</p>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
 
-            <p className="aban-intro__source selectable">{statsSource}</p>
+                {fuente.items[0] && <p className="aban-intro__source selectable">{fuente.items[0].texto}</p>}
+            </ContentState>
         </section>
     );
 }

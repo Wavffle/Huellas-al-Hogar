@@ -1,4 +1,6 @@
-import { actions } from '../../data/consequences';
+import ContentState from '../common/ContentState';
+import { imagenContenido } from '../../utils/contenido';
+import { useBloques } from '../../utils/useBloques';
 import './ActionsSection.css';
 
 /* Manchas moradas de fondo de cada ilustración (2 por ilustración).
@@ -23,31 +25,35 @@ const BLOBS: string[][] = [
 ];
 
 export default function ActionsSection() {
+    const { items: actions, loading, error, reload } = useBloques('ACCIONES');
+
     return (
         <section className="aban-act" aria-label="¿Qué podemos hacer?">
-            <ul className="aban-act__grid">
-                {actions.map((action, index) => (
-                    <li key={action.title} className="aban-act-item">
-                        <div className="aban-act-item__tile">
-                            <div className="aban-act-item__art">
-                                <svg
-                                    className="aban-act-item__blobs"
-                                    viewBox="0 0 100 100"
-                                    preserveAspectRatio="none"
-                                    aria-hidden="true"
-                                >
-                                    {(BLOBS[index] ?? []).map((d) => (
-                                        <path key={d} d={d} className="aban-act-item__blob" />
-                                    ))}
-                                </svg>
-                                <img src={action.image} alt={action.alt} loading="lazy" />
+            <ContentState loading={loading} error={error} onRetry={reload} label="Cargando acciones…">
+                <ul className="aban-act__grid">
+                    {actions.map((action, index) => (
+                        <li key={action.id} className="aban-act-item">
+                            <div className="aban-act-item__tile">
+                                <div className="aban-act-item__art">
+                                    <svg
+                                        className="aban-act-item__blobs"
+                                        viewBox="0 0 100 100"
+                                        preserveAspectRatio="none"
+                                        aria-hidden="true"
+                                    >
+                                        {(BLOBS[index] ?? []).map((d) => (
+                                            <path key={d} d={d} className="aban-act-item__blob" />
+                                        ))}
+                                    </svg>
+                                    <img src={imagenContenido(action.imagen)} alt={action.alt ?? ''} loading="lazy" />
+                                </div>
                             </div>
-                        </div>
-                        <h3 className="aban-act-item__title">{action.title}</h3>
-                        <p className="aban-act-item__text selectable">{action.text}</p>
-                    </li>
-                ))}
-            </ul>
+                            <h3 className="aban-act-item__title">{action.titulo}</h3>
+                            <p className="aban-act-item__text selectable">{action.texto}</p>
+                        </li>
+                    ))}
+                </ul>
+            </ContentState>
         </section>
     );
 }

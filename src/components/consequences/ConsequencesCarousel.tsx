@@ -1,15 +1,20 @@
 import { useRef, useState } from 'react';
 import { IonIcon } from '@ionic/react';
 import { arrowBackCircleOutline, arrowForwardCircleOutline } from 'ionicons/icons';
-import { consequences } from '../../data/consequences';
+import ContentState from '../common/ContentState';
+import { imagenContenido } from '../../utils/contenido';
+import { useBloques } from '../../utils/useBloques';
 import './ConsequencesCarousel.css';
 
 export default function ConsequencesCarousel() {
+    const { items: consequences, loading, error, reload } = useBloques('CONSECUENCIAS');
     const [active, setActive] = useState(0);
     const touchStartX = useRef<number | null>(null);
 
-    const go = (index: number) =>
+    const go = (index: number) => {
+        if (consequences.length === 0) return;
         setActive((index + consequences.length) % consequences.length);
+    };
 
     // Deslizar con el dedo (solo se usa en móvil, donde se ve de a una)
     const onTouchStart = (e: React.TouchEvent) => {
@@ -28,54 +33,61 @@ export default function ConsequencesCarousel() {
                 Principales consecuencias.
             </h2>
 
-            <div className="aban-cons__viewport" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-                <ul className="aban-cons__list">
-                    {consequences.map((item, index) => (
-                        <li
-                            key={item.tag}
-                            className={`aban-cons-item${index === active ? ' is-active' : ''}`}
-                        >
-                            <img src={item.image} alt={item.alt} className="aban-cons-item__image" loading="lazy" />
-                            <span className="aban-cons-item__tag">{item.tag}</span>
-                            <p className="aban-cons-item__text selectable">{item.text}</p>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-
-            {/* Controles: solo en móvil */}
-            <div className="aban-cons__nav">
-                <button
-                    type="button"
-                    className="aban-cons__arrow"
-                    aria-label="Consecuencia anterior"
-                    onClick={() => go(active - 1)}
-                >
-                    <IonIcon icon={arrowBackCircleOutline} aria-hidden="true" />
-                </button>
-
-                <div className="aban-cons__dots">
-                    {consequences.map((item, index) => (
-                        <button
-                            key={item.tag}
-                            type="button"
-                            className={`aban-cons__dot${index === active ? ' is-active' : ''}`}
-                            aria-label={`Ir a: ${item.tag}`}
-                            aria-current={index === active || undefined}
-                            onClick={() => go(index)}
-                        />
-                    ))}
+            <ContentState loading={loading} error={error} onRetry={reload} label="Cargando consecuencias…">
+                <div className="aban-cons__viewport" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+                    <ul className="aban-cons__list">
+                        {consequences.map((item, index) => (
+                            <li
+                                key={item.id}
+                                className={`aban-cons-item${index === active ? ' is-active' : ''}`}
+                            >
+                                <img
+                                    src={imagenContenido(item.imagen)}
+                                    alt={item.alt ?? ''}
+                                    className="aban-cons-item__image"
+                                    loading="lazy"
+                                />
+                                <span className="aban-cons-item__tag">{item.titulo}</span>
+                                <p className="aban-cons-item__text selectable">{item.texto}</p>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
 
-                <button
-                    type="button"
-                    className="aban-cons__arrow"
-                    aria-label="Consecuencia siguiente"
-                    onClick={() => go(active + 1)}
-                >
-                    <IonIcon icon={arrowForwardCircleOutline} aria-hidden="true" />
-                </button>
-            </div>
+                {/* Controles: solo en móvil */}
+                <div className="aban-cons__nav">
+                    <button
+                        type="button"
+                        className="aban-cons__arrow"
+                        aria-label="Consecuencia anterior"
+                        onClick={() => go(active - 1)}
+                    >
+                        <IonIcon icon={arrowBackCircleOutline} aria-hidden="true" />
+                    </button>
+
+                    <div className="aban-cons__dots">
+                        {consequences.map((item, index) => (
+                            <button
+                                key={item.id}
+                                type="button"
+                                className={`aban-cons__dot${index === active ? ' is-active' : ''}`}
+                                aria-label={`Ir a: ${item.titulo}`}
+                                aria-current={index === active || undefined}
+                                onClick={() => go(index)}
+                            />
+                        ))}
+                    </div>
+
+                    <button
+                        type="button"
+                        className="aban-cons__arrow"
+                        aria-label="Consecuencia siguiente"
+                        onClick={() => go(active + 1)}
+                    >
+                        <IonIcon icon={arrowForwardCircleOutline} aria-hidden="true" />
+                    </button>
+                </div>
+            </ContentState>
         </section>
     );
 }

@@ -23,8 +23,11 @@ frontend/
 │   ├── contexts/      # Estado compartido (sesión)
 │   ├── routes/        # Definición de rutas públicas y protegidas
 │   ├── services/      # Llamadas a la API (axios)
+│   ├── data/          # Textos de la interfaz y opciones de formularios
+│   ├── utils/         # Hooks y utilidades (carga de contenido desde la API, movimiento)
 │   └── theme/         # Variables y estilos globales
 ├── public/
+├── .env.example       # Variable opcional VITE_API_URL
 └── README.md
 ```
 
@@ -74,10 +77,17 @@ frontend/
 | `/adopciones` | Adopciones | Pública | Catálogo de animales |
 | `/adopciones/:animalId` | Perfil del animal | Pública | Detalle del animal seleccionado |
 | `/adopciones/:animalId/solicitar` | Solicitud de adopción | Privada (usuario autenticado) | Formulario de solicitud |
-| `/educacion` | Educación | Pública | Contenido educativo |
+| `/educacion` | Educación | Pública | Contenido educativo (se carga desde la API) |
+| `/educacion/consecuencias-abandono` | Consecuencias del abandono | Pública | Consecuencias del abandono y acciones para ayudar (se carga desde la API) |
 | `/login`, `/registro` | Login y registro | Pública | Inicio de sesión y creación de cuenta |
 | `/perfil` | Perfil | Protegida | Perfil del usuario autenticado |
+| `/mis-solicitudes` | Mis solicitudes | Protegida | Historial de solicitudes de adopción del usuario autenticado |
 | `/publicar` | Publicar animal | Rescatista / Administrador | Formulario de publicación. El resto de usuarios ve los requisitos para ser rescatista |
+| `/publicar/:id/editar` | Editar publicación | Rescatista / Administrador | Edición de una publicación existente |
+| `/panel` | Panel del rescatista | Rescatista / Administrador | Publicaciones propias y solicitudes recibidas |
+| `/admin` | Administración | Administrador | Gestión de usuarios y roles, publicaciones y artículos educativos |
+| `/` | Redirección | Pública | Redirige a `/inicio` |
+| Cualquier otra ruta | No encontrada | Pública | Página 404 |
 
 ### Jerarquía de vistas
 
@@ -87,18 +97,25 @@ frontend/
 │   └── /adopciones/:animalId
 │       └── /adopciones/:animalId/solicitar
 ├── /educacion
+│   └── /educacion/consecuencias-abandono
 ├── /login
 ├── /perfil
-└── /publicar
+├── /mis-solicitudes
+├── /publicar
+│   └── /publicar/:id/editar
+├── /panel
+└── /admin
 ```
 
 ### Diferenciación de acceso por rol
 
 | **Segmento** | **Acceso** | **Comportamiento** |
 | --- | --- | --- |
-| `/inicio`, `/adopciones`, `/adopciones/:animalId`, `/educacion`, `/login` | Público | Puede acceder un usuario sin autenticación. |
-| `/adopciones/:animalId/solicitar`, `/perfil` | Usuario autenticado | Sin sesión, redirige a `/login` y, al iniciar sesión, devuelve a la ruta de origen. |
+| `/inicio`, `/adopciones`, `/adopciones/:animalId`, `/educacion`, `/educacion/consecuencias-abandono`, `/login` | Público | Puede acceder un usuario sin autenticación. |
+| `/adopciones/:animalId/solicitar`, `/perfil`, `/mis-solicitudes` | Usuario autenticado | Sin sesión, redirige a `/login` y, al iniciar sesión, devuelve a la ruta de origen. |
 | `/publicar` | Rescatista / Administrador | Estos roles ven el formulario; el resto ve los requisitos para ser rescatista. |
+| `/publicar/:id/editar`, `/panel` | Rescatista / Administrador | Sin sesión, redirige a `/login`; con otro rol, redirige a `/inicio`. |
+| `/admin` | Administrador | Sin sesión, redirige a `/login`; con otro rol, redirige a `/inicio`. |
 
 ### Flujo de tareas principales (task flows)
 
@@ -128,9 +145,13 @@ frontend/
 
 ## Ejecución local
 
-Requiere Node.js 20 o superior y, para ver animales reales, el backend corriendo en `http://localhost:3000`.
+Requiere Node.js 20 o superior y el backend corriendo en `http://localhost:3000`: los animales y el contenido de las páginas de educación y consecuencias del abandono se cargan desde su API (la base de datos se prepara según el README de la rama `backend`).
 
 ```bash
 npm install
 npm run dev
 ```
+
+Si el backend está en otra dirección, copia `.env.example` como `.env` y define `VITE_API_URL` con esa dirección, sin `/api` al final. Si no se define, la app usa `http://localhost:3000`.
+
+Las pruebas automáticas del cliente de la API (`apiClient`) y de la sesión (`AuthContext`) se ejecutan con `npm test`.

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { careCards } from '../../data/education';
+import ContentState from '../common/ContentState';
+import { imagenContenido } from '../../utils/contenido';
+import { useBloques } from '../../utils/useBloques';
 import './CareSection.css';
 
 type Phase = 'hidden' | 'cards' | 'quote';
@@ -30,6 +32,7 @@ function MarqueePhrase({ hidden }: { hidden: boolean }) {
 }
 
 export default function CareSection() {
+    const { items: careCards, loading, error, reload } = useBloques('CUIDADOS');
     const sectionRef = useRef<HTMLElement>(null);
     const headingRef = useRef<HTMLHeadingElement>(null);
     const [animated, setAnimated] = useState(() => window.matchMedia(DESKTOP_MOUSE).matches);
@@ -218,17 +221,21 @@ export default function CareSection() {
                 </span>
             </h2>
 
+            {(loading || error) && (
+                <ContentState loading={loading} error={error} onRetry={reload} label="Cargando cuidados…" />
+            )}
+
             <ul className="care__grid">
                 {careCards.map((card, index) => (
                     <li
-                        key={card.title}
-                        className={`care-card care-card--${card.tone}`}
+                        key={card.id}
+                        className={`care-card care-card--${index % 2 === 0 ? 'dark' : 'purple'}`}
                         style={{ '--i': index } as CSSProperties}
                     >
-                        <img src={card.image} alt={card.alt} className="care-card__image" loading="lazy" />
+                        <img src={imagenContenido(card.imagen)} alt={card.alt ?? ''} className="care-card__image" loading="lazy" />
                         <div className="care-card__body">
-                            <h3 className="care-card__title">{card.title}</h3>
-                            <p className="care-card__text selectable">{card.text}</p>
+                            <h3 className="care-card__title">{card.titulo}</h3>
+                            <p className="care-card__text selectable">{card.texto}</p>
                         </div>
                     </li>
                 ))}
