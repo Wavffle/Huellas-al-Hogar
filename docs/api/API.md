@@ -15,7 +15,7 @@ Error:
 ```json
 { "success": false, "error": { "message": "Descripción del error", "fields": ["campo1"] } }
 ```
-`fields` aparece solo cuando hay campos inválidos.
+`fields` aparece solo cuando hay campos inválidos y `allowedValues` cuando el valor debe ser uno de una lista (por ejemplo, un filtro o un estado no válido).
 
 ## Códigos HTTP
 
@@ -24,7 +24,7 @@ Error:
 | 200 | Consulta o modificación correcta |
 | 201 | Recurso creado |
 | 400 | Datos inválidos |
-| 401 | Falta un token válido o la sesión expiró |
+| 401 | Falta un token válido, la sesión expiró o la cuenta ya no existe |
 | 403 | El rol o la autoría no permiten la operación |
 | 404 | Recurso no encontrado |
 | 409 | Conflicto con el estado actual de los datos |
@@ -43,6 +43,7 @@ Error:
 - La contraseña debe tener al menos 8 caracteres y un máximo de 72 bytes. Se guarda con bcrypt (costo 12).
 - El rol de una cuenta nueva siempre es `ADOPTANTE`.
 - `recordar: true` entrega un token de 30 días; sin él dura lo definido en `JWT_EXPIRES_IN` (8h por defecto).
+- El rol que se usa para autorizar es el vigente en la base de datos, no el guardado en el token: un cambio de rol se aplica de inmediato aunque el usuario conserve un token anterior.
 
 Ejemplo de respuesta de login:
 ```json
@@ -60,12 +61,14 @@ Ejemplo de respuesta de login:
 
 | Método | Ruta | Acceso | Respuestas |
 |---|---|---|---|
-| GET | `/animales` | Público | 200 lista de animales en adopción y en proceso (los adoptados no aparecen) |
+| GET | `/animales` | Público | 200 lista de animales en adopción y en proceso (los adoptados no aparecen). Filtros opcionales: `especie`, `ciudad` y `tamanho` · 400 filtro inválido |
 | GET | `/animales/mios` | RESCATISTA, ADMIN | 200 publicaciones propias con `solicitudes_pendientes` (ADMIN puede usar `?todos=true`) · 401 · 403 |
 | GET | `/animales/:id` | Público (token opcional) | 200 con `fotos` · 400 · 404 (un animal adoptado solo lo ve su dueño o un ADMIN) |
 | POST | `/animales` | RESCATISTA, ADMIN | 201 · 400 · 401 · 403 · 413 |
 | PATCH | `/animales/:id` | Dueño RESCATISTA, ADMIN | 200 · 400 · 401 · 403 · 404 · 413 |
 | DELETE | `/animales/:id` | Dueño RESCATISTA, ADMIN | 200 (borra también las fotos del disco) · 401 · 403 · 404 |
+
+**GET** acepta los filtros `?especie=` y `?ciudad=` (no distinguen mayúsculas) y `?tamanho=` (`PEQUENO`, `MEDIANO` o `GRANDE`). Se pueden combinar y un filtro vacío se ignora; un `tamanho` inválido responde 400 con `allowedValues`.
 
 **POST** usa `multipart/form-data`:
 
@@ -74,7 +77,7 @@ Ejemplo de respuesta de login:
 | `nombre` | Sí | texto, máx. 100 |
 | `especie` | Sí | texto, máx. 50 |
 | `sexo` | No | `MACHO`, `HEMBRA` |
-| `tamanho` | No | `PEQUEÑO`, `MEDIANO`, `GRANDE` |
+| `tamanho` | No | `PEQUENO`, `MEDIANO`, `GRANDE` (`PEQUEÑO` también se acepta y se guarda como `PEQUENO`) |
 | `edad`, `edad_meses` | No | enteros ≥ 0 |
 | `ciudad`, `descripcion`, `personalidad`, `cuidado_especial`, `razon_adopcion`, `vacunas_detalles` | No | texto |
 | `rescate` | No | `RESCATE`, `ENTREGADO_FAMILIA`, `REFUGIO`, `CAMADA` |
@@ -82,7 +85,7 @@ Ejemplo de respuesta de login:
 | `esterilizado` | No | `SI`, `NO`, `NO_SABE` |
 | `fecha_esterilizacion` | No | `AAAA-MM-DD` |
 | `ideal_para`, `convive_con`, `etiquetas` | No | lista separada por comas |
-| `fotos` | Sí | de 1 a 5 archivos JPG, PNG o WebP |
+| `fotos` | Sí | de 1 a 5 archivos JPG, PNG o WebP; se verifica su contenido real y, si alguno no es una imagen válida, se responde 400 |
 
 El estado inicial siempre es `EN_ADOPCION`; lo decide el servidor. El dueño se toma del token.
 
@@ -94,7 +97,7 @@ El estado inicial siempre es `EN_ADOPCION`; lo decide el servidor. El dueño se 
 |---|---|---|---|
 | GET | `/solicitudes` | Token | 200. ADOPTANTE: las propias · RESCATISTA: las recibidas · ADMIN: todas. `?mias=true` devuelve las enviadas por el usuario. Filtros: `animal_id`, `usuario_id`, `estado` |
 | GET | `/solicitudes/:id` | Autor, dueño del animal o ADMIN | 200 · 400 · 401 · 404 |
-| POST | `/solicitudes` | ADOPTANTE, RESCATISTA | 201 · 400 · 401 · 403 animal propio · 404 · 409 animal no disponible o solicitud pendiente repetida |
+| POST | `/solicitudes` | ADOPTANTE, RESCATISTA | 201 · 400 · 401 · 403 animal propio · 404 · 409 animal no disponible o solicitud ya enviada para ese animal |
 | PATCH | `/solicitudes/:id` | Dueño RESCATISTA, ADMIN | 200 · 400 · 401 · 403 · 404 · 409 |
 | DELETE | `/solicitudes/:id` | ADMIN | 200 · 401 · 403 · 404 |
 
@@ -114,7 +117,7 @@ Cuerpo de `POST /solicitudes` (JSON):
   "ciudad": "Valparaíso"
 }
 ```
-`tipo_vivienda` admite hasta 50 caracteres. `telefono` va con prefijo internacional (`+` y de 8 a 18 dígitos). `experiencia` es opcional.
+`tipo_vivienda` admite hasta 50 caracteres. `telefono` va con prefijo internacional (`+` y de 8 a 18 dígitos). `experiencia` es opcional. Una persona solo puede postular una vez a cada animal, aunque su solicitud anterior haya sido rechazada.
 
 Las respuestas de `GET` incluyen además `postulante_nombre`, `postulante_correo`, `animal_nombre`, `animal_estado` y `animal_imagen`.
 
@@ -129,8 +132,11 @@ Las respuestas de `GET` incluyen además `postulante_nombre`, `postulante_correo
 | POST | `/contenidos-educativos` | ADMIN | 201 · 400 · 401 · 403 |
 | PATCH | `/contenidos-educativos/:id` | ADMIN | 200 · 400 · 401 · 403 · 404 |
 | DELETE | `/contenidos-educativos/:id` | ADMIN | 200 · 401 · 403 · 404 |
+| GET | `/bloques-contenido` | Público | 200 · 400 sección inválida. Filtro opcional `?seccion=` |
 
 Cuerpo: `{ "titulo": "...", "categoria": "Tenencia responsable", "contenido": "..." }`. El autor se toma del token.
+
+**GET /bloques-contenido** devuelve los textos de las páginas «Educación» y «Consecuencias del abandono», ordenados por `seccion` y `orden`. `?seccion=` acepta `CUIDADOS`, `PREGUNTAS`, `NECESIDADES`, `ESTADISTICAS`, `FUENTE`, `CONSECUENCIAS` o `ACCIONES`. Cada bloque trae `id`, `seccion`, `orden`, `titulo`, `texto`, `destacado`, `imagen` (clave de la imagen, que está en el frontend) y `alt`.
 
 ## Usuarios (administración)
 

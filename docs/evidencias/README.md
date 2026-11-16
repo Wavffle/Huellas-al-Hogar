@@ -1,6 +1,8 @@
 # Evidencias de pruebas (EP 2.7)
 
-Pruebas funcionales realizadas con Postman sobre la API. La colección está en [`../api/`](../api) y contiene 68 peticiones con pruebas automáticas que verifican el código HTTP y la estructura de cada respuesta.
+Pruebas funcionales realizadas con Postman sobre la API. La colección está en [`../api/`](../api) y contiene 80 peticiones con pruebas automáticas que verifican el código HTTP y la estructura de cada respuesta. Las capturas de esta carpeta corresponden a la ejecución original de 68 peticiones; después se agregaron pruebas de los filtros de animales, del rol vigente tras un cambio de rol, de la validación de imágenes por contenido y de los bloques de contenido.
+
+Para ejecutarla: importar el archivo en Postman, abrir la colección y usar **Run** → **Run collection**, con el backend corriendo y la base de datos cargada con `schema.sql`, `seed-contenido.sql` y `seed.sql`. La petición del archivo falso usa `docs/pruebas/falsa.jpg`: hay que volver a seleccionarlo en el Body de esa petición.
 
 ## Resultado de la ejecución completa
 
