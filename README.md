@@ -4,6 +4,8 @@
   <img src="src/assets/gif/inicio-demo.gif" alt="Vista inicial de Huellas al Hogar" width="900">
 </p>
 
+> **Entrega final:** la documentación está en [docs/ENTREGA-FINAL.md](docs/ENTREGA-FINAL.md). Etiquetas: `v1.0.0` (frontend) y `v1.0.0-backend` (backend).
+
 Esta rama contiene la interfaz de usuario desarrollada en **Ionic + React + TypeScript**, junto con la documentación de los requerimientos funcionales y no funcionales del proyecto.
 
 ## Integrantes
@@ -27,6 +29,7 @@ frontend/
 │   ├── utils/         # Hooks y utilidades (carga de contenido desde la API, movimiento)
 │   └── theme/         # Variables y estilos globales
 ├── public/
+├── docs/              # Documentación de la entrega final (ENTREGA-FINAL.md)
 ├── .env.example       # Variable opcional VITE_API_URL
 └── README.md
 ```
