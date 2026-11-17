@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import type { Animal } from '../../types/animal';
 import { resolveImage } from '../adoptions/adoptionMapper';
+import sinFoto from '../../assets/images/animal-sin-foto.svg';
 import './AnimalCard.css';
 
 const MAX_TAGS = 6;
 
 export default function AnimalCard({ animal }: { animal: Animal }) {
-    const imagenUrl = resolveImage(animal.imagen_portada ?? '') || 'https://via.placeholder.com/243x89?text=Sin+foto';
+    const imagenUrl = resolveImage(animal.imagen_portada ?? '') || sinFoto;
     const etiquetas = (animal.etiquetas ?? []).slice(0, MAX_TAGS);
 
     return (

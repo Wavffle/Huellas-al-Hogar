@@ -29,11 +29,11 @@
 | Criterio | Pts | Qué se hizo | Sección |
 |---|---|---|---|
 | **EF1** Funcionalidades completas | 20 | CRUD de animales, solicitudes, contenido educativo y usuarios; autenticación JWT con tres roles; almacenamiento local (sesión y filtros del catálogo); notificaciones (correo, contador en el menú y avisos en pantalla). | [10](#10-almacenamiento-local-y-notificaciones-ef1) |
-| **EF2** UI/UX y rendimiento | 15 | Carga diferida de páginas, separación de librerías en archivos propios, imágenes recomprimidas, estados de carga y error con reintento. | [9](#9-optimización-de-rendimiento-y-consultas-ef2-y-ef4) |
+| **EF2** UI/UX y rendimiento | 15 | Carga diferida de páginas y de imágenes, separación de librerías en archivos propios, imágenes redimensionadas y recomprimidas, estados de carga y error con reintento. | [9](#9-optimización-de-rendimiento-y-consultas-ef2-y-ef4) |
 | **EF3** Seguridad avanzada | 15 | Helmet, CORS restrictivo, bcrypt, JWT con rol vigente, consultas parametrizadas, validación de imágenes por contenido, escape de HTML, límite de intentos. | [8](#8-seguridad-ef3) |
 | **EF4** Consultas | 10 | Nueve índices (incluidos índices sobre `LOWER(...)`), filtros resueltos en SQL, respuestas con columnas explícitas. | [9](#9-optimización-de-rendimiento-y-consultas-ef2-y-ef4) |
 | **EF5** Servicio externo | 10 | Correo de aviso al rescatista con la API de Resend. | [11](#11-servicio-externo-correo-con-resend-ef5) |
-| **EF6** Docker | 15 | **En preparación.** Se completa cuando los archivos Docker estén en el repositorio. | [12](#12-despliegue-con-docker-ef6) |
+| **EF6** Docker | 15 |  | [12](#12-despliegue-con-docker-ef6) |
 | Presentación | 15 | Demostración por escenarios sobre la aplicación funcionando. | [7](#7-escenarios-de-demostración) |
 
 ---
@@ -52,12 +52,14 @@ La justificación completa del problema, los usuarios objetivo y las proto-perso
 
 ## 3. Equipo y responsabilidades
 
-| Integrante | Responsabilidades |
+Distribución de responsabilidades **de la entrega final**. El trabajo de las entregas parciales está en la documentación de sus ramas.
+
+| Integrante | Responsabilidades en la entrega final |
 |---|---|
-| Alonso Troncoso |  |
-| Ricardo Vergara |  |
-| Claudio Vergara |  |
-| Benjamin Brito |  |
+| Benjamin Brito | Observaciones de la entrega parcial 2 (sección 5). Frontend de la entrega final: carga diferida de páginas e imágenes, almacenamiento local de filtros y orden del catálogo, contador y avisos de solicitudes pendientes y pruebas con Vitest. |
+| Ricardo Vergara | API que envía un correo al rescatista cuando recibe una nueva solicitud de un adoptante, con Resend (EF5). Modificó `server.js` para usar `helmet` (EF3). Arreglos del backend relacionados con las imágenes. |
+| Alonso Troncoso | API del backend: autenticación (registro e inicio de sesión), verificación de token y roles con JWT, controladores de animales, solicitudes de adopción y contenido educativo. |
+| Claudio Vergara | Despliegue con Docker (EF6): configuración de los contenedores del proyecto (sección 12). |
 
 ---
 
@@ -78,7 +80,7 @@ flowchart LR
 | Backend | Node.js, Express 5, `pg` (sin ORM), JWT, bcrypt, multer, helmet, cors, resend | Rama `backend` |
 | Base de datos | PostgreSQL (`database/schema.sql`, re-ejecutable) | Rama `backend` |
 | Servicio externo | Resend (correo transaccional) | Backend |
-| Despliegue | Docker y docker-compose | [Pendiente](#12-despliegue-con-docker-ef6) |
+| Despliegue | Docker y docker-compose | |
 
 **Backend por capas:** rutas → middleware (autenticación, roles, subida de archivos, límite de intentos) → controladores (solo traducen HTTP) → servicios (lógica de negocio y SQL) → PostgreSQL. Los errores esperados se lanzan con `ErrorHttp` y un manejador central los convierte en respuesta JSON.
 
@@ -115,24 +117,24 @@ Backend con Express, base de datos PostgreSQL, API REST con CRUD, JWT con roles,
 | Área | Mejora |
 |---|---|
 | EF1 | Almacenamiento local de filtros y orden del catálogo; notificaciones por correo, contador de solicitudes pendientes en el menú y avisos en el panel del rescatista. |
-| EF2 | Carga diferida de rutas, separación de librerías, imágenes recomprimidas. |
+| EF2 | Carga diferida de rutas y de imágenes, separación de librerías, imágenes redimensionadas y recomprimidas. |
 | EF3 | Helmet, CORS restrictivo y escape de HTML en el correo. |
 | EF4 | Índices en la base de datos y filtro de pendientes resuelto en el servidor. |
 | EF5 | Integración con Resend. |
-| EF6 | [En preparación](#12-despliegue-con-docker-ef6). |
+| EF6 |  |
 
 ---
 
 ## 6. Trazabilidad de requerimientos
 
-Los requerimientos RF-01 a RF-09 y RNF están definidos en el [README del frontend](../README.md). RF-10 y RF-11 se incorporan en esta entrega.
+Los requerimientos RF-01 a RF-11 y los RNF están definidos en el [README del frontend](../README.md). RF-10 y RF-11 se incorporaron en esta entrega.
 
 ### Requerimientos funcionales
 
 | ID | Requerimiento | Frontend | Backend | Verificación |
 |---|---|---|---|---|
 | RF-01 | Publicar animal | `/publicar` (formulario por pasos) | `POST /api/animales` (multipart, 1 a 5 fotos) | Postman · Escenario 1 |
-| RF-02 | Explorar animales | `/adopciones` (filtros por especie, edad, tamaño, sexo, ciudad y nombre) | `GET /api/animales` (filtros `especie`, `ciudad` y `tamanho`) | Postman · Escenario 1 |
+| RF-02 | Explorar animales | `/adopciones` (filtros por especie, edad, tamaño, sexo, ciudad y nombre) | `GET /api/animales` (filtros `especie`, `ciudad` y `tamanho`) | Postman · Vitest (`adoptionUtils.test.ts`) · Escenario 1 |
 | RF-03 | Solicitud de adopción | `/adopciones/:animalId/solicitar` (4 pasos con validación) | `POST /api/solicitudes` | Postman · Escenario 1 |
 | RF-04 | Revisar solicitudes | `/panel`, pestaña «Solicitudes recibidas» | `GET /api/solicitudes` (rescatista: las recibidas) | Postman · Escenario 1 |
 | RF-05 | Cambiar estado | `/panel`, selector de estado | `PATCH /api/animales/:id` | Postman · Escenario 1 |
@@ -140,17 +142,17 @@ Los requerimientos RF-01 a RF-09 y RNF están definidos en el [README del fronte
 | RF-07 | Gestión y moderación | `/admin` | `GET /api/usuarios`, `PATCH /api/usuarios/:id/rol`, `DELETE /api/animales/:id` | Postman · Escenario 2 |
 | RF-08 | Historial de solicitudes | `/mis-solicitudes` | `GET /api/solicitudes?mias=true` | Postman · Escenario 1 |
 | RF-09 | Gestión de publicaciones | `/publicar/:id/editar` y `/panel` | `PATCH` y `DELETE /api/animales/:id` (dueño o ADMIN) | Postman · Escenario 1 |
-| RF-10 | Notificaciones de nuevas solicitudes (nuevo) | Contador en el menú y avisos en el panel | Correo con Resend al crear la solicitud; `GET /api/solicitudes?estado=PENDIENTE` | Escenario 1 |
-| RF-11 | Preferencias del catálogo guardadas (nuevo) | Filtros y orden en `localStorage` | — | Escenario 1 |
+| RF-10 | Notificaciones de nuevas solicitudes (nuevo) | Contador en el menú y avisos en el panel | Correo con Resend al crear la solicitud; `GET /api/solicitudes?estado=PENDIENTE` | Vitest (`usePendingRequests.test.ts`) · Escenario 1 |
+| RF-11 | Preferencias del catálogo guardadas (nuevo) | Filtros y orden en `localStorage` | — | Vitest (`AdoptionsPage.test.tsx`) · Escenario 1 |
 
 ### Requerimientos no funcionales
 
 | ID | Cómo se cumple | Verificación |
 |---|---|---|
 | RNF-SEG-01 | bcrypt con costo 12; el hash nunca se devuelve en las respuestas. | Postman (registro e inicio de sesión) |
-| RNF-SEG-02 | HTTPS aplica al ambiente desplegado; en local se usa HTTP. Se definirá junto con el despliegue. | Pendiente |
+| RNF-SEG-02 | El cifrado en tránsito (HTTPS con TLS) corresponde al ambiente de producción, donde la aplicación se serviría detrás de un proxy inverso con certificado. En local y en la demostración con Docker se usa HTTP. Medidas ya implementadas: bcrypt, JWT con expiración, CORS restrictivo y `helmet`. | No verificable en local |
 | RNF-SEG-03 | `verificarToken` y `permitirRoles` responden 401 o 403 según el caso. | Postman (401 y 403) · pruebas de `apiClient` |
-| RNF-REN-01 | Carga diferida, índices, imágenes recomprimidas y listados con columnas mínimas. | _Medir con la pestaña Network (4G simulada) y anotar el resultado_ |
+| RNF-REN-01 | Carga diferida de páginas e imágenes, índices, imágenes recomprimidas y listados con columnas mínimas. | Edge DevTools (Fast 4G) y Lighthouse: cumple para los datos del catálogo (≈1,8 s) y parcialmente si se cuentan las fotos (≈4,3 s). Detalle en la sección 9. |
 | RNF-UX-02 | Validación de campos obligatorios en el frontend y respuestas 400 con los campos inválidos en el backend. | Manual · Postman |
 | RNF-UX-03 | `ProtectedRoute` conserva la ruta de origen y devuelve al usuario al iniciar sesión. | Manual |
 | RNF-UX-01, RNF-UX-04, RNF-COM-01 | Diseño adaptable y navegación de retorno en las vistas secundarias. | Revisión manual |
@@ -161,7 +163,7 @@ Los requerimientos RF-01 a RF-09 y RNF están definidos en el [README del fronte
 
 La demostración se hace sobre la aplicación funcionando, con las cuentas de prueba del README del backend.
 
-**Preparación:** base de datos creada con `schema.sql`, `seed-contenido.sql` y `seed.sql`; archivo `.env` con `RESEND_API_KEY`; backend y frontend en ejecución; el correo del rescatista debe ser el de la cuenta de Resend (ver [limitaciones](#14-limitaciones-conocidas)).
+**Preparación:** base de datos creada con `schema.sql`, `seed-contenido.sql` y `seed.sql`; archivo `.env` con `RESEND_API_KEY`; backend y frontend en ejecución. El aviso por correo llega al dueño del animal, y con el remitente de prueba de Resend solo se entrega al correo de la cuenta de Resend (ver [limitaciones](#14-limitaciones-conocidas)): por eso el animal de la demostración se publica con la cuenta que usa ese correo, registrada antes de la presentación y con el rol de rescatista ya asignado. Cada rol se usa en una ventana distinta (por ejemplo, una normal y otra privada), porque la sesión se guarda en `localStorage`.
 
 **Escenario 1 — Del rescate a la adopción** (roles rescatista y adoptante)
 
@@ -178,10 +180,6 @@ El administrador asigna el rol de rescatista a una cuenta, modera una publicaci�
 **Escenario 3 — Seguridad**
 
 Petición sin token (401), con un rol insuficiente (403) y subida de un archivo falso como imagen (400), en Postman o en la aplicación.
-
-**Escenario 4 — Despliegue con Docker:** pendiente ([sección 12](#12-despliegue-con-docker-ef6)).
-
-**Distribución sugerida de los 20 minutos:** problema y arquitectura (4), escenario 1 (8), escenario 2 (3), seguridad y optimización (2) y Docker (3).
 
 ---
 
@@ -212,12 +210,26 @@ Petición sin token (401), con un rol insuficiente (403) y subida de un archivo 
 | Mejora | Detalle |
 |---|---|
 | Carga diferida de páginas | Todas las páginas, salvo Inicio, se cargan con `React.lazy` y `Suspense` al entrar a su ruta (`AppRoutes.tsx` y `PublishGate.tsx`). |
+| Carga diferida de imágenes | Las fotos del catálogo y de las secciones del inicio usan `loading="lazy"` y `decoding="async"`; las imágenes del encabezado se cargan de inmediato. |
 | Separación de librerías | `vite.config.ts` genera archivos propios para React e Ionic, que el navegador guarda en caché. |
-| Imágenes | Imágenes `.webp` recomprimidas. |
+| Imágenes | Imágenes `.webp` reducidas de resolución y recomprimidas. |
 | Estados de carga y error | `PawLoader` y `ContentState` con opción de reintentar. |
 | Menos peticiones | El contador del menú pide solo las solicitudes pendientes (`?estado=PENDIENTE`) y se actualiza cada 60 segundos, al volver a la pestaña o tras un cambio en el panel. |
 
 Resultado del build de producción: el código de la aplicación (`index`) pesa 125 kB (43 kB comprimidos), React 169 kB (55 kB) e Ionic 1.166 kB (245 kB). Cada página es un archivo propio de entre 0,4 y 17 kB. Antes de esta entrega todo el código viajaba en un solo archivo. El único archivo por encima de 500 kB es la librería Ionic, de terceros, por lo que se subió el límite del aviso de Vite con un comentario explicativo en `vite.config.ts`.
+
+### Medición de carga del catálogo (RNF-REN-01)
+
+Condiciones: build de producción (`npm run build` y `npm run preview`), Edge DevTools con la red en Fast 4G y la caché deshabilitada, y 24 animales en la base. El catálogo muestra 15 por página, por lo que se piden 15 fotos.
+
+| Medición | Resultado |
+|---|---|
+| Datos del catálogo recibidos (`/api/animales`) | ≈1,8 s (1,82 s y 1,83 s en dos mediciones) |
+| Última foto de la primera página | ≈4,3 s (4,29 s y 4,23 s) |
+| Peso transferido por la página | 3.367 kB en 42 peticiones |
+| Lighthouse móvil (red y CPU más lentos que 4G) | Performance 44–55 y LCP de 6 a 10 s; solo como referencia |
+
+Los datos de las tarjetas llegan dentro de los 3 s exigidos. La descarga completa de las fotos de prueba (≈2.000 px de ancho, sin redimensionar, unos 3 MB en total) los supera, por lo que el requisito se cumple parcialmente. Mejora identificada: reducir el tamaño de las fotos al subirlas.
 
 ### Base de datos (EF4)
 
@@ -280,39 +292,10 @@ Detalle técnico y variables de entorno: sección «EF 5» del [README del backe
 
 ## 12. Despliegue con Docker (EF6)
 
-> **Estado: pendiente de documentar.** Un integrante del equipo prepara la configuración y esta sección se completa cuando sus archivos estén en el repositorio y probados.
-
-**Lo que debe quedar documentado aquí** (según la rúbrica):
-
 - `Dockerfile` del backend y del frontend.
 - `docker-compose.yml` que orquesta frontend, API y base de datos.
 - Variables de entorno necesarias (`PG*`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `CORS_ORIGIN`, `RESEND_API_KEY`, `VITE_API_URL`).
-- Instrucciones de ejecución y evidencia de que corre en local.
-
-**Decisiones por resolver:**
-
-| Tema | Pregunta |
-|---|---|
-| Ubicación | Frontend y backend están en ramas distintas: ¿dónde vive el `docker-compose.yml` y cómo se referencian ambos códigos? |
-| Base de datos | ¿Cómo se cargan `schema.sql`, `seed-contenido.sql` y `seed.sql` al crear el contenedor? |
-| Fotos | ¿La carpeta `uploads/` se conserva en un volumen? |
-| Frontend | `VITE_API_URL` se define al construir la imagen: ¿qué dirección usa dentro de Docker? |
-| CORS | `CORS_ORIGIN` debe coincidir con el origen desde el que se abre el frontend. |
-| Secretos | ¿Cómo se pasan `JWT_SECRET` y `RESEND_API_KEY` sin subirlos al repositorio? |
-
-**Plantilla para completar:**
-
-| Servicio | Imagen o Dockerfile | Puerto | Variables |
-|---|---|---|---|
-| Base de datos | _Por completar_ | _Por completar_ | _Por completar_ |
-| Backend | _Por completar_ | _Por completar_ | _Por completar_ |
-| Frontend | _Por completar_ | _Por completar_ | _Por completar_ |
-
-```bash
-# Comando de ejecución (por completar)
-```
-
-Evidencia de despliegue local: _por completar_.
+- Comando de ejecución y evidencia de que corre en local.
 
 ---
 
@@ -323,8 +306,9 @@ Evidencia de despliegue local: _por completar_.
 | Colección de Postman | 80 peticiones y 240 pruebas: autenticación, roles, animales y sus filtros, solicitudes, contenido educativo, usuarios y seguridad | `docs/api/Huellas-al-Hogar.postman_collection.json` (rama `backend`) |
 | Documentación de endpoints | Método, ruta, rol, cuerpo y respuestas | `docs/api/API.md` (rama `backend`) |
 | Evidencias de Postman | Capturas del resultado y de los casos de error | `docs/evidencias/` (rama `backend`) |
-| Pruebas del frontend | 35 pruebas con Vitest del cliente de la API y de la sesión (`npm test`) | Rama `frontend` |
+| Pruebas del frontend | 57 pruebas con Vitest (`npm test`): cliente de la API, sesión, filtros y orden del catálogo, filtros guardados (RF-11) y contador de pendientes (RF-10) | Rama `frontend` |
 | Compilación | `npm run build` compila sin errores de TypeScript | Rama `frontend` |
+| Medición de rendimiento | Edge DevTools (Fast 4G) y Lighthouse sobre el build de producción | [Sección 9](#medición-de-carga-del-catálogo-rnf-ren-01) |
 | Uso de índices | `EXPLAIN ANALYZE` con `Index Scan using idx_animales_especie_lower` | [Sección 9](#base-de-datos-ef4) |
 | Video del flujo completo | Recorrido de la plataforma | Enlace en el README del backend |
 
@@ -334,6 +318,7 @@ Evidencia de despliegue local: _por completar_.
 
 - **Correo de prueba de Resend:** con el remitente `onboarding@resend.dev`, Resend solo entrega mensajes al correo con el que se creó la cuenta. Para enviar a cualquier rescatista habría que verificar un dominio propio.
 - **HTTPS:** aplica al ambiente desplegado; en local se usa HTTP (RNF-SEG-02).
+- **Peso de las fotos:** las fotos que suben los rescatistas se guardan tal como llegan (hasta 5 MB cada una), lo que alarga la carga del catálogo con fotos grandes (RNF-REN-01).
 - **Filtros del catálogo:** especie, ciudad y tamaño también existen en la API; edad, sexo y nombre se aplican en el frontend sobre el catálogo cargado, y la paginación del catálogo es del lado del cliente.
 - **Tamaño del paquete:** la librería Ionic (1.166 kB, 245 kB comprimidos) supera los 500 kB y no se puede dividir desde el código del proyecto.
 - **Texto fijo:** las preguntas frecuentes, «cómo funciona» y «propósito» del inicio siguen como textos de la interfaz y no vienen de la API.
