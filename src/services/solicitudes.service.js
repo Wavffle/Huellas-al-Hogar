@@ -2,6 +2,7 @@ import { pool } from "../config/database.js";
 import { ErrorHttp } from "../utils/errores.js";
 import { conTransaccion } from "../utils/transaccion.js";
 import { esObjetoJson, exigirId, obtenerIdValido } from "../utils/validaciones.js";
+import { enviarCorreoSolicitud } from "./email.service.js";
 
 //---------------------------------------------------------------------------------------------------//
 // CONSTANTES
@@ -32,10 +33,10 @@ const SELECT_SOLICITUD = `
          a.especie AS animal_especie,
          a.estado AS animal_estado,
          (SELECT f.imagen_url FROM foto_animales f
-           WHERE f.animal_id = a.id AND f.orden = 1) AS animal_imagen
+          WHERE f.animal_id = a.id AND f.orden = 1) AS animal_imagen
   FROM solicitudes_adopcion s
-  JOIN usuarios u ON u.id = s.usuario_id
-  JOIN animales a ON a.id = s.animal_id`;
+         JOIN usuarios u ON u.id = s.usuario_id
+         JOIN animales a ON a.id = s.animal_id`;
 
 //---------------------------------------------------------------------------------------------------//
 // VALIDACIÓN (privada del servicio)
@@ -111,6 +112,38 @@ function validarDatosSolicitud(body) {
 }
 
 //---------------------------------------------------------------------------------------------------//
+// NOTIFICACIÓN POR CORREO (privada del servicio)
+//---------------------------------------------------------------------------------------------------//
+
+/**
+ * Avisa por correo al rescatista dueño del animal que recibió una nueva solicitud.
+ * Nunca lanza errores: la solicitud ya está guardada y el correo es solo un aviso.
+ */
+async function notificarNuevaSolicitud(usuarioId, animalId) {
+  try {
+    const { rows } = await pool.query(
+        `SELECT a.nombre AS animal_nombre,
+              r.correo AS rescatista_correo,
+              p.nombre AS postulante_nombre
+       FROM animales a
+       JOIN usuarios r ON r.id = a.usuario_id
+       JOIN usuarios p ON p.id = $2
+       WHERE a.id = $1`,
+        [animalId, usuarioId]
+    );
+    if (rows.length === 0) return;
+
+    await enviarCorreoSolicitud({
+      emailDestino: rows[0].rescatista_correo,
+      nombreAnimal: rows[0].animal_nombre,
+      nombrePostulante: rows[0].postulante_nombre,
+    });
+  } catch (error) {
+    console.error("No se pudo preparar el correo de la solicitud:", error.message);
+  }
+}
+
+//---------------------------------------------------------------------------------------------------//
 // CASOS DE USO
 //---------------------------------------------------------------------------------------------------//
 
@@ -173,26 +206,27 @@ export async function obtenerSolicitud(idParametro, usuario) {
   const id = exigirId(idParametro, MSG_ID);
 
   const { rows } = await pool.query(
-    `${SELECT_SOLICITUD}
+      `${SELECT_SOLICITUD}
      WHERE s.id = $1
        AND ($2::text = 'ADMIN' OR s.usuario_id = $3 OR a.usuario_id = $3)`,
-    [id, usuario.rol, usuario.id]
+      [id, usuario.rol, usuario.id]
   );
 
   if (rows.length === 0) throw new ErrorHttp(404, "Solicitud no encontrada");
   return rows[0];
 }
 
-/** Crea una solicitud de adopción en estado PENDIENTE. */
+/** Crea una solicitud de adopción en estado PENDIENTE y avisa por correo al rescatista. */
 export async function crearSolicitud(usuario, body) {
   const datos = validarDatosSolicitud(body);
 
+  let solicitudCreada;
   try {
-    return await conTransaccion(async (client) => {
+    solicitudCreada = await conTransaccion(async (client) => {
       // Bloquea el animal para que dos peticiones simultáneas no se pisen
       const animalResultado = await client.query(
-        "SELECT id, estado, usuario_id FROM animales WHERE id = $1 FOR UPDATE",
-        [datos.animal_id]
+          "SELECT id, estado, usuario_id FROM animales WHERE id = $1 FOR UPDATE",
+          [datos.animal_id]
       );
       const animal = animalResultado.rows[0];
 
@@ -209,25 +243,25 @@ export async function crearSolicitud(usuario, body) {
       // Una persona solo puede postular una vez a cada animal, sea cual sea el estado
       // de su solicitud anterior (la base lo garantiza con UNIQUE (usuario_id, animal_id))
       const solicitudPrevia = await client.query(
-        "SELECT id FROM solicitudes_adopcion WHERE animal_id = $1 AND usuario_id = $2 LIMIT 1",
-        [datos.animal_id, usuario.id]
+          "SELECT id FROM solicitudes_adopcion WHERE animal_id = $1 AND usuario_id = $2 LIMIT 1",
+          [datos.animal_id, usuario.id]
       );
       if (solicitudPrevia.rows.length > 0) {
         throw new ErrorHttp(409, "Ya enviaste una solicitud para este animal");
       }
 
       const { rows } = await client.query(
-        `INSERT INTO solicitudes_adopcion (
+          `INSERT INTO solicitudes_adopcion (
            tipo_vivienda, tiene_patio, con_quien_convive, tuvo_mascotas, tiene_mascotas,
            experiencia, motivo, acepta_compromiso, notas, usuario_id, animal_id, telefono, ciudad
          )
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
          RETURNING *`,
-        [
-          datos.tipo_vivienda, datos.tiene_patio, datos.con_quien_convive, datos.tuvo_mascotas, datos.tiene_mascotas,
-          datos.experiencia, datos.motivo, datos.acepta_compromiso, datos.notas, usuario.id, datos.animal_id,
-          datos.telefono, datos.ciudad,
-        ]
+          [
+            datos.tipo_vivienda, datos.tiene_patio, datos.con_quien_convive, datos.tuvo_mascotas, datos.tiene_mascotas,
+            datos.experiencia, datos.motivo, datos.acepta_compromiso, datos.notas, usuario.id, datos.animal_id,
+            datos.telefono, datos.ciudad,
+          ]
       );
       return rows[0];
     });
@@ -237,6 +271,11 @@ export async function crearSolicitud(usuario, body) {
     if (error.code === "23505") throw new ErrorHttp(409, "Ya enviaste una solicitud para este animal");
     throw error;
   }
+
+  // La transacción ya terminó. El correo se envía sin esperar (no retrasa ni rompe la respuesta).
+  void notificarNuevaSolicitud(usuario.id, datos.animal_id);
+
+  return solicitudCreada;
 }
 
 /**
@@ -257,20 +296,20 @@ export async function cambiarEstadoSolicitud(idParametro, usuario, body) {
   return conTransaccion(async (client) => {
     // Se obtiene el animal primero para bloquearlo antes de tocar cualquier solicitud suya
     const solicitudInicial = await client.query(
-      "SELECT animal_id FROM solicitudes_adopcion WHERE id = $1",
-      [id]
+        "SELECT animal_id FROM solicitudes_adopcion WHERE id = $1",
+        [id]
     );
     if (solicitudInicial.rows.length === 0) throw new ErrorHttp(404, "Solicitud no encontrada");
 
     const animalId = solicitudInicial.rows[0].animal_id;
 
     const animalResultado = await client.query(
-      "SELECT id, estado, usuario_id FROM animales WHERE id = $1 FOR UPDATE",
-      [animalId]
+        "SELECT id, estado, usuario_id FROM animales WHERE id = $1 FOR UPDATE",
+        [animalId]
     );
     const solicitudResultado = await client.query(
-      "SELECT id, animal_id, estado FROM solicitudes_adopcion WHERE id = $1 FOR UPDATE",
-      [id]
+        "SELECT id, animal_id, estado FROM solicitudes_adopcion WHERE id = $1 FOR UPDATE",
+        [id]
     );
 
     if (solicitudResultado.rows.length === 0) throw new ErrorHttp(404, "Solicitud no encontrada");
@@ -298,16 +337,16 @@ export async function cambiarEstadoSolicitud(idParametro, usuario, body) {
       await client.query("UPDATE animales SET estado = $1 WHERE id = $2", ["EN_TRATAMIENTO", animalId]);
 
       await client.query(
-        `UPDATE solicitudes_adopcion
+          `UPDATE solicitudes_adopcion
          SET estado = $1
          WHERE animal_id = $2 AND id <> $3 AND estado = $4`,
-        ["RECHAZADA", animalId, id, "PENDIENTE"]
+          ["RECHAZADA", animalId, id, "PENDIENTE"]
       );
     }
 
     const { rows } = await client.query(
-      "UPDATE solicitudes_adopcion SET estado = $1 WHERE id = $2 RETURNING *",
-      [nuevoEstado, id]
+        "UPDATE solicitudes_adopcion SET estado = $1 WHERE id = $2 RETURNING *",
+        [nuevoEstado, id]
     );
     return rows[0];
   });
