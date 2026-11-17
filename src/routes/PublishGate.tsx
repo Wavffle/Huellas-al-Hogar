@@ -1,7 +1,9 @@
-import { useRef } from 'react';
+import { lazy, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import PublishAnimalPage from '../pages/PublishAnimalPage';
-import RescuerRequirementsPage from '../pages/RescuerRequirementsPage';
+
+// Se descargan solo cuando hacen falta (el formulario de publicar es una de las páginas más pesadas)
+const PublishAnimalPage = lazy(() => import('../pages/PublishAnimalPage'));
+const RescuerRequirementsPage = lazy(() => import('../pages/RescuerRequirementsPage'));
 
 /** Rescatistas y administradores ven el formulario; el resto, los requisitos. */
 export default function PublishGate() {
