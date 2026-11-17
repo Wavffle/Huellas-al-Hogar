@@ -1,0 +1,107 @@
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-huellas-al-hogar}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-huellas_local}
+    volumes:
+      - database-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  database-init:
+    build:
+      context: https://github.com/Wavffle/Huellas-al-Hogar.git#backend
+      dockerfile_inline: |
+        FROM postgres:16-alpine
+        WORKDIR /seed
+        COPY database/schema.sql ./schema.sql
+        COPY database/seed.sql ./seed.sql
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-huellas-al-hogar}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-huellas_local}
+    command:
+      - sh
+      - -c
+      - >-
+        until pg_isready -h database -p 5432 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB";
+        do sleep 2; done;
+        psql -v ON_ERROR_STOP=1 -h database -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -f /seed/schema.sql &&
+        psql -v ON_ERROR_STOP=1 -h database -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -f /seed/seed.sql
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: https://github.com/Wavffle/Huellas-al-Hogar.git#backend
+      dockerfile_inline: |
+        FROM node:22-bookworm-slim
+        WORKDIR /app
+        COPY package*.json ./
+        RUN npm ci --omit=dev
+        COPY . .
+        RUN mkdir -p uploads
+        EXPOSE 3000
+        CMD ["npm", "start"]
+    environment:
+      PORT: 3000
+      PGHOST: database
+      PGPORT: 5432
+      PGDATABASE: ${POSTGRES_DB:-huellas-al-hogar}
+      PGUSER: ${POSTGRES_USER:-postgres}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-huellas_local}
+      JWT_SECRET: ${JWT_SECRET:-huellas-local-demo-secret-change-before-deploy-2026}
+      JWT_EXPIRES_IN: 8h
+      CORS_ORIGIN: http://localhost:5173
+    ports:
+      - "3000:3000"
+    volumes:
+      - animal-uploads:/app/uploads
+    depends_on:
+      database-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: https://github.com/Wavffle/Huellas-al-Hogar.git#frontend
+      dockerfile_inline: |
+        FROM node:22-alpine
+        WORKDIR /app
+        COPY package*.json ./
+        RUN npm ci
+        COPY . .
+        ARG VITE_API_URL=http://localhost:3000
+        ENV VITE_API_URL=$$VITE_API_URL
+        RUN npm run build
+        EXPOSE 5173
+        CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "5173"]
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+    ports:
+      - "5173:5173"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  database-data:
+  animal-uploads:
