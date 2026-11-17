@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { IonAlert, IonContent, IonIcon, IonModal } from '@ionic/react';
+import { IonAlert, IonContent, IonIcon, IonModal, IonToast } from '@ionic/react';
 import { calendarOutline, callOutline, closeOutline, createOutline, mailOutline, trashOutline } from 'ionicons/icons';
 import PawLoader from '../components/common/PawLoader';
 import { resolveImage } from '../components/adoptions/adoptionMapper';
@@ -19,6 +19,7 @@ import {
     type EstadoSolicitud,
     type Solicitud,
 } from '../services/solicitudService';
+import { avisarSolicitudesActualizadas } from '../utils/notificaciones';
 import './RescuerPanelPage.css';
 
 type Tab = 'publicaciones' | 'solicitudes';
@@ -48,6 +49,7 @@ export default function RescuerPanelPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [notice, setNotice] = useState('');
+    const [toast, setToast] = useState('');
     const [toDelete, setToDelete] = useState<Publicacion | null>(null);
     const [selected, setSelected] = useState<Solicitud | null>(null);
     const [modalError, setModalError] = useState('');
@@ -99,6 +101,8 @@ export default function RescuerPanelPage() {
         try {
             await updateAnimal(animal.id, { estado });
             setAnimals((list) => list.map((a) => (a.id === animal.id ? { ...a, estado } : a)));
+            const label = ESTADOS.find((o) => o.value === estado)?.label ?? estado;
+            setToast(`${animal.nombre} ahora está «${label}».`);
         } catch (err) {
             setNotice(solicitudError(err).message);
         }
@@ -111,6 +115,8 @@ export default function RescuerPanelPage() {
         try {
             await deleteAnimal(target.id);
             await load(true); // también desaparecen sus solicitudes
+            avisarSolicitudesActualizadas();
+            setToast(`Se eliminó la publicación de ${target.nombre}.`);
         } catch (err) {
             setNotice(solicitudError(err).message);
         }
@@ -123,6 +129,12 @@ export default function RescuerPanelPage() {
             await updateSolicitudEstado(s.id, estado);
             setSelected(null);
             await load(true);
+            avisarSolicitudesActualizadas();
+            setToast(
+                estado === 'APROBADA'
+                    ? `Aprobaste la solicitud de ${s.postulante_nombre}. ${s.animal_nombre} pasó a «En proceso».`
+                    : `Rechazaste la solicitud de ${s.postulante_nombre}.`,
+            );
         } catch (err) {
             setModalError(solicitudError(err).message);
         } finally {
@@ -296,6 +308,14 @@ export default function RescuerPanelPage() {
                     { text: 'Eliminar', role: 'destructive', handler: () => void confirmDelete() },
                 ]}
                 onDidDismiss={() => setToDelete(null)}
+            />
+
+            <IonToast
+                isOpen={toast !== ''}
+                message={toast}
+                duration={4000}
+                position="bottom"
+                onDidDismiss={() => setToast('')}
             />
 
             <IonModal isOpen={selected !== null} onDidDismiss={() => setSelected(null)}>

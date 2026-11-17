@@ -60,6 +60,12 @@ export const getSolicitudesRecibidas = async (): Promise<Solicitud[]> => {
     return response.data.data;
 };
 
+/** Solo las pendientes de revisión (el filtro lo aplica el servidor). Alimenta el aviso del menú. */
+export const getSolicitudesPendientes = async (): Promise<Solicitud[]> => {
+    const response = await apiClient.get('/solicitudes', { params: { estado: 'PENDIENTE' } });
+    return response.data.data;
+};
+
 export const updateSolicitudEstado = async (id: number, estado: 'APROBADA' | 'RECHAZADA') => {
     const response = await apiClient.patch(`/solicitudes/${id}`, { estado });
     return response.data;

@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { IonIcon } from '@ionic/react';
 import { chevronDown, close, logOutOutline, menu } from 'ionicons/icons';
 import { useAuth, type UserRole } from '../../contexts/AuthContext';
+import { usePendingRequests } from '../../utils/usePendingRequests';
 import logoColor from '../../assets/images/logo/logo-color.svg';
 import iconTenencia from '../../assets/icons/tenencia-responsable.svg';
 import iconAbandono from '../../assets/icons/consecuencias-abandono.svg';
@@ -45,6 +46,21 @@ function ArrowUpRight() {
     );
 }
 
+/** Contador de solicitudes pendientes (visual) con su texto para lectores de pantalla. */
+function PendingBadge({ count }: { count: number }) {
+    if (count <= 0) return null;
+    return (
+        <>
+            <span className="navbar__badge" aria-hidden="true">
+                {count > 9 ? '9+' : count}
+            </span>
+            <span className="navbar__sr">
+                {count === 1 ? '1 solicitud pendiente' : `${count} solicitudes pendientes`}
+            </span>
+        </>
+    );
+}
+
 interface NavbarProps {
     scrolled?: boolean;
     onLogoClick?: () => void;
@@ -52,6 +68,7 @@ interface NavbarProps {
 
 export default function Navbar({ scrolled = false, onLogoClick }: NavbarProps) {
     const { user, logout } = useAuth();
+    const pending = usePendingRequests();
     const { pathname } = useLocation();
     const [open, setOpen] = useState(false);
     const [learnOpen, setLearnOpen] = useState(false);
@@ -217,6 +234,7 @@ export default function Navbar({ scrolled = false, onLogoClick }: NavbarProps) {
                                 onClick={() => setAccountOpen((v) => !v)}
                             >
                                 <span className="navbar__account-name">{firstName}</span>
+                                <PendingBadge count={pending} />
                                 <IonIcon icon={chevronDown} className="navbar__chevron" aria-hidden="true" />
                             </button>
 
@@ -238,7 +256,7 @@ export default function Navbar({ scrolled = false, onLogoClick }: NavbarProps) {
                                 )}
                                 {(user.role === 'rescatista' || user.role === 'administrador') && (
                                     <Link
-                                        to="/panel"
+                                        to={pending > 0 ? '/panel?tab=solicitudes' : '/panel'}
                                         className="navbar__account-link"
                                         onClick={() => {
                                             setAccountOpen(false);
@@ -246,6 +264,7 @@ export default function Navbar({ scrolled = false, onLogoClick }: NavbarProps) {
                                         }}
                                     >
                                         Mi panel
+                                        <PendingBadge count={pending} />
                                     </Link>
                                 )}
                                 {user.role !== 'administrador' && (
