@@ -91,6 +91,8 @@ export default function PurposeSection() {
                             src={purposeImage}
                             alt="Un gato y un cachorro de perro juntos"
                             className="purpose__image"
+                            loading="lazy"
+                            decoding="async"
                         />
                     </figure>
                 </div>

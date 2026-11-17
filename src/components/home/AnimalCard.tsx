@@ -11,7 +11,13 @@ export default function AnimalCard({ animal }: { animal: Animal }) {
 
     return (
         <article className="animal-card">
-            <img src={imagenUrl} alt={`Foto de ${animal.nombre}`} className="animal-card__image" />
+            <img
+                src={imagenUrl}
+                alt={`Foto de ${animal.nombre}`}
+                className="animal-card__image"
+                loading="lazy"
+                decoding="async"
+            />
             <div className="animal-card__body">
                 <h3 className="animal-card__name">{animal.nombre}</h3>
                 <p className="animal-card__age">

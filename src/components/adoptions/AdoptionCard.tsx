@@ -9,7 +9,13 @@ export default function AdoptionCard({ animal }: { animal: AdoptionAnimal }) {
     return (
         <Link to={`/adopciones/${animal.id}`} className="adop-card">
             <div className="adop-card__media">
-                <img src={animal.image} alt={`Foto de ${animal.name}`} className="adop-card__image" />
+                <img
+                    src={animal.image}
+                    alt={`Foto de ${animal.name}`}
+                    className="adop-card__image"
+                    loading="lazy"
+                    decoding="async"
+                />
                 <span className="adop-card__tag">{SPECIES_LABEL[animal.species]}</span>
                 {animal.status === 'EN_TRATAMIENTO' && <span className="adop-card__status">En proceso</span>}
             </div>

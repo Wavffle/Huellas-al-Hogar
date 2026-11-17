@@ -13,7 +13,13 @@ export default function HowItWorksSection() {
                 {howItWorksSteps.map((step) => (
                     <li key={step.number} className="how-step">
                         <span className="how-step__number">{step.number}</span>
-                        <img src={step.image} alt={step.alt} className="how-step__image" />
+                        <img
+                            src={step.image}
+                            alt={step.alt}
+                            className="how-step__image"
+                            loading="lazy"
+                            decoding="async"
+                        />
                         <div className="how-step__card">
                             <h3 className="how-step__title">{step.title}</h3>
                             <p className="how-step__text">{step.text}</p>
