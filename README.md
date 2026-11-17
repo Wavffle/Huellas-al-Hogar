@@ -33,6 +33,7 @@ Esta entrega (EP2) integra la aplicación con un backend propio: una API REST en
 3. [Tecnologías](#3-tecnologías)
 4. [Arquitectura y carpetas reales](#4-arquitectura-y-carpetas-reales)
 5. [Preparación y ejecución local](#5-preparación-y-ejecución-local)
+    - [Ejecución con Docker](#ejecución-con-docker)
     - [5.1 Base de datos](#51-base-de-datos)
     - [5.2 Iniciar backend](#52-iniciar-backend)
     - [5.3 Iniciar frontend](#53-iniciar-frontend)
@@ -179,7 +180,28 @@ Express :3000 → /api → routes → middleware (verificarToken, permitirRoles)
 
 ## 5. Preparación y ejecución local
 
-### Requisitos
+### Ejecución con Docker
+
+Para llevar el proyecto a otro notebook no hace falta instalar Node.js ni PostgreSQL: instala [Docker Desktop](https://www.docker.com/products/docker-desktop/) y asegúrate de que esté iniciado. Desde la carpeta de este repositorio, ejecuta:
+
+```powershell
+docker compose up --build
+```
+
+La primera vez se necesita conexión a Internet para descargar las imágenes y las ramas `frontend` y `backend` del repositorio. Docker crea la base de datos, aplica el esquema y carga las cuentas de prueba automáticamente. Cuando termine, abre:
+
+- Aplicación: <http://localhost:5173>
+- API: <http://localhost:3000/api/health>
+
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Administrador | `admin@huellas.test` | `Admin1234` |
+| Rescatista | `rescatista@huellas.test` | `Rescata1234` |
+| Adoptante | `adoptante@huellas.test` | `Adopta1234` |
+
+Para detener los servicios, pulsa `Ctrl+C` o ejecuta `docker compose down`. La base de datos y las fotos quedan guardadas en volúmenes de Docker. Los valores predeterminados son solo para demostración local; no uses esta configuración para publicar el sistema en Internet.
+
+### Requisitos para ejecución manual
 
 - Node.js v18 o superior y npm.
 - PostgreSQL v14 o superior en ejecución.
