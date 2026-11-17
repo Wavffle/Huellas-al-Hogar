@@ -8,6 +8,37 @@
 
 Esta rama contiene la interfaz de usuario desarrollada en **Ionic + React + TypeScript**, junto con la documentación de los requerimientos funcionales y no funcionales del proyecto.
 
+## Descripción general
+
+**Huellas al Hogar** es una plataforma web y móvil que fomenta la adopción y la tenencia responsable de animales. Conecta a rescatistas con personas que quieren adoptar y ofrece información preventiva sobre el abandono, el cuidado animal y las consecuencias de la proliferación de animales callejeros.
+
+## Problema que aborda
+
+El abandono de animales genera sobrepoblación en la calle, riesgos de salud y convivencia para la comunidad y sufrimiento animal. Faltan canales confiables que unan a quienes rescatan animales con quienes podrían adoptarlos, y falta información accesible sobre tenencia responsable. La justificación completa y las proto-personas están en la documentación de la entrega parcial 1 (rama `EP1 Documentacion`).
+
+## Objetivos
+
+- Facilitar el contacto entre rescatistas y adoptantes mediante publicaciones, filtros y solicitudes formales de adopción.
+- Educar sobre tenencia responsable y las consecuencias del abandono.
+- Ofrecer a rescatistas y administradores herramientas para gestionar publicaciones, solicitudes, usuarios y contenido.
+
+## Principales funcionalidades
+
+- Catálogo de animales con filtros, búsqueda por nombre y orden, que se conservan al volver.
+- Publicación de animales por pasos, con fotografías y vista previa.
+- Solicitud de adopción en 4 pasos y seguimiento de su estado.
+- Panel del rescatista con solicitudes recibidas, cambio de estado y avisos de nuevas solicitudes.
+- Panel de administración de usuarios, roles, publicaciones y contenido educativo.
+- Contenido educativo sobre tenencia responsable y consecuencias del abandono.
+
+## Tecnologías y herramientas
+
+Ionic 8, React 18, TypeScript, Vite 5, React Router v5, Axios (con interceptores) y Vitest. El backend usa Node.js, Express y PostgreSQL (rama `backend`).
+
+## Documentación de la entrega final
+
+La documentación global del proyecto (arquitectura, trazabilidad de requerimientos, escenarios de demostración, seguridad, optimización y limitaciones) está en [`docs/ENTREGA-FINAL.md`](docs/ENTREGA-FINAL.md). El detalle del servidor y la base de datos está en el [README del backend](https://github.com/Wavffle/Huellas-al-Hogar/blob/backend/README.md).
+
 ## Integrantes
 
 - Alonso Troncoso
@@ -55,6 +86,8 @@ frontend/
 | **RF-07** | Administrador | Gestión y moderación | Permite visualizar usuarios, asignar el rol de rescatista, moderar usuarios y eliminar publicaciones que incumplan las normas. |
 | **RF-08** | Adoptante | Historial de solicitudes | Permite consultar las solicitudes propias y su estado: pendiente, aprobada o rechazada. |
 | **RF-09** | Rescatista | Gestión de publicaciones | Permite editar o eliminar las publicaciones propias. |
+| **RF-10** | Rescatista / Administrador | Notificaciones de nuevas solicitudes | Avisa de las solicitudes de adopción nuevas mediante un correo, un contador de pendientes en el menú y avisos en pantalla al aprobar o rechazar. |
+| **RF-11** | Todos | Preferencias del catálogo guardadas | Conserva en el navegador los filtros y el orden del catálogo de animales para restaurarlos al volver. |
 
 ## Requerimientos no funcionales (RNF)
 
