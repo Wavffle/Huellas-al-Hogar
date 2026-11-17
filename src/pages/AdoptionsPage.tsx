@@ -21,13 +21,51 @@ import './AdoptionsPage.css';
 
 const PAGE_SIZE = 15;
 
+// Almacenamiento local: el catálogo recuerda los filtros y el orden elegidos (no el texto de búsqueda)
+const FILTERS_KEY = 'huellas.adopciones.filtros';
+const SORT_KEY = 'huellas.adopciones.orden';
+
+/** Lee los filtros guardados; ignora cualquier valor que no tenga la forma esperada. */
+function readStoredFilters(): Filters {
+    try {
+        const raw = localStorage.getItem(FILTERS_KEY);
+        if (!raw) return EMPTY_FILTERS;
+
+        const stored = JSON.parse(raw) as Record<string, unknown> | null;
+        const next: Record<string, unknown> = { ...EMPTY_FILTERS };
+
+        for (const [key, empty] of Object.entries(EMPTY_FILTERS)) {
+            const value = stored?.[key];
+            if (Array.isArray(empty)) {
+                if (Array.isArray(value) && value.every((v) => typeof v === 'string')) next[key] = value;
+            } else if (typeof empty === 'string' && typeof value === 'string') {
+                next[key] = value;
+            }
+        }
+        next.search = '';
+        return next as unknown as Filters;
+    } catch {
+        return EMPTY_FILTERS;
+    }
+}
+
+/** Lee el orden guardado; si no es uno de los válidos, usa "recientes". */
+function readStoredSort(): SortKey {
+    try {
+        const raw = localStorage.getItem(SORT_KEY);
+        return SORT_OPTIONS.find((o) => o.value === raw)?.value ?? 'recientes';
+    } catch {
+        return 'recientes';
+    }
+}
+
 export default function AdoptionsPage() {
     const [animals, setAnimals] = useState<AdoptionAnimal[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
-    const [sort, setSort] = useState<SortKey>('recientes');
+    const [filters, setFilters] = useState<Filters>(readStoredFilters);
+    const [sort, setSort] = useState<SortKey>(readStoredSort);
     const [page, setPage] = useState(1);
     const [filtersOpen, setFiltersOpen] = useState(false);
     const toolbarRef = useRef<HTMLDivElement>(null);
@@ -52,10 +90,27 @@ export default function AdoptionsPage() {
         loadAnimals();
     }, [loadAnimals]);
 
+    // Guarda los filtros y el orden cada vez que cambian
+    useEffect(() => {
+        try {
+            localStorage.setItem(FILTERS_KEY, JSON.stringify({ ...filters, search: '' }));
+            localStorage.setItem(SORT_KEY, sort);
+        } catch {
+            /* sin almacenamiento: simplemente no se recuerdan */
+        }
+    }, [filters, sort]);
+
     const cities = useMemo(
         () => Array.from(new Set(animals.map((a) => a.city))).sort((a, b) => a.localeCompare(b, 'es')),
         [animals],
     );
+
+    // Si la ciudad guardada ya no tiene animales, se quita para no dejar el catálogo vacío
+    useEffect(() => {
+        if (!loading && !error && filters.city && !cities.includes(filters.city)) {
+            setFilters((prev) => ({ ...prev, city: '' }));
+        }
+    }, [loading, error, cities, filters.city]);
 
     const results = useMemo(() => sortAnimals(filterAnimals(animals, filters), sort), [animals, filters, sort]);
     const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
