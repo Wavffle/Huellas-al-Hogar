@@ -1,6 +1,7 @@
 # Huellas al Hogar - `backend`
 
 Esta rama contiene el servidor desarrollado con **Node.js + Express** y la base de datos en **PostgreSQL**. Entrega una API REST con autenticación **JWT**, control de acceso por roles (administrador, rescatista y adoptante), subida de fotografías y la documentación de las pruebas realizadas. La interfaz que consume esta API está en la rama `frontend`.
+> **Entrega final:** la documentación general (arquitectura, progreso, trazabilidad y despliegue) está en [`docs/ENTREGA-FINAL.md`](https://github.com/Wavffle/Huellas-al-Hogar/blob/frontend/docs/ENTREGA-FINAL.md) de la rama `frontend`. Esta rama está marcada con la etiqueta `v1.0.0-backend`.
 
 ## Contenido de esta rama
 
@@ -103,7 +104,7 @@ PGPASSWORD= (la contraseña que usas para acceder a postgres)
 JWT_SECRET= (una clave aleatoria de al menos 32 caracteres)
 JWT_EXPIRES_IN=8h
 CORS_ORIGIN=http://localhost:5173
-RESEND_API_KEY= (clave de API de tu cuenta en resend.com)
+`RESEND_API_KEY` es la clave de la API de Resend y requiere crear una cuenta en resend.com; se usa para el correo de aviso de nuevas solicitudes (ver EF 5).
 ```
 Debes reemplazar los valores de PGDATABASE (si usaste otro nombre) y PGPASSWORD para que el .env funcione. El JWT_SECRET tiene una validación de 32 caracteres o más; si es más corto, el inicio de sesión y el registro no funcionarán. Para generar uno: `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`. `CORS_ORIGIN` es opcional: lista de orígenes permitidos separados por coma (por defecto `http://localhost:5173`). `RESEND_API_KEY` requiere crear una cuenta en resend.com.
 
@@ -171,7 +172,7 @@ El estado `EN_TRATAMIENTO` de la base de datos se muestra en la interfaz como "E
 | Método | Ruta | Acceso | Descripción |
 |---|---|---|---|
 | GET | `/api/solicitudes` | Token requerido | ADOPTANTE ve las propias; RESCATISTA ve las recibidas por sus animales; ADMIN ve todas. Incluye los datos del postulante y del animal. |
-| POST | `/api/solicitudes` | ADOPTANTE o RESCATISTA | Crea una solicitud para un animal disponible. No permite solicitar un animal propio ni postular más de una vez al mismo animal. |
+| POST | `/api/solicitudes` | ADOPTANTE o RESCATISTA | Crea una solicitud para un animal disponible. No permite solicitar un animal propio ni postular más de una vez al mismo animal. Al crearla, se envía un correo de aviso al rescatista dueño del animal.|
 | GET | `/api/solicitudes/:id` | Token requerido | Obtiene una solicitud si pertenece al usuario, al dueño del animal o si quien consulta es ADMIN. |
 | PATCH | `/api/solicitudes/:id` | RESCATISTA dueño del animal o ADMIN | Actualiza el estado de la solicitud según las transiciones permitidas (solo desde PENDIENTE hacia APROBADA o RECHAZADA). Al aprobarla, el animal pasa a "en proceso" y las demás solicitudes pendientes de ese animal se rechazan. |
 | DELETE | `/api/solicitudes/:id` | ADMIN | Elimina una solicitud. |
@@ -268,12 +269,19 @@ La plataforma implementa autenticación con JSON Web Tokens:
 - **Manejo seguro de credenciales**: las credenciales y la clave del JWT se leen desde variables de entorno (`.env`, que no se sube a git; solo se versiona `.env.example`). El servidor rechaza firmar tokens si `JWT_SECRET` falta o tiene menos de 32 caracteres. El inicio de sesión y el registro tienen un límite de intentos por IP (respuesta 429). El `JWT_SECRET` que estuvo versionado en el historial inicial del repositorio fue reemplazado por uno nuevo.
 - **Protección básica contra inyección SQL**: todas las consultas usan parámetros (`$1`, `$2`, ...) del paquete `pg`; ningún dato del usuario se concatena en el SQL.
 - **Validación de imágenes por contenido**: además del tipo declarado, se verifican los primeros bytes de cada archivo (JPEG, PNG o WebP); si alguno no es una imagen válida se descartan todos los de la petición y se responde 400.
-- **Cabeceras de seguridad**: el servidor usa `helmet`.
+- **Cabeceras de seguridad y CORS**: el servidor usa `helmet` para las cabeceras HTTP de seguridad, con la política de recursos cruzados en `cross-origin` para que el frontend pueda cargar las imágenes de `uploads/`. CORS es restrictivo: solo acepta los orígenes de `CORS_ORIGIN` (por defecto `http://localhost:5173`) y los encabezados `Content-Type` y `Authorization`.
 
 ## EP 2.7 - Pruebas funcionales
-- **Pruebas en Postman**: la colección `docs/api/Huellas-al-Hogar.postman_collection.json` contiene 80 peticiones con pruebas automáticas que verifican el código HTTP y la estructura JSON de cada respuesta. Cubre autenticación, roles, animales (incluidos sus filtros), solicitudes, contenidos educativos, bloques de contenido, usuarios y pruebas de seguridad (token inválido, inyección SQL, rutas protegidas, rescatista degradado que conserva un token anterior y archivo falso disfrazado de imagen). La petición del archivo falso usa `docs/pruebas/falsa.jpg` (un texto con extensión .jpg), que debe quedar seleccionado en el Body de esa petición. Para ejecutarla, importarla en Postman y usar "Run collection" (las instrucciones están en `docs/evidencias/README.md`).
+- **Pruebas en Postman**: la colección `docs/api/Huellas-al-Hogar.postman_collection.json` contiene 80 peticiones con pruebas automáticas que verifican el código HTTP y la estructura JSON de cada respuesta. Cubre autenticación, roles, animales (incluidos sus filtros), solicitudes, contenidos educativos, bloques de contenido, usuarios y pruebas de seguridad (token inválido, inyección SQL, rutas protegidas, rescatista degradado que conserva un token anterior y archivo falso disfrazado de imagen). La petición del archivo falso usa `docs/falsa.jpg` (un texto con extensión .jpg), que debe quedar seleccionado en el Body de esa petición. Para ejecutarla, importarla en Postman y usar "Run collection" (las instrucciones están en `docs/evidencias/README.md`).
 - **Documentación de endpoints**: `docs/api/API.md` describe cada endpoint con su método, ruta, rol requerido, cuerpo y respuestas posibles.
 - **Evidencia de pruebas**: las capturas están en `docs/evidencias/` y el video del flujo completo de la plataforma está en el siguiente enlace: [Enlace de Google Drive](https://drive.google.com/file/d/1iTrnilpy7mvVo4KkJhElS0W45Rq_eQJG/view?usp=sharing).
+
+## EF 5 - Integración con servicio externo (correo con Resend)
+Cuando un adoptante envía una solicitud de adopción, el backend envía un correo de aviso al rescatista dueño del animal usando la API de [Resend](https://resend.com). El correo indica el nombre del postulante y del animal e invita a revisar la solicitud en la plataforma.
+- **Código**: `src/services/email.service.js`, función `enviarCorreoSolicitud`.
+- **Configuración**: la variable de entorno `RESEND_API_KEY` (ver `.env.example`). La clave no se sube al repositorio.
+- **Manejo de errores**: si el envío falla, el error se registra en la consola del servidor y la solicitud se crea igualmente; el correo es una notificación y no bloquea el proceso.
+- **Limitación de la cuenta de prueba**: el correo se envía desde el dominio de pruebas de Resend (`onboarding@resend.dev`), que solo entrega mensajes al correo con el que se creó la cuenta de Resend. Para enviar a cualquier rescatista habría que verificar un dominio propio.
 
 ## ¿Cómo ejecutar este proyecto?
 Sigue los siguientes pasos:
