@@ -1,15 +1,12 @@
 {
   "info": {
+    "_postman_id": "d60b5c69-cb4c-4c7d-9190-eddfac6a6e43",
     "name": "Huellas al Hogar - Pruebas de la API (EP 2.7)",
+    "description": "Ejecutar con Collection Runner en orden. Antes: npm run seed (o ejecutar database/seed.sql) y, en la carpeta 2, seleccionar una foto en la petición \"Crear animal como rescatista\".",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Ejecutar con Collection Runner en orden. Antes: npm run seed (o ejecutar database/seed.sql) y, en la carpeta 2, seleccionar una foto en la petición \"Crear animal como rescatista\"."
+    "_exporter_id": "59201244",
+    "_collection_link": "https://go.postman.co/collection/59201244-d60b5c69-cb4c-4c7d-9190-eddfac6a6e43?source=collection_link"
   },
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:3000/api"
-    }
-  ],
   "item": [
     {
       "name": "1. Autenticación (EP 2.5 y 2.6)",
@@ -42,6 +39,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -49,9 +49,6 @@
                 "value": "application/json"
               }
             ],
-            "auth": {
-              "type": "noauth"
-            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"Usuario Postman\",\n  \"correo\": \"{{correoNuevo}}\",\n  \"password\": \"Clave12345\"\n}"
@@ -66,7 +63,8 @@
                 "registro"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Registro con correo repetido (409)",
@@ -85,6 +83,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -92,9 +93,6 @@
                 "value": "application/json"
               }
             ],
-            "auth": {
-              "type": "noauth"
-            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"Usuario Postman\",\n  \"correo\": \"{{correoNuevo}}\",\n  \"password\": \"Clave12345\"\n}"
@@ -109,7 +107,8 @@
                 "registro"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Registro con contraseña corta (400)",
@@ -128,6 +127,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -135,9 +137,6 @@
                 "value": "application/json"
               }
             ],
-            "auth": {
-              "type": "noauth"
-            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"Otro\",\n  \"correo\": \"otro@huellas.test\",\n  \"password\": \"123\"\n}"
@@ -152,7 +151,8 @@
                 "registro"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Registro con correo inválido (400)",
@@ -171,6 +171,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -178,9 +181,6 @@
                 "value": "application/json"
               }
             ],
-            "auth": {
-              "type": "noauth"
-            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"Otro\",\n  \"correo\": \"no-es-correo\",\n  \"password\": \"Clave12345\"\n}"
@@ -195,7 +195,8 @@
                 "registro"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Login administrador",
@@ -216,6 +217,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -223,9 +227,6 @@
                 "value": "application/json"
               }
             ],
-            "auth": {
-              "type": "noauth"
-            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"correo\": \"admin@huellas.test\",\n  \"password\": \"Admin1234\"\n}"
@@ -240,7 +241,8 @@
                 "login"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Login rescatista",
@@ -250,17 +252,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Código 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
-                  "const j = pm.response.json();",
-                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
-                  "pm.test('Rol RESCATISTA', () => pm.expect(j.data.usuario.rol).to.eql('RESCATISTA'));",
-                  "pm.collectionVariables.set('tokenRescatista', j.data.token);"
+                  "pm.test('Código 200', () => pm.response.to.have.status(200));\npm.test('Respuesta JSON', () => pm.response.to.be.json);\nconst j = pm.response.json();\npm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });\npm.test('Rol RESCATISTA', () => pm.expect(j.data.usuario.rol).to.eql('RESCATISTA'));\npm.collectionVariables.set('tokenRescatista', j.data.token);\npm.collectionVariables.set(\"rescatistaId\", j.data.usuario.id);"
                 ]
               }
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -268,12 +268,14 @@
                 "value": "application/json"
               }
             ],
-            "auth": {
-              "type": "noauth"
-            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"correo\": \"rescatista@huellas.test\",\n  \"password\": \"Rescata1234\"\n}"
+              "raw": "{\n  \"correo\": \"rescatista@huellas.test\",\n  \"password\": \"Rescata1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
@@ -285,7 +287,8 @@
                 "login"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Login adoptante",
@@ -306,6 +309,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -313,9 +319,6 @@
                 "value": "application/json"
               }
             ],
-            "auth": {
-              "type": "noauth"
-            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"correo\": \"adoptante@huellas.test\",\n  \"password\": \"Adopta1234\"\n}"
@@ -330,7 +333,8 @@
                 "login"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Login con contraseña incorrecta (401)",
@@ -349,6 +353,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -356,9 +363,6 @@
                 "value": "application/json"
               }
             ],
-            "auth": {
-              "type": "noauth"
-            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"correo\": \"admin@huellas.test\",\n  \"password\": \"incorrecta\"\n}"
@@ -373,7 +377,8 @@
                 "login"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Login sin datos (400)",
@@ -392,6 +397,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -399,9 +407,6 @@
                 "value": "application/json"
               }
             ],
-            "auth": {
-              "type": "noauth"
-            },
             "body": {
               "mode": "raw",
               "raw": "{}"
@@ -416,7 +421,8 @@
                 "login"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Renovar sesión",
@@ -436,8 +442,6 @@
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -448,6 +452,8 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/renovar",
               "host": [
@@ -458,7 +464,8 @@
                 "renovar"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Renovar sin token (401)",
@@ -477,11 +484,11 @@
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "POST",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/renovar",
               "host": [
@@ -492,7 +499,8 @@
                 "renovar"
               ]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -517,11 +525,11 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/animales",
               "host": [
@@ -531,7 +539,160 @@
                 "animales"
               ]
             }
-          }
+          },
+          "response": []
+        },
+        {
+          "name": "Filtrar animales por especie (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Filtra por especie (200)\", () => {\n  pm.response.to.have.status(200);\n  const animales = pm.response.json().data;\n  pm.expect(animales).to.be.an(\"array\");\n  animales.forEach(a => pm.expect(a.especie.toLowerCase()).to.eql(\"perro\"));\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/animales?especie=Perro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales"
+              ],
+              "query": [
+                {
+                  "key": "especie",
+                  "value": "Perro"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filtrar animales por especie y tamaño (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Combina filtros (200)\", () => {\n  pm.response.to.have.status(200);\n  const animales = pm.response.json().data;\n  pm.expect(animales).to.be.an(\"array\");\n  animales.forEach(a => {\n    pm.expect(a.especie.toLowerCase()).to.eql(\"perro\");\n    pm.expect(a.tamanho).to.eql(\"GRANDE\");\n  });\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/animales?especie=Perro&tamanho=GRANDE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales"
+              ],
+              "query": [
+                {
+                  "key": "especie",
+                  "value": "Perro"
+                },
+                {
+                  "key": "tamanho",
+                  "value": "GRANDE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filtrar animales por tamaño inválido (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Tamaño inválido (400)\", () => {\n  pm.response.to.have.status(400);\n  const error = pm.response.json().error;\n  pm.expect(error.allowedValues).to.be.an(\"array\");\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/animales?tamanho=ENORME",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales"
+              ],
+              "query": [
+                {
+                  "key": "tamanho",
+                  "value": "ENORME"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filtrar animales sin coincidencias (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Sin coincidencias devuelve lista vacía (200)\", () => {\n  pm.response.to.have.status(200);\n  pm.expect(pm.response.json().data).to.eql([]);\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/animales?especie=NoExiste",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales"
+              ],
+              "query": [
+                {
+                  "key": "especie",
+                  "value": "NoExiste"
+                }
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Crear animal sin token (401)",
@@ -550,11 +711,11 @@
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "POST",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/animales",
               "host": [
@@ -564,7 +725,8 @@
                 "animales"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Crear animal como adoptante (403)",
@@ -583,8 +745,6 @@
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -595,6 +755,8 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/animales",
               "host": [
@@ -604,7 +766,8 @@
                 "animales"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Crear animal como rescatista (selecciona una foto en \"fotos\")",
@@ -614,19 +777,12 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Código 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Respuesta JSON', () => pm.response.to.be.json);",
-                  "const j = pm.response.json();",
-                  "pm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });",
-                  "pm.test('Queda EN_ADOPCION y con fotos', () => { pm.expect(j.data.estado).to.eql('EN_ADOPCION'); pm.expect(j.data.fotos.length).to.be.above(0); });",
-                  "pm.collectionVariables.set('animalId', j.data.id);"
+                  "pm.test('Código 201', () => pm.response.to.have.status(201));\npm.test('Respuesta JSON', () => pm.response.to.be.json);\nconst j = pm.response.json();\npm.test('Estructura de éxito: success=true y message', () => { pm.expect(j.success).to.eql(true); pm.expect(j.message).to.be.a('string'); });\npm.test('Queda EN_ADOPCION y con fotos', () => { pm.expect(j.data.estado).to.eql('EN_ADOPCION'); pm.expect(j.data.fotos.length).to.be.above(0); });\npm.collectionVariables.set('animalId', j.data.id);"
                 ]
               }
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -637,6 +793,8 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [],
             "body": {
               "mode": "formdata",
               "formdata": [
@@ -703,7 +861,9 @@
                 {
                   "key": "fotos",
                   "type": "file",
-                  "src": []
+                  "src": [
+                    "cat.jpg"
+                  ]
                 }
               ]
             },
@@ -716,7 +876,8 @@
                 "animales"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Crear animal sin fotos (400)",
@@ -735,8 +896,6 @@
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -747,6 +906,8 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [],
             "body": {
               "mode": "formdata",
               "formdata": [
@@ -771,7 +932,8 @@
                 "animales"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Detalle de animal",
@@ -791,11 +953,11 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/animales/{{animalId}}",
               "host": [
@@ -806,7 +968,8 @@
                 "{{animalId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Detalle con id inválido (400)",
@@ -825,11 +988,11 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/animales/abc",
               "host": [
@@ -840,7 +1003,8 @@
                 "abc"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Detalle de animal inexistente (404)",
@@ -859,11 +1023,11 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/animales/999999",
               "host": [
@@ -874,7 +1038,8 @@
                 "999999"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Mis publicaciones (rescatista)",
@@ -894,8 +1059,6 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -906,6 +1069,8 @@
                 }
               ]
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/animales/mios",
               "host": [
@@ -916,7 +1081,8 @@
                 "mios"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Mis publicaciones como adoptante (403)",
@@ -935,8 +1101,6 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -947,6 +1111,8 @@
                 }
               ]
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/animales/mios",
               "host": [
@@ -957,7 +1123,8 @@
                 "mios"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Editar animal (dueño)",
@@ -977,13 +1144,6 @@
             }
           ],
           "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -994,6 +1154,13 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"descripcion\": \"Descripción editada desde Postman\"\n}"
@@ -1008,7 +1175,8 @@
                 "{{animalId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Editar animal como adoptante (403)",
@@ -1027,13 +1195,6 @@
             }
           ],
           "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1044,6 +1205,13 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"descripcion\": \"x\"\n}"
@@ -1058,7 +1226,8 @@
                 "{{animalId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Editar con campo no permitido (400)",
@@ -1077,13 +1246,6 @@
             }
           ],
           "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1094,6 +1256,13 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"usuario_id\": 1\n}"
@@ -1108,7 +1277,8 @@
                 "{{animalId}}"
               ]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -1141,13 +1311,6 @@
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1158,6 +1321,13 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{}"
@@ -1171,7 +1341,8 @@
                 "solicitudes"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Solicitar sin token (401)",
@@ -1190,6 +1361,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -1197,9 +1371,6 @@
                 "value": "application/json"
               }
             ],
-            "auth": {
-              "type": "noauth"
-            },
             "body": {
               "mode": "raw",
               "raw": "{}"
@@ -1213,7 +1384,8 @@
                 "solicitudes"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Solicitar con datos incompletos (400)",
@@ -1233,13 +1405,6 @@
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1250,6 +1415,13 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"animal_id\": 1\n}"
@@ -1263,7 +1435,8 @@
                 "solicitudes"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Crear solicitud como adoptante",
@@ -1295,13 +1468,6 @@
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1312,6 +1478,13 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{}"
@@ -1325,7 +1498,8 @@
                 "solicitudes"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Solicitud duplicada (409)",
@@ -1353,13 +1527,6 @@
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1370,6 +1537,13 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{}"
@@ -1383,7 +1557,8 @@
                 "solicitudes"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Mis solicitudes (adoptante)",
@@ -1403,8 +1578,6 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1415,6 +1588,8 @@
                 }
               ]
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/solicitudes?mias=true",
               "host": [
@@ -1430,7 +1605,8 @@
                 }
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Solicitudes recibidas (rescatista)",
@@ -1450,8 +1626,6 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1462,6 +1636,8 @@
                 }
               ]
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/solicitudes",
               "host": [
@@ -1471,7 +1647,8 @@
                 "solicitudes"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Detalle de solicitud (rescatista dueño)",
@@ -1490,8 +1667,6 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1502,6 +1677,8 @@
                 }
               ]
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/solicitudes/{{solicitudId}}",
               "host": [
@@ -1512,7 +1689,8 @@
                 "{{solicitudId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Listar solicitudes sin token (401)",
@@ -1531,11 +1709,11 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/solicitudes",
               "host": [
@@ -1545,7 +1723,8 @@
                 "solicitudes"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Aprobar como adoptante (403)",
@@ -1564,13 +1743,6 @@
             }
           ],
           "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1581,6 +1753,13 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"estado\": \"APROBADA\"\n}"
@@ -1595,7 +1774,8 @@
                 "{{solicitudId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Estado inválido (409)",
@@ -1614,13 +1794,6 @@
             }
           ],
           "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1631,6 +1804,13 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"estado\": \"PENDIENTE\"\n}"
@@ -1645,7 +1825,8 @@
                 "{{solicitudId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Aprobar solicitud (rescatista dueño)",
@@ -1665,13 +1846,6 @@
             }
           ],
           "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1682,6 +1856,13 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"estado\": \"APROBADA\"\n}"
@@ -1696,7 +1877,8 @@
                 "{{solicitudId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Aprobar de nuevo (409)",
@@ -1715,13 +1897,6 @@
             }
           ],
           "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1732,6 +1907,13 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"estado\": \"APROBADA\"\n}"
@@ -1746,7 +1928,8 @@
                 "{{solicitudId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "El animal quedó \"En proceso\"",
@@ -1766,11 +1949,11 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/animales/{{animalId}}",
               "host": [
@@ -1781,7 +1964,8 @@
                 "{{animalId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Solicitar animal en proceso (409)",
@@ -1809,13 +1993,6 @@
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1826,6 +2003,13 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{}"
@@ -1839,7 +2023,8 @@
                 "solicitudes"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Marcar animal como adoptado",
@@ -1859,13 +2044,6 @@
             }
           ],
           "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1876,6 +2054,13 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"estado\": \"ADOPTADO\"\n}"
@@ -1890,7 +2075,8 @@
                 "{{animalId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Animal adoptado oculto para visitantes (404)",
@@ -1909,11 +2095,11 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/animales/{{animalId}}",
               "host": [
@@ -1924,7 +2110,8 @@
                 "{{animalId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Animal adoptado visible para su dueño",
@@ -1943,8 +2130,6 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1955,6 +2140,8 @@
                 }
               ]
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/animales/{{animalId}}",
               "host": [
@@ -1965,7 +2152,8 @@
                 "{{animalId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Eliminar solicitud como rescatista (403)",
@@ -1984,8 +2172,6 @@
             }
           ],
           "request": {
-            "method": "DELETE",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -1996,6 +2182,8 @@
                 }
               ]
             },
+            "method": "DELETE",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/solicitudes/{{solicitudId}}",
               "host": [
@@ -2006,7 +2194,8 @@
                 "{{solicitudId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Eliminar solicitud como admin",
@@ -2025,8 +2214,6 @@
             }
           ],
           "request": {
-            "method": "DELETE",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2037,6 +2224,8 @@
                 }
               ]
             },
+            "method": "DELETE",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/solicitudes/{{solicitudId}}",
               "host": [
@@ -2047,7 +2236,8 @@
                 "{{solicitudId}}"
               ]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -2072,11 +2262,11 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/contenidos-educativos",
               "host": [
@@ -2086,7 +2276,113 @@
                 "contenidos-educativos"
               ]
             }
-          }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar bloques de contenido (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Lista los bloques de contenido (200)\", () => {\n  pm.response.to.have.status(200);\n  const bloques = pm.response.json().data;\n  pm.expect(bloques).to.be.an(\"array\").that.is.not.empty;\n  bloques.forEach(b => {\n    pm.expect(b).to.have.property(\"seccion\");\n    pm.expect(b).to.have.property(\"texto\");\n  });\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bloques-contenido",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bloques-contenido"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filtrar bloques por sección (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Filtra por sección (200)\", () => {\n  pm.response.to.have.status(200);\n  const bloques = pm.response.json().data;\n  pm.expect(bloques).to.have.lengthOf(5);\n  bloques.forEach(b => pm.expect(b.seccion).to.eql(\"CUIDADOS\"));\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bloques-contenido?seccion=CUIDADOS",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bloques-contenido"
+              ],
+              "query": [
+                {
+                  "key": "seccion",
+                  "value": "CUIDADOS"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sección inválida (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Sección inválida (400)\", () => {\n  pm.response.to.have.status(400);\n  pm.expect(pm.response.json().error.allowedValues).to.be.an(\"array\");\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bloques-contenido?seccion=NOEXISTE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bloques-contenido"
+              ],
+              "query": [
+                {
+                  "key": "seccion",
+                  "value": "NOEXISTE"
+                }
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Crear contenido sin token (401)",
@@ -2105,6 +2401,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -2112,9 +2411,6 @@
                 "value": "application/json"
               }
             ],
-            "auth": {
-              "type": "noauth"
-            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"titulo\": \"x\",\n  \"categoria\": \"x\",\n  \"contenido\": \"x\"\n}"
@@ -2128,7 +2424,8 @@
                 "contenidos-educativos"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Crear contenido como rescatista (403)",
@@ -2147,13 +2444,6 @@
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2164,6 +2454,13 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"titulo\": \"x\",\n  \"categoria\": \"x\",\n  \"contenido\": \"x\"\n}"
@@ -2177,7 +2474,8 @@
                 "contenidos-educativos"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Crear contenido con datos inválidos (400)",
@@ -2196,13 +2494,6 @@
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2213,6 +2504,13 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"titulo\": \"\"\n}"
@@ -2226,7 +2524,8 @@
                 "contenidos-educativos"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Crear contenido como admin",
@@ -2246,13 +2545,6 @@
             }
           ],
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2263,6 +2555,13 @@
                 }
               ]
             },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"titulo\": \"Cuidados básicos (Postman)\",\n  \"categoria\": \"Tenencia responsable\",\n  \"contenido\": \"Agua limpia, alimentación adecuada y controles veterinarios.\"\n}"
@@ -2276,7 +2575,8 @@
                 "contenidos-educativos"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Detalle de contenido",
@@ -2295,11 +2595,11 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/contenidos-educativos/{{contenidoId}}",
               "host": [
@@ -2310,7 +2610,8 @@
                 "{{contenidoId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Filtrar por categoría",
@@ -2329,11 +2630,11 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/contenidos-educativos?categoria=Tenencia responsable",
               "host": [
@@ -2349,7 +2650,8 @@
                 }
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Editar contenido",
@@ -2369,13 +2671,6 @@
             }
           ],
           "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2386,6 +2681,13 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"titulo\": \"Cuidados básicos editado\"\n}"
@@ -2400,7 +2702,8 @@
                 "{{contenidoId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Eliminar contenido",
@@ -2419,8 +2722,6 @@
             }
           ],
           "request": {
-            "method": "DELETE",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2431,6 +2732,8 @@
                 }
               ]
             },
+            "method": "DELETE",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/contenidos-educativos/{{contenidoId}}",
               "host": [
@@ -2441,7 +2744,8 @@
                 "{{contenidoId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Contenido eliminado (404)",
@@ -2460,11 +2764,11 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/contenidos-educativos/{{contenidoId}}",
               "host": [
@@ -2475,7 +2779,8 @@
                 "{{contenidoId}}"
               ]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -2500,8 +2805,6 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2512,6 +2815,8 @@
                 }
               ]
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/usuarios",
               "host": [
@@ -2521,7 +2826,8 @@
                 "usuarios"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Buscar usuarios (?q=)",
@@ -2540,8 +2846,6 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2552,6 +2856,8 @@
                 }
               ]
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/usuarios?q=huellas",
               "host": [
@@ -2567,7 +2873,8 @@
                 }
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Listar usuarios como rescatista (403)",
@@ -2586,8 +2893,6 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2598,6 +2903,8 @@
                 }
               ]
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/usuarios",
               "host": [
@@ -2607,7 +2914,8 @@
                 "usuarios"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Listar usuarios sin token (401)",
@@ -2626,11 +2934,11 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/usuarios",
               "host": [
@@ -2640,7 +2948,8 @@
                 "usuarios"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Asignar rol RESCATISTA al usuario nuevo",
@@ -2660,13 +2969,6 @@
             }
           ],
           "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2677,6 +2979,13 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"rol\": \"RESCATISTA\"\n}"
@@ -2692,7 +3001,8 @@
                 "rol"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Rol inválido (400)",
@@ -2711,13 +3021,6 @@
             }
           ],
           "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2728,6 +3031,13 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"rol\": \"SUPERUSUARIO\"\n}"
@@ -2743,7 +3053,8 @@
                 "rol"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Usuario inexistente (404)",
@@ -2762,13 +3073,6 @@
             }
           ],
           "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2779,6 +3083,13 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"rol\": \"ADOPTANTE\"\n}"
@@ -2794,7 +3105,8 @@
                 "rol"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Cambiar rol como adoptante (403)",
@@ -2813,13 +3125,6 @@
             }
           ],
           "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2830,6 +3135,13 @@
                 }
               ]
             },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"rol\": \"ADMIN\"\n}"
@@ -2845,7 +3157,8 @@
                 "rol"
               ]
             }
-          }
+          },
+          "response": []
         }
       ]
     },
@@ -2878,8 +3191,6 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2890,6 +3201,8 @@
                 }
               ]
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/animales/mios",
               "host": [
@@ -2900,7 +3213,8 @@
                 "mios"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Intento de inyección SQL en el login (401)",
@@ -2920,6 +3234,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [
               {
@@ -2927,9 +3244,6 @@
                 "value": "application/json"
               }
             ],
-            "auth": {
-              "type": "noauth"
-            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"correo\": \"' OR '1'='1\",\n  \"password\": \"' OR '1'='1\"\n}"
@@ -2944,7 +3258,8 @@
                 "login"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Intento de inyección SQL en el buscador (200 sin error)",
@@ -2964,8 +3279,6 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -2976,6 +3289,8 @@
                 }
               ]
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/usuarios?q=';DROP TABLE usuarios;--",
               "host": [
@@ -2991,7 +3306,8 @@
                 }
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Ruta inexistente (404)",
@@ -3010,11 +3326,11 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "noauth"
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/ruta-que-no-existe",
               "host": [
@@ -3024,7 +3340,293 @@
                 "ruta-que-no-existe"
               ]
             }
-          }
+          },
+          "response": []
+        },
+        {
+          "name": "Degradar rescatista a adoptante (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rol cambiado a ADOPTANTE (200)\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"rol\": \"ADOPTANTE\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{rescatistaId}}/rol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{rescatistaId}}",
+                "rol"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Rescatista degradado no puede crear animales (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rescatista degradado no puede crear animales (403)\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/animales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Restaurar rescatista (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rescatista restaurado vuelve a tener acceso (200)\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"rol\": \"RESCATISTA\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{rescatistaId}}/rol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{rescatistaId}}",
+                "rol"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Rescatista restaurado vuelve a tener acceso (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Rescatista restaurado vuelve a tener acceso (200)\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/animales/mios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales",
+                "mios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subir archivo falso como imagen (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Archivo falso disfrazado de imagen (400)\", () => {\n  pm.response.to.have.status(400);\n  pm.expect(pm.response.json().error.message).to.include(\"imagen\");\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenRescatista}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "nombre",
+                  "value": "Postman Firulais",
+                  "type": "text"
+                },
+                {
+                  "key": "especie",
+                  "value": "perro",
+                  "type": "text"
+                },
+                {
+                  "key": "sexo",
+                  "value": "Macho",
+                  "type": "text"
+                },
+                {
+                  "key": "tamanho",
+                  "value": "Mediano",
+                  "type": "text"
+                },
+                {
+                  "key": "edad",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "edad_meses",
+                  "value": "24",
+                  "type": "text"
+                },
+                {
+                  "key": "ciudad",
+                  "value": "Valparaíso",
+                  "type": "text"
+                },
+                {
+                  "key": "rescate",
+                  "value": "RESCATE",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Animal de prueba creado desde Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "vacunas_estado",
+                  "value": "AL_DIA",
+                  "type": "text"
+                },
+                {
+                  "key": "esterilizado",
+                  "value": "SI",
+                  "type": "text"
+                },
+                {
+                  "key": "etiquetas",
+                  "value": "Juguetón,Cariñoso",
+                  "type": "text"
+                },
+                {
+                  "key": "fotos",
+                  "type": "file",
+                  "src": [
+                    "/C:/Users/Benjamin/Documents/Universidad/Ingenieria Web y Movil/Huellas al Hogar/Huellas-al-Hogar-backend/docs/falsa.jpg"
+                  ]
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/animales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "animales"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -3048,8 +3650,6 @@
             }
           ],
           "request": {
-            "method": "DELETE",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -3060,6 +3660,8 @@
                 }
               ]
             },
+            "method": "DELETE",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/animales/{{animalId}}",
               "host": [
@@ -3070,7 +3672,8 @@
                 "{{animalId}}"
               ]
             }
-          }
+          },
+          "response": []
         },
         {
           "name": "Animal eliminado (404)",
@@ -3089,8 +3692,6 @@
             }
           ],
           "request": {
-            "method": "GET",
-            "header": [],
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -3101,6 +3702,8 @@
                 }
               ]
             },
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/animales/{{animalId}}",
               "host": [
@@ -3111,9 +3714,60 @@
                 "{{animalId}}"
               ]
             }
-          }
+          },
+          "response": []
         }
       ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "correoNuevo",
+      "value": ""
+    },
+    {
+      "key": "usuarioNuevoId",
+      "value": ""
+    },
+    {
+      "key": "tokenAdmin",
+      "value": ""
+    },
+    {
+      "key": "tokenRescatista",
+      "value": ""
+    },
+    {
+      "key": "tokenAdoptante",
+      "value": ""
+    },
+    {
+      "key": "animalId",
+      "value": ""
+    },
+    {
+      "key": "cuerpoSolicitud",
+      "value": ""
+    },
+    {
+      "key": "solicitudId",
+      "value": ""
+    },
+    {
+      "key": "contenidoId",
+      "value": ""
+    },
+    {
+      "key": "tokenFalso",
+      "value": ""
+    },
+    {
+      "key": "rescatistaId",
+      "value": ""
     }
   ]
 }
