@@ -146,3 +146,5 @@ vite.config.ts.timestamp-*
 *.iml
 uploads/*
 !uploads/README.md
+
+estructura.txt
